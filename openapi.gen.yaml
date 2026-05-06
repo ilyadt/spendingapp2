@@ -1,0 +1,293 @@
+openapi: "3.0.0"
+info:
+  title: Budget API
+  version: 1.0.0
+  description: API для записей трат по бюджетам
+  contact:
+   name: ilya
+   email: ilya_dt@proton.me
+servers:
+  - url: http://localhost:80
+    description: local
+tags:
+ - name: api
+paths:
+  /budgets/spendings:
+    get:
+      summary: Получение трат по всем бюджетам
+      operationId: getBudgetsWithSpendings
+      description: Получение трат по всем бюджетам
+      tags: ['api']
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetsWithSpendingsResponse'
+  /budgets/spendings/bulk:
+    post:
+      summary: Обновление расходов по бюджету
+      operationId: updateBudgetSpendings
+      description: Обновление расходов по бюджету
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSpendingsBulkRequest'
+      tags: ['api']
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateSpendingsErrorsResponse'
+        '400':
+          description: errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateSpendingsErrorsResponse'
+components:
+  schemas:
+    Budget:
+     properties:
+       id:
+         type: integer
+       alias:
+         type: string
+         description: Для отображения внизу под вкладками
+       name:
+         type: string
+         description: полное название бюджета
+       sort:
+         type: integer
+         format: uint64
+         description: сортировка бюджетов
+       description:
+         type: string
+         description: описание назначения бюджета, какие-то комментарии
+         x-go-type-skip-optional-pointer: true
+       money:
+        $ref: '#/components/schemas/Money'
+       dateFrom:
+         type: string
+         format: date
+       dateTo:
+         type: string
+         format: date
+       params:
+         type: object
+         description: json формат дополнительных параметров для отображения
+         additionalProperties: true
+     required:
+      - id
+      - alias
+      - name
+      - sort
+      - money
+      - dateFrom
+      - dateTo
+      - params
+    Money:
+      properties:
+        amount:
+          type: integer
+          format: int64
+        fraction:
+          type: integer
+        currency:
+          type: string
+      required:
+        - amount
+        - fraction
+        - currency
+    Spending:
+      properties:
+        id:
+          type: string
+        date:
+          type: string
+          format: date
+        sort:
+          type: integer
+          format: uint64
+        money:
+          $ref: '#/components/schemas/Money'
+        description:
+          type: string
+        createdAt:
+           type: string
+           format: date-time
+        updatedAt:
+           type: string
+           format: date-time
+        version:
+           description: версионирование изменений записи (во избежания перетирания чужих изменений)
+           type: string
+           example: '039dhafc'
+        versions:
+          description: все версии c первой по последнюю
+          type: array
+          items:
+            type: string
+        receiptGroupId:
+          description: Объединение траты в один чек
+          type: integer
+          format: uint64
+          x-go-type-skip-optional-pointer: true
+      required:
+        - id
+        - date
+        - sort
+        - money
+        - description
+        - createdAt
+        - updatedAt
+        - version
+        - versions
+    SpendingsByBudget:
+      properties:
+        budgetId:
+          type: integer
+        spendings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Spending'
+      required: ['budgetId', 'spendings']
+    BudgetsWithSpendingsResponse:
+       properties:
+        budgets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Budget'
+        spendings:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpendingsByBudget'
+       required: ['budgets', 'spendings']
+    UpdateSpendingsBulkRequest:
+      properties:
+        updates:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpendingEvent'
+      required: ['updates']
+    UpdateSpendingsErrorsResponse:
+      properties:
+        generalError:
+          type: string
+          description: общая ошибка в запросе
+          x-go-type-skip-optional-pointer: true
+        success:
+          type: array
+          items:
+            type: string
+            description: id события
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/UpdateSpendingsError'
+      required: ['success', 'errors']
+    UpdateSpendingsError:
+      properties:
+        number:
+          type: integer
+          description: порядковый номер события
+        eventId:
+          type: string
+        error:
+          type: string
+      required: ['number', 'eventId', 'error']
+    SpendingEvent:
+      properties:
+        eventId:
+          type: string
+          description: уникальный идентификатор события обновления
+        dateTime:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum:
+            - create
+            - update
+            - delete
+        budgetId:
+          description: бюджет
+          type: integer
+        spendingId:
+          type: string
+        newVersion:
+           description: новая версия записи
+           type: string
+           example: '039dhafc'
+        createData:
+          $ref: '#/components/schemas/SpendingCreateData'
+        updateData:
+          $ref: '#/components/schemas/SpendingUpdateData'
+        deleteData:
+          $ref: '#/components/schemas/SpendingDeleteData'
+      required:
+        - eventId
+        - dateTime
+        - type
+        - spendingId
+        - newVersion
+        - budgetId
+    SpendingCreateData:
+      description: Данные только, если тип события 'create'
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        sort:
+          type: integer
+          format: uint64
+        money:
+          $ref: '#/components/schemas/Money'
+        description:
+          type: string
+        receiptGroupId:
+          type: integer
+          format: uint64
+          x-go-type-skip-optional-pointer: true
+      required:
+        - date
+        - sort
+        - money
+        - description
+    SpendingUpdateData:
+      properties:
+        prevVersion:
+          description: предыдущая версия записи
+          type: string
+        date:
+          type: string
+          format: date
+        sort:
+          type: integer
+          format: uint64
+        money:
+          $ref: '#/components/schemas/Money'
+        description:
+          type: string
+        receiptGroupId:
+          type: integer
+          format: uint64
+          x-go-type-skip-optional-pointer: true
+      required:
+        - date
+        - sort
+        - money
+        - description
+        - prevVersion
+    SpendingDeleteData:
+      properties:
+        prevVersion:
+          description: предыдущая версия записи
+          type: string
+      required:
+        - prevVersion
