@@ -1,0 +1,12 @@
+.fixed-row {
+    height: 30px;
+    min-height: 30px;
+    max-height: 30px;
+    overflow: hidden;
+}
+
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
