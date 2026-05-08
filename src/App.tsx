@@ -3,6 +3,7 @@ import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
+import SpendingTable from "@src/components/SpendingTable.tsx";
 
 function App() {
   const [count, setCount] = useState(0)
@@ -31,6 +32,7 @@ function App() {
       </section>
 
       <div className="ticks"></div>
+      <SpendingTable date={new Date()} spendings={[]} showBudgetCol={false} />
 
       <section id="next-steps">
         <div id="docs">
