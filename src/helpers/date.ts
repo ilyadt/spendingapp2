@@ -25,6 +25,21 @@ export function dateRange(dateFrom: Date, dateTo: Date): Date[] {
   return dates
 }
 
+export function dateRangePlusFromItems(dateFrom: Date, dateTo: Date, items: {date: Date}[]): string[] {
+  const dateSet = new Set<string>()
+  const current = new Date(dateFrom)
+  while (current <= dateTo) {
+    dateSet.add(dateISO(current))
+    current.setDate(current.getDate() + 1)
+  }
+
+  for (const item of items) {
+    dateSet.add(dateISO(item.date))
+  }
+
+  return [...dateSet].sort((a, b) => a.localeCompare(b))
+}
+
 export function dayName(d: Date): string {
   const dayNames = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб']
 
