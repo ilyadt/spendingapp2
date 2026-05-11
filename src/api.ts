@@ -31,8 +31,7 @@ export const Fetcher = {
   },
 
   async fetchAndStore() {
-    // TODO: localhost to var
-    const client = createApiClient('http://localhost')
+    const client = createApiClient(import.meta.env.VITE_SERVER_URL)
     const status = useStatusStore.getState()
     const conflictVersions = useConflictVersionStore.getState()
 
@@ -174,8 +173,7 @@ export const Uploader = {
   },
 
   async sendEvents(events: ApiSpendingEvent[]): Promise<{ success: ApiSpendingEvent[]; conflict: ApiSpendingEvent[], errors: ApiUploadError[] }> {
-    // TODO: localhost to var
-    const client = createApiClient('http://localhost')
+    const client = createApiClient(import.meta.env.VITE_SERVER_URL)
     const statusStore = useStatusStore.getState()
 
     try {
