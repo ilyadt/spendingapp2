@@ -8,12 +8,16 @@ import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
 import SpendingTable from '@src/components/SpendingTable'
 import {useState,type SubmitEvent} from "react";
 import styles from './BudgetView.module.css'
+import {useParams} from "react-router";
 
 type Props = {
-  budget: Budget
+  budgets: Budget[]
 }
 
-export function BudgetView({budget}: Props) {
+export function BudgetView({budgets}: Props) {
+  const {budgetId}= useParams()
+  const budget = budgets.find(b => b.id === Number(budgetId))!;
+
   const [spendings, setSpendings] = useState<Spending[]>(Facade.spendingsByBudgetId(budget.id))
 
   let moneyLeft = budget.money

@@ -19,7 +19,7 @@ interface TemplateBudget {
   showPerDay: boolean
 }
 
-export function BudgetOverview({
+export default function HomeView({
   budgets,
 }: Props) {
   const todayDate = new Date()
