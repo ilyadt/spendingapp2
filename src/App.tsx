@@ -1,4 +1,3 @@
-import './App.css'
 import {Facade} from "@src/facade.ts";
 import StatusBar from "@src/components/StatusBar.tsx";
 import HomeView from "@src/components/views/HomeView.tsx";
@@ -9,6 +8,7 @@ import {ErrorsView} from "@src/components/views/ErrorsView.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHome} from "@fortawesome/free-solid-svg-icons/faHome";
 import clsx from "clsx";
+import styles from './App.module.css'
 
 function App() {
   const budgets = Facade.getBudgets()
@@ -30,41 +30,42 @@ function App() {
       <div style={{height: '80px'}}></div>
 
       { /* Нижняя навигация */}
-      <nav className="navbar navbar-custom fixed-bottom navbar-light bg-light border-top nav-scroll p-0">
+      <nav className={`${styles.navbarCustom} fixed-bottom navbar-light bg-light border-top ${styles.navScroll} p-0`}>
         <ul className="nav flex-nowrap">
-          <li className="btn-style" style={{padding: "0px 5px 0 10px"}}>
+          <li className={ styles.btnStyle }>
             <NavLink
               to="/"
-              className={({isActive}) => clsx('nav-link', isActive && 'active')}
+              style={{padding: "0px 5px 0 10px"}}
+              className={({isActive}) => clsx(styles.navLink, isActive && styles.active)}
             >
               <FontAwesomeIcon icon={faHome}/>
             </NavLink>
           </li>
 
-          <li className="btn-style">
+          <li className={ styles.btnStyle }>
             <NavLink
               to="/cross-budget"
-              className={({isActive}) => clsx('nav-link', isActive && 'active')}
+              className={({isActive}) => clsx(styles.navLink, isActive && styles.active)}
             >
               cross
             </NavLink>
           </li>
 
           {budgets.map((b) => (
-            <li key={b.id} className="btn-style">
+            <li key={b.id} className={ styles.btnStyle }>
               <NavLink
                 to={`/budget/${b.id}`}
-                className={({isActive}) => clsx('nav-link', isActive && 'active')}
+                className={({isActive}) => clsx(styles.navLink, isActive && styles.active)}
               >
                 {b.alias}
               </NavLink>
             </li>
           ))}
 
-          <li className="btn-style">
+          <li className={ [styles.btnStyle, styles.navItemLast].join(' ') }>
             <NavLink
               to="/errors"
-              className={({isActive}) => clsx('nav-link', isActive && 'active')}
+              className={({isActive}) => clsx(styles.navLink, isActive && styles.active)}
             >
               Errs
             </NavLink>
