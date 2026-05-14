@@ -102,7 +102,7 @@ interface BudgetSpendingsStoreInterface {
   setStatusApplied(bid: number, spId: string, version: string): void
 
   // Если произошел конфликт обновления (обновление не может быть применено), то удаляем эту версию из Storage,
-  // возвращая удаленные(не примененные) версии
+  // возвращая удаленные (не примененные) версии
   revokeConflictVersion(bid: number, spId: string, version: string): ConflictVersion[]
 }
 
@@ -219,7 +219,7 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
       throw new Error('spending cannot be changed')
     }
 
-    if (upd.prevVersion != lastVer.version) {
+    if (upd.prev?.version != lastVer.version) {
       throw new Error('invalid parent version')
     }
 
@@ -253,7 +253,7 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
       throw new Error('spending cannot be changed')
     }
 
-    if (del.prevVersion != lastVer.version) {
+    if (del.prev?.version != lastVer.version) {
       throw new Error('parent version is invalid')
     }
 

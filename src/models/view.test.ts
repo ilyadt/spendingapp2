@@ -202,7 +202,12 @@ describe('SpendingRow', () => {
 
     const expSp: models.Spending = {
       id: 'id1',
-      prevVersion: 'ver1',
+      prev: {
+        version: 'ver1',
+        amount: 55000,
+        currency: 'RUB',
+        description: 'love',
+      },
       version: newVer,
       date: new Date('2026-01-06'),
       sort: 12,

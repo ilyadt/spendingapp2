@@ -7,6 +7,7 @@ import type {
   ApiBudget,
   ApiSpending,
   ApiSpendingEvent,
+  ApiUpdateSpendingsErrorsResponse,
   Budget,
   ConflictVersion,
   Spending,
@@ -124,7 +125,7 @@ describe('fetcher', () => {
     BudgetSpendingsStore.updateSpending(23, {
       id: 'nHSPMxURHX',
       version: 'pending_2', // версия локальная
-      prevVersion: 'ver_server_1',
+      prev: {version: 'ver_server_1', amount: 8500, currency: 'RUB', description: 'кофе'},
       date: new Date('2025-05-01'),
       description: 'кофе',
       createdAt: new Date('2025-09-29T14:00:25.085Z'),
@@ -189,7 +190,7 @@ describe('updater', () => {
       text: async (): Promise<string> => JSON.stringify({
         success: ['mocked-uuid'],
         errors: [],
-      }),
+      } as ApiUpdateSpendingsErrorsResponse),
     }
 
     vi.stubGlobal(
@@ -244,7 +245,9 @@ describe('updater', () => {
   test('uploader:update', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const spyUuid = vi.spyOn(uuid, 'v4' as any).mockReturnValue('event_id_uuid_v4')
-    const conflictVersions: ConflictVersion[] = [
+
+    // Upper conflicted versions evicted from SpendingsStore
+    const conflictedVersions: ConflictVersion[] = [
       {
         version: 'ver2',
         budgetId: 22,
@@ -258,7 +261,7 @@ describe('updater', () => {
       {
         // третья версия была сверху, поэтому она тоже становится revoked
         version: 'ver3',
-        budgetId: 23,
+        budgetId: 22,
         spendingId: 'sp1',
         versionDt: new Date('2025-10-03T12:31:22.023Z'),
         conflictedAt: new Date(),
@@ -267,9 +270,9 @@ describe('updater', () => {
         reason: 'db error',
       },
     ]
-    const spyRevokeConflictVersion = vi
+    const mockSpendingsStore_revokeConflictVersion = vi
       .spyOn(BudgetSpendingsStore, 'revokeConflictVersion')
-      .mockReturnValue(conflictVersions)
+      .mockReturnValue(conflictedVersions)
 
     vi.stubGlobal(
       'fetch',
@@ -279,8 +282,8 @@ describe('updater', () => {
         headers: new Headers(),
         text: async (): Promise<string> => JSON.stringify({
           success: [],
-          errors: [{ eventId: 'event_id_uuid_v4', number: 0, error: 'db error' }],
-        }),
+          errors: [{ eventId: 'event_id_uuid_v4', number: 0, error: 'already version v4' }],
+        } as ApiUpdateSpendingsErrorsResponse),
       })),
     )
 
@@ -291,7 +294,7 @@ describe('updater', () => {
     const promise = Uploader.updateSpending(22, {
       id: 'sp1',
       version: 'ver2',
-      prevVersion: 'ver1',
+      prev: {version: 'ver1', amount: 0, currency: 'RUB', description: ''},
       date: new Date('2025-10-03'),
       sort: 777,
       money: fromRUB(20_000),
@@ -328,16 +331,16 @@ describe('updater', () => {
     expect(Uploader.getEvents()).toEqual([])
 
     // Из storage забрались конфликтные версии
-    expect(spyRevokeConflictVersion).toHaveBeenCalledTimes(1)
-    expect(spyRevokeConflictVersion).toHaveBeenCalledWith(22, 'sp1', 'ver2')
+    expect(mockSpendingsStore_revokeConflictVersion).toHaveBeenCalledTimes(1)
+    expect(mockSpendingsStore_revokeConflictVersion).toHaveBeenCalledWith(22, 'sp1', 'ver2')
 
     // Отправились в ConflictVersions
-    expect(useConflictVersionStore.getState().conflictVersions).toEqual(conflictVersions)
+    expect(useConflictVersionStore.getState().conflictVersions).toEqual(conflictedVersions)
 
     ////////////////
 
     vi.unstubAllGlobals()
-    spyRevokeConflictVersion.mockRestore()
+    mockSpendingsStore_revokeConflictVersion.mockRestore()
     spyUuid.mockRestore()
   })
 
@@ -355,7 +358,7 @@ describe('updater', () => {
         text: async (): Promise<string> => JSON.stringify({
           success: ['event_id_uuid_v4'],
           errors: [],
-        }),
+        } as ApiUpdateSpendingsErrorsResponse),
       })),
     )
 
@@ -364,7 +367,7 @@ describe('updater', () => {
     const promise = Uploader.deleteSpending(22, {
       id: 'sp1',
       version: 'ver2',
-      prevVersion: 'ver1',
+      prev: {version: 'ver1', amount: 0, currency: 'RUB', description: ''},
       updatedAt: new Date('2025-10-03T12:22:22.023Z'),
     })
 
@@ -453,7 +456,7 @@ describe('updater', () => {
       text: async (): Promise<string> => JSON.stringify({
         success: ['ev1', 'ev2'],
         errors: [{ eventId: 'ev3', number: 0, error: '' }],
-      }),
+      } as ApiUpdateSpendingsErrorsResponse),
     }
 
     vi.stubGlobal(

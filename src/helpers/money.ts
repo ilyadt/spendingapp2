@@ -48,13 +48,14 @@ export function fromRUB(amount: number): Money {
   return from(amount, 'RUB')
 }
 
-export type Currency = 'RUB' | 'EUR'
+export type Currency = 'RUB' | 'EUR' | 'BTC'
 
-const currencies: Currency[] = ['RUB', 'EUR']
+const currencies: Currency[] = ['RUB', 'EUR', 'BTC']
 
 const fractions: Record<Currency, number> = {
   RUB: 2,
   EUR: 2,
+  BTC: 8,
 }
 
 export function from(amount: number, cur: Currency): Money {
@@ -67,9 +68,20 @@ export function from(amount: number, cur: Currency): Money {
     throw new Error('fraction value not defined for currency: ' + cur)
   }
 
-  const scaled = Math.floor(amount * 10 ** fraction)
+  return new Money(fromMajorUnits(amount, cur), fraction, cur)
+}
 
-  return new Money(scaled, fraction, cur)
+export function fromMajorUnits(amountMajor: number, cur: Currency): number {
+  if (!currencies.includes(cur)) {
+    throw new Error('invalid currency: ' + cur)
+  }
+
+  const fraction = fractions[cur]
+  if (fraction == null) {
+    throw new Error('fraction value not defined for currency: ' + cur)
+  }
+
+  return Math.floor(amountMajor * 10 ** fraction)
 }
 
 export const getFormatter = (c: Currency): Intl.NumberFormat => {

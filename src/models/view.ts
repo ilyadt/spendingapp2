@@ -1,6 +1,6 @@
 import { Facade } from '@src/facade'
-import { from, moneyFormat, type Currency } from '@src/helpers/money'
-import { type Budget, type Spending, genVersion, genSpendingID } from '@src/models/models'
+import {from, moneyFormat, type Currency, fromMajorUnits} from '@src/helpers/money'
+import {type Budget, type Spending, genVersion, genSpendingID, type SpendingPrev} from '@src/models/models'
 
 export interface SaveData {
   id: string
@@ -173,10 +173,21 @@ export class SpendingRow {
     // External send
     const isNew = !this.version
     const budgetChanged = this.budgetId != data.budgetId
+
+    let prev : SpendingPrev|undefined
+    if (!isNew) {
+      prev =  {
+        version: this.version!,
+        description: this.description,
+        amount: fromMajorUnits(this.amountFull, this.currency!),
+        currency: this.currency!,
+      }
+    }
+
     const sendData: Spending = {
       id: data.id,
       version: data.version,
-      prevVersion: this.version ?? undefined,
+      prev: prev,
       date: this.date,
       sort: this.sort,
       money: from(data.amountFull, data.currency),
@@ -225,7 +236,12 @@ export class SpendingRow {
     Facade.deleteSpending(this.budgetId!, {
       id: this.id,
       version: data.version,
-      prevVersion: this.version!,
+      prev: {
+        version: this.version!,
+        amount: fromMajorUnits(this.amountFull, this.currency!),
+        currency: this.currency!,
+        description: this.description,
+      },
       updatedAt: data.dt,
     })
 

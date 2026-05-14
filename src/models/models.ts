@@ -1,7 +1,7 @@
 import { alphanumeric } from 'nanoid-dictionary'
 import { customAlphabet } from 'nanoid/non-secure'
 
-import type { Money } from '@src/helpers/money'
+import type {Currency, Money} from '@src/helpers/money'
 import type { components, paths } from '@src/models/oaschema'
 import { v7 as uuidv7 } from 'uuid'
 import type { SpendingRow } from '@src/models/view'
@@ -39,7 +39,7 @@ export type ApiSchemaPaths = paths
 export interface Spending {
   id: string
   version: string
-  prevVersion?: string
+  prev?: SpendingPrev
   date: Date
   sort: number
   money: Money
@@ -47,6 +47,14 @@ export interface Spending {
   createdAt: Date
   updatedAt: Date
   receiptGroupId: number
+}
+
+// Предыдущая версия Spending
+export interface SpendingPrev {
+  version: string
+  amount: number
+  currency: Currency
+  description: string
 }
 
 export interface Budget {
@@ -63,10 +71,7 @@ export interface Budget {
   }
 }
 
-// Бюджет с остатком
-export type BudgetWithLeft = Budget & { left: Money }
-
-export type DelSpending = Pick<Spending, 'id' | 'version' | 'prevVersion' | 'updatedAt'>
+export type DelSpending = Pick<Spending, 'id' | 'version' | 'prev' | 'updatedAt'>
 
 export interface ConflictVersion {
   version: string

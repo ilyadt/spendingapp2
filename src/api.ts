@@ -134,7 +134,7 @@ export const Uploader = {
       budgetId: bid,
       spendingId: upd.id,
       updateData: {
-        prevVersion: upd.prevVersion!,
+        prevVersion: upd.prev!.version,
         date: format(upd.date, 'yyyy-MM-dd'),
         sort: upd.sort,
         money: upd.money,
@@ -160,7 +160,7 @@ export const Uploader = {
       budgetId: bid,
       spendingId: del.id,
       deleteData: {
-        prevVersion: del.prevVersion!,
+        prevVersion: del.prev!.version,
       },
     }
 
@@ -210,15 +210,15 @@ export const Uploader = {
     const { success, conflict, errors } = await this.sendEvents(events)
 
     // Помечаем все события во внешнем Storage
-    const storage = BudgetSpendingsStore
+    const spendingsStore = BudgetSpendingsStore
     const conflictVersion = useConflictVersionStore.getState()
 
     for (const ev of success) {
-      storage.setStatusApplied(ev.budgetId, ev.spendingId, ev.newVersion)
+      spendingsStore.setStatusApplied(ev.budgetId, ev.spendingId, ev.newVersion)
     }
 
     for (const ev of conflict) {
-      const conflictedVers = storage.revokeConflictVersion(ev.budgetId, ev.spendingId, ev.newVersion)
+      const conflictedVers = spendingsStore.revokeConflictVersion(ev.budgetId, ev.spendingId, ev.newVersion)
 
       for (const c of conflictedVers) {
         c.reason = errors.find(e => e.eventId == ev.eventId)?.error ?? null
