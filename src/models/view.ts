@@ -1,5 +1,5 @@
 import { Facade } from '@src/facade'
-import {from, moneyFormat, type Currency, fromMajorUnits} from '@src/helpers/money'
+import {type Currency, fromMajorUnits} from '@src/helpers/money'
 import {type Budget, type Spending, genVersion, genSpendingID, type SpendingPrev} from '@src/models/models'
 
 export interface SaveData {
@@ -54,7 +54,7 @@ export class PendingSpendingRow {
 
   public setBudget(b: Budget) {
     this._budgetId = b.id
-    this.currency = b.money.currency
+    this.currency = b.currency
     this.spId = b.id == this.initBudgetId ? this.initSpId : genSpendingID()
   }
 
@@ -190,7 +190,8 @@ export class SpendingRow {
       prev: prev,
       date: this.date,
       sort: this.sort,
-      money: from(data.amountFull, data.currency),
+      amount: fromMajorUnits(data.amountFull, data.currency),
+      currency: data.currency,
       description: data.description,
       createdAt: this.version ? this.createdAt! : data.dt,
       updatedAt: data.dt,
@@ -213,7 +214,7 @@ export class SpendingRow {
     this.budgetId = data.budgetId
     this.currency = data.currency
     this.description = data.description
-    this.amountFull = moneyFormat(from(data.amountFull, data.currency))
+    this.amountFull = data.amountFull
     this.updatedAt = data.dt
     if (!this.version) {
       this.createdAt = data.dt
@@ -327,7 +328,7 @@ export class Table implements DataTable {
     const sp = new SpendingRow(
       genSpendingID(),
       this.budget?.id ?? null,
-      this.budget?.money.currency ?? null,
+      this.budget?.currency ?? null,
       null,
       this.date,
       Date.now(),

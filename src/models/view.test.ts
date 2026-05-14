@@ -1,6 +1,5 @@
 import { describe, expect, test, vi } from 'vitest'
 import { PendingSpendingRow, SpendingRow, type SaveData } from '@src/models/view'
-import { fromRUB, Money } from '@src/helpers/money'
 import * as models from '@src/models/models'
 import { type Budget } from '@src/models/models'
 import { dateISO } from '@src/helpers/date'
@@ -33,7 +32,8 @@ describe('PendingSpendingRow', () => {
     s.setBudget(
       makeBudget({
         id: 2,
-        money: new Money(0, 2, 'RUB'),
+        amount: 0,
+        currency: 'RUB',
       }),
     )
 
@@ -58,7 +58,8 @@ describe('PendingSpendingRow', () => {
     s.setBudget(
       makeBudget({
         id: 2,
-        money: new Money(0, 2, 'EUR'),
+        amount: 0,
+        currency: 'EUR',
       }),
     )
 
@@ -74,7 +75,8 @@ describe('PendingSpendingRow', () => {
     s.setBudget(
       makeBudget({
         id: 1,
-        money: new Money(0, 2, 'RUB'),
+        amount: 0,
+        currency: 'RUB',
       }),
     )
 
@@ -132,7 +134,7 @@ describe('PendingSpendingRow', () => {
 
     s.amountFull = '110.50'
     s.description = 'чай'
-    s.setBudget(makeBudget({ id: 1, money: fromRUB(0) }))
+    s.setBudget(makeBudget({ id: 1, amount: 0, currency: 'RUB' }))
     const dt = new Date()
     s.save(dt)
 
@@ -165,7 +167,8 @@ function makeBudget(b: Partial<Budget>): Budget {
     alias: b.alias ?? '',
     name: b.name ?? '',
     sort: b.sort ?? 0,
-    money: b.money ?? fromRUB(0),
+    amount: 0,
+    currency: b.currency ?? 'RUB',
     dateFrom: b.dateFrom ?? new Date(0),
     dateTo: b.dateTo ?? new Date(0),
     params: b.params ?? {},
@@ -211,7 +214,8 @@ describe('SpendingRow', () => {
       version: newVer,
       date: new Date('2026-01-06'),
       sort: 12,
-      money: fromRUB(550),
+      amount: 550_00,
+      currency: 'RUB',
       description: 'love',
       createdAt: new Date('2026-01-06 12:30'),
       updatedAt: updAt,

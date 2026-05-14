@@ -1,6 +1,6 @@
 import { Facade } from '@src/facade'
 import {dateFormat, dateISO, dateRangePlusFromItems} from '@src/helpers/date'
-import { moneyToString, minus, moneyFormat, from } from '@src/helpers/money'
+import {toMajorUnits, fromMajorUnits} from '@src/helpers/money'
 import { genSpendingID, genVersion, type Budget, type Spending } from '@src/models/models'
 import { type SpendingRow } from '@src/models/viewmodels'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -20,10 +20,10 @@ export function BudgetView({budgets}: Props) {
 
   const [spendings, setSpendings] = useState<Spending[]>(Facade.spendingsByBudgetId(budget.id))
 
-  let moneyLeft = budget.money
+  let moneyLeft = budget.amount
 
   for (const sp of spendings) {
-    moneyLeft = minus(moneyLeft, sp.money)
+    moneyLeft = moneyLeft - sp.amount
   }
 
   const spendingsByDate: Record<string, SpendingRow[]> = {}
@@ -33,10 +33,10 @@ export function BudgetView({budgets}: Props) {
 
     spendingsByDate[key] ??= []
     spendingsByDate[key].push({
-      amountFull: moneyFormat(s.money),
+      amountFull: toMajorUnits(s.amount, s.currency),
       budgetId: budget.id,
       createdAt: s.createdAt,
-      currency: s.money.currency,
+      currency: s.currency,
       date: s.date,
       description: s.description,
       id: s.id,
@@ -71,7 +71,8 @@ export function BudgetView({budgets}: Props) {
       version: genVersion(null),
       date: new Date(date),
       sort: now.getTime(),
-      money: from(amount, budget.money.currency),
+      amount: fromMajorUnits(amount, budget.currency),
+      currency: budget.currency,
       description: description,
       createdAt: now,
       updatedAt: now,
@@ -97,8 +98,8 @@ export function BudgetView({budgets}: Props) {
           >{ dateFormat(budget.dateFrom) } &mdash;
             { dateFormat(budget.dateTo) }</b
           ><br />
-          <b>{ moneyToString(moneyLeft) } { moneyLeft.currency }</b> (из
-          <b>{ moneyToString(budget.money) } { budget.money.currency }</b
+          <b>{ toMajorUnits(moneyLeft, budget.currency) } { budget.currency }</b> (из
+          <b>{ toMajorUnits(budget.amount, budget.currency) } { budget.currency }</b
           >)
         </p>
         <p v-if="budget?.description" style={{whiteSpace: 'pre'}}>{budget.description }</p>

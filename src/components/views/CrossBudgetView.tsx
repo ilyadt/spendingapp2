@@ -1,7 +1,7 @@
 import SpendingTable from '@src/components/SpendingTable'
 import { Facade } from '@src/facade'
 import { dateISO, dateRange} from '@src/helpers/date'
-import { moneyFormat } from '@src/helpers/money'
+import {toMajorUnits} from '@src/helpers/money'
 import { type Budget} from '@src/models/models'
 import {type SpendingRow} from "@src/models/viewmodels.ts";
 import {useEffect, useState} from "react";
@@ -42,10 +42,10 @@ export function CrossBudgetView({budgets} : Props) {
 
         spendingsByDate[key] ??= []
         spendingsByDate[key].push({
-          amountFull: moneyFormat(s.money),
+          amountFull: toMajorUnits(s.amount, s.currency),
           budgetId: b.id,
           createdAt: s.createdAt,
-          currency: s.money.currency,
+          currency: s.currency,
           date: s.date,
           description: s.description,
           id: s.id,

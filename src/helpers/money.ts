@@ -1,53 +1,3 @@
-interface MoneyInterface {
-  amount: number
-  fraction: number
-  currency: string | Currency
-}
-
-export class Money {
-  constructor(
-    public amount: number,
-    public fraction: number,
-    public currency: Currency,
-  ) {}
-
-  public toString(): string {
-    return moneyToString(this)
-  }
-
-  public minus(m2: Money): Money {
-    return minus(this, m2)
-  }
-
-  public full(): number {
-    return moneyFormat(this)
-  }
-}
-
-export function moneyToString(money: MoneyInterface): string {
-  return String(moneyFormat(money))
-}
-
-export function moneyFormat(money: MoneyInterface): number {
-  return money.amount / 10 ** money.fraction
-}
-
-export function moneyToStringWithCurrency(money: MoneyInterface): string {
-  return moneyToString(money) + ' ' + money.currency
-}
-
-export function minus(m1: Money, m2: Money): Money {
-  if (m1.currency !== m2.currency) {
-    throw new Error('currencies do not match')
-  }
-
-  return new Money(m1.amount - m2.amount, m1.fraction, m1.currency)
-}
-
-export function fromRUB(amount: number): Money {
-  return from(amount, 'RUB')
-}
-
 export type Currency = 'RUB' | 'EUR' | 'BTC'
 
 const currencies: Currency[] = ['RUB', 'EUR', 'BTC']
@@ -58,7 +8,7 @@ const fractions: Record<Currency, number> = {
   BTC: 8,
 }
 
-export function from(amount: number, cur: Currency): Money {
+export function currencyFraction(cur: Currency): number {
   if (!currencies.includes(cur)) {
     throw new Error('invalid currency: ' + cur)
   }
@@ -68,32 +18,22 @@ export function from(amount: number, cur: Currency): Money {
     throw new Error('fraction value not defined for currency: ' + cur)
   }
 
-  return new Money(fromMajorUnits(amount, cur), fraction, cur)
+  return fraction
 }
 
 export function fromMajorUnits(amountMajor: number, cur: Currency): number {
-  if (!currencies.includes(cur)) {
-    throw new Error('invalid currency: ' + cur)
-  }
-
-  const fraction = fractions[cur]
-  if (fraction == null) {
-    throw new Error('fraction value not defined for currency: ' + cur)
-  }
+  const fraction = currencyFraction(cur)
 
   return Math.floor(amountMajor * 10 ** fraction)
 }
 
-export const getFormatter = (c: Currency): Intl.NumberFormat => {
-  switch (c) {
-    case 'RUB':
-      return new Intl.NumberFormat('ru-RU', {
-        style: 'currency',
-        currency: 'RUB',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      })
-  }
+export function toMajorUnits(amount: number, cur: Currency): number {
+  const fraction = currencyFraction(cur)
 
-  throw new Error('currency formatter not found')
+  return amount / 10 ** fraction
 }
+
+export function formatAmount(amount: number, cur: Currency): string {
+  return String(toMajorUnits(amount, cur))  + ' ' + cur
+}
+

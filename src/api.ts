@@ -5,6 +5,7 @@ import { useConflictVersionStore } from '@src/stores/conflictVersions'
 import { v4 as uuidv4 } from 'uuid'
 import { format } from 'date-fns'
 import type { Spending, ApiSpendingEvent, DelSpending, ApiUploadError, ApiSchemaPaths } from '@src/models/models'
+import {currencyFraction} from "@src/helpers/money.ts";
 
 function createApiClient(baseUrl: string) {
   return createClient<ApiSchemaPaths>({ baseUrl: baseUrl })
@@ -112,7 +113,11 @@ export const Uploader = {
       createData: {
         date: format(newSp.date, 'yyyy-MM-dd'),
         description: newSp.description,
-        money: newSp.money,
+        money: {
+          amount: newSp.amount,
+          currency: newSp.currency,
+          fraction: currencyFraction(newSp.currency),
+        },
         sort: newSp.sort,
       },
     }
@@ -137,7 +142,11 @@ export const Uploader = {
         prevVersion: upd.prev!.version,
         date: format(upd.date, 'yyyy-MM-dd'),
         sort: upd.sort,
-        money: upd.money,
+        money: {
+          amount: upd.amount,
+          currency: upd.currency,
+          fraction: currencyFraction(upd.currency),
+        },
         description: upd.description,
         receiptGroupId: upd.receiptGroupId,
       },

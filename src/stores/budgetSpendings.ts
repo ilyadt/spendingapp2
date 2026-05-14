@@ -1,13 +1,12 @@
 import type {
   ApiBudget,
-  ApiMoney,
   ApiSpending,
   Budget,
   ConflictVersion,
   DelSpending,
   Spending,
 } from '@src/models/models'
-import { type Currency, Money, moneyToStringWithCurrency } from '@src/helpers/money'
+import {type Currency, formatAmount} from '@src/helpers/money'
 import { format, isAfter, isBefore, subSeconds } from 'date-fns'
 
 export enum VersionStatus {
@@ -32,7 +31,8 @@ export interface SpendingVersion {
   statusAt?: Date
   date?: Date | string
   description?: string
-  money?: ApiMoney
+  amount?: number
+  currency?: Currency
   sort?: number
   updatedAt: Date | string // заменить на versionDt
   deleted?: boolean
@@ -126,7 +126,8 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
       name: apib.name,
       description: apib.description,
       sort: apib.sort,
-      money: new Money(apib.money.amount, apib.money.fraction, apib.money.currency as Currency),
+      amount: apib.money.amount,
+      currency: apib.money.currency as Currency,
       dateFrom: new Date(apib.dateFrom),
       dateTo: new Date(apib.dateTo),
       params: apib.params,
@@ -145,14 +146,13 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
         continue
       }
 
-      const m = lastVer.money!
-
       res.push({
         id: spVersioned.id,
         version: lastVer.version!,
         date: new Date(lastVer.date!),
         sort: lastVer.sort!,
-        money: new Money(m.amount, m.fraction, m.currency as Currency),
+        amount: lastVer.amount!,
+        currency: lastVer.currency! as Currency,
         description: lastVer.description!,
         createdAt: new Date(spVersioned.createdAt),
         updatedAt: new Date(lastVer.updatedAt),
@@ -187,7 +187,8 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
           status: VersionStatus.Pending,
           date: newSp.date,
           description: newSp.description,
-          money: newSp.money,
+          amount: newSp.amount,
+          currency: newSp.currency,
           sort: newSp.sort,
           updatedAt: newSp.updatedAt,
           deleted: false,
@@ -228,7 +229,8 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
       status: VersionStatus.Pending,
       date: upd.date,
       description: upd.description,
-      money: upd.money,
+      amount: upd.amount,
+      currency: upd.currency,
       sort: upd.sort,
       updatedAt: upd.updatedAt,
       receiptId: upd.receiptGroupId,
@@ -430,7 +432,8 @@ function remoteToVersion(sp: ApiSpending): SpendingVersion {
     status: VersionStatus.InDb,
     date: new Date(sp.date),
     description: sp.description,
-    money: sp.money,
+    amount: sp.money.amount,
+    currency: sp.money.currency as Currency,
     sort: sp.sort,
     updatedAt: new Date(sp.updatedAt),
     deleted: false,
@@ -476,7 +479,7 @@ export function formatVersionPayload(ver?: SpendingVersion): string | null {
     return null
   }
 
-  return `${format(ver.date!, 'dd.MM')}: ${moneyToStringWithCurrency(ver.money!)} ${ver.description!}`
+  return `${format(ver.date!, 'dd.MM')}: ${formatAmount(ver.amount!, ver.currency!)} ${ver.description!}`
 }
 
 export const _test = {

@@ -1,4 +1,8 @@
-import {minus, Money, moneyToString, moneyToStringWithCurrency, moneyFormat, type Currency} from '@src/helpers/money'
+import {
+  type Currency,
+  formatAmount,
+  toMajorUnits
+} from '@src/helpers/money'
 import {dateFormat, daysLeft, percentPassed} from '@src//helpers/date'
 import { Facade } from '@src/facade'
 import type { Budget } from '@src/models/models'
@@ -13,9 +17,10 @@ interface TemplateBudget {
   sort: number
   dateFrom: Date
   dateTo: Date
-  amount: Money
+  amount: number
+  currency: Currency
   description?: string
-  amountSpent: Money
+  amountSpent: number
   showPerDay: boolean
 }
 
@@ -34,7 +39,7 @@ export default function HomeView({
         let spentAmount = 0
 
         for (const sp of sps) {
-          spentAmount += sp.money.amount
+          spentAmount += sp.amount
         }
 
         result.push({
@@ -43,13 +48,10 @@ export default function HomeView({
           sort: b.sort ? b.sort : 1e6,
           dateFrom: new Date(b.dateFrom),
           dateTo: new Date(b.dateTo),
-          amount: b.money,
+          amount: b.amount,
+          currency: b.currency,
           description: b.description,
-          amountSpent: new Money(
-            spentAmount,
-            b.money.fraction,
-            b.money.currency as Currency,
-          ),
+          amountSpent: spentAmount,
           showPerDay: Boolean(b.params['perDay']),
         })
       }
@@ -61,7 +63,7 @@ export default function HomeView({
 
 
   function percentAmount(b: TemplateBudget): number {
-    return Math.floor((b.amountSpent.amount / b.amount.amount) * 100)
+    return Math.floor((b.amountSpent / b.amount) * 100)
   }
 
   const buildCommit = import.meta.env.VITE_BUILD_COMMIT
@@ -82,7 +84,7 @@ export default function HomeView({
           </p>
 
           <p style={{marginBottom: '2px'}}>
-            {moneyToStringWithCurrency(b.amount)}
+            {formatAmount(b.amount, b.currency)}
           </p>
 
           <p style={{whiteSpace: 'pre', fontSize: '0.6rem', marginBottom: 0, fontStyle: 'italic'}}>
@@ -91,15 +93,15 @@ export default function HomeView({
 
           <div className="row">
             <div className="col-5" style={{fontSize: '0.7rem'}}>
-              <b>{moneyToString(minus(b.amount, b.amountSpent))}</b>{' '} {b.amount.currency} left. Money:
+              <b>{formatAmount(b.amount - b.amountSpent, b.currency)}</b>{' '} {b.currency} left. Money:
               <br />
               <b>{daysLeft(todayDate, b.dateTo)}</b>{' '} days left. Days:
               <br />
               {b.showPerDay &&
                 todayDate <= b.dateTo && (
                   <p>
-                      <b>{Math.floor(moneyFormat(minus(b.amount, b.amountSpent)) / daysLeft(todayDate, b.dateTo))}</b>
-                      {' '} {b.amount.currency}/Day left
+                      <b>{Math.floor(toMajorUnits(b.amount - b.amountSpent, b.currency) / daysLeft(todayDate, b.dateTo))}</b>
+                      {' '} {b.currency}/Day left
                   </p>
                 )}
             </div>

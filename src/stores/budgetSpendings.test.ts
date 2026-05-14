@@ -1,8 +1,7 @@
 import { test, expect, describe, beforeEach, vi } from 'vitest'
 
-import type { ApiBudget, ApiSpending, Spending } from '@src/models/models'
+import type {ApiBudget, ApiMoney, ApiSpending, Budget, Spending} from '@src/models/models'
 import { BudgetSpendingsStore, VersionStatus, _test, formatVersionPayload, type SpendingVersion } from '@src/stores/budgetSpendings'
-import { fromRUB } from '@src/helpers/money'
 
 describe('storage_test', () => {
   beforeEach(() => {
@@ -51,7 +50,8 @@ describe('storage_test', () => {
         alias: 'b1',
         name: 'на учебу',
         sort: 1,
-        money: fromRUB(50_000),
+        amount: 50_000_00,
+        currency: 'RUB',
         dateFrom: new Date('2025-09-01'),
         dateTo: new Date('2025-10-01'), // TODO: dateTo -> Date()
         params: { key: 'val' },
@@ -61,12 +61,13 @@ describe('storage_test', () => {
         alias: 'coffee',
         name: 'на кофе',
         sort: 2,
-        money: fromRUB(5_000),
+        amount: 5_000_00,
+        currency: 'RUB',
         dateFrom: new Date('2025-09-01'),
         dateTo: new Date('2025-09-31'),
         params: {},
       },
-    ])
+    ] satisfies Budget[])
   })
 
   test('update_budgets_from_remote:delete_other_spendings', () => {
@@ -183,7 +184,8 @@ describe('storage_test', () => {
           id: 'sp1',
           date: new Date('2025-09-03'),
           sort: 34,
-          money: fromRUB(134_00),
+          amount: 13400_00,
+          currency: 'RUB',
           description: 'круассан',
           createdAt: new Date('2025-09-03T15:23:22Z'),
           updatedAt: new Date('2025-09-03T15:23:22Z'),
@@ -231,7 +233,8 @@ describe('storage_test', () => {
           id: 'sp1',
           date: new Date('2025-09-03'),
           sort: 35,
-          money: fromRUB(134_00),
+          amount: 13400_00,
+          currency: 'RUB',
           description: 'круассан',
           createdAt: new Date('2025-09-03T15:23:22Z'),
           updatedAt: new Date('2025-09-03T15:23:22Z'),
@@ -242,7 +245,8 @@ describe('storage_test', () => {
           id: 'sp2',
           date: new Date('2025-09-04'),
           sort: 1,
-          money: fromRUB(150_00),
+          amount: 15000_00,
+          currency: 'RUB',
           description: 'шоколадка',
           createdAt: new Date('2025-09-04T10:00:00Z'),
           updatedAt: new Date('2025-09-04T10:00:00Z'),
@@ -404,7 +408,8 @@ describe('storage_test', () => {
       version: 'ver1',
       date: new Date('2025-09-12'),
       sort: 3,
-      money: fromRUB(12312_00),
+      amount: 12312_00,
+      currency: 'RUB',
       description: 'что-то',
       createdAt: new Date('2025-09-12T23:22:00Z'),
       updatedAt: new Date('2025-09-12T23:22:00Z'),
@@ -450,7 +455,8 @@ describe('storage_test', () => {
       version: 'ver1',
       date: new Date('2025-09-12'),
       sort: 3,
-      money: fromRUB(12312_00),
+      amount: 12312_00,
+      currency: 'RUB',
       description: 'что-то',
       createdAt: new Date('2025-09-12T23:22:00Z'),
       updatedAt: new Date('2025-09-12T23:22:00Z'),
@@ -462,7 +468,8 @@ describe('storage_test', () => {
       version: 'ver2',
       date: new Date('2025-09-12'),
       sort: 3,
-      money: fromRUB(12312_00),
+      amount: 12312_00,
+      currency: 'RUB',
       description: 'что-то',
       createdAt: new Date('2025-09-12T23:22:00Z'),
       updatedAt: new Date('2025-09-12T23:22:00Z'),
@@ -485,7 +492,8 @@ describe('storage_test', () => {
         version: 'ver2',
         date: new Date('2025-09-12'),
         sort: 3,
-        money: fromRUB(12312_00),
+        amount: 12312_00,
+        currency: 'RUB',
         description: 'что-то',
         createdAt: new Date('2025-09-12T23:22:00Z'),
         updatedAt: new Date('2025-09-12T23:22:00Z'),
@@ -510,7 +518,8 @@ describe('storage_test', () => {
       version: 'ver1',
       date: new Date('2025-09-12'),
       sort: 3,
-      money: fromRUB(12312_00),
+      amount: 12312_00,
+      currency: 'RUB',
       description: 'что-то',
       createdAt: new Date('2025-09-12T23:22:00Z'),
       updatedAt: new Date('2025-09-12T23:22:00Z'),
@@ -583,7 +592,7 @@ function makeApiSpending(sp: Partial<ApiSpending> = {}): ApiSpending {
     id: sp.id ?? '',
     date: sp.date ?? '',
     sort: sp.sort ?? 0,
-    money: sp.money ?? fromRUB(0),
+    money: sp.money ?? {amount: 0, fraction: 0, currency: 'RUB'},
     description: sp.description ?? '',
     createdAt: sp.createdAt ?? '',
     updatedAt: sp.updatedAt ?? '',
@@ -623,11 +632,8 @@ test('formatVersionPayload', () => {
     status: VersionStatus.Pending,
     updatedAt: '',
     date: new Date('2024-03-23T00:00:00Z'),
-    money: {
-      amount: 12_00,
-      fraction: 2,
-      currency: 'EUR',
-    },
+    amount: 12_00,
+    currency: 'EUR',
     description: 'бигмак',
   }
 
@@ -658,10 +664,19 @@ function makeSpending(sp: Partial<Spending> = {}): Spending {
     prev: sp.prev ?? undefined,
     date: sp.date ?? new Date(0),
     sort: sp.sort ?? 0,
-    money: sp.money ?? fromRUB(0),
+    amount: sp.amount ?? 0,
+    currency: sp.currency ?? 'RUB',
     description: sp.description ?? '',
     createdAt: sp.createdAt ?? new Date(0),
     updatedAt: sp.updatedAt ?? new Date(0),
     receiptGroupId: sp.receiptGroupId ?? 0,
+  }
+}
+
+function fromRUB(rubs: number): ApiMoney {
+  return {
+    amount: rubs * 100,
+    currency: 'RUB',
+    fraction: 2
   }
 }

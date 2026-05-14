@@ -1,7 +1,7 @@
 import { alphanumeric } from 'nanoid-dictionary'
 import { customAlphabet } from 'nanoid/non-secure'
 
-import type {Currency, Money} from '@src/helpers/money'
+import type {Currency} from '@src/helpers/money'
 import type { components, paths } from '@src/models/oaschema'
 import { v7 as uuidv7 } from 'uuid'
 import type { SpendingRow } from '@src/models/view'
@@ -42,7 +42,8 @@ export interface Spending {
   prev?: SpendingPrev
   date: Date
   sort: number
-  money: Money
+  amount: number
+  currency: Currency
   description: string
   createdAt: Date
   updatedAt: Date
@@ -63,7 +64,8 @@ export interface Budget {
   name: string
   sort: number
   description?: string
-  money: Money
+  amount: number,
+  currency: Currency,
   dateFrom: Date
   dateTo: Date
   params: {

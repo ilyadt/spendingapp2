@@ -12,7 +12,6 @@ import type {
   ConflictVersion,
   Spending,
 } from '@src/models/models'
-import { fromRUB } from '@src/helpers/money'
 import * as uuid from 'uuid'
 
 vi.mock('uuid', () => ({ v4: vi.fn(() => 'mocked-uuid') }))
@@ -68,7 +67,8 @@ describe('fetcher', () => {
         name: 'напитки',
         description: 'postmorten',
         sort: 1,
-        money: fromRUB(8_000),
+        amount: 8_000_00,
+        currency: 'RUB',
         dateFrom: new Date('2025-05-01'),
         dateTo: new Date('2025-05-31'),
         params: { perDay: true },
@@ -79,7 +79,8 @@ describe('fetcher', () => {
         name: 'еда',
         description: 'postmorten',
         sort: 3,
-        money: fromRUB(20_000),
+        amount: 20_000_00,
+        currency: 'RUB',
         dateFrom: new Date('2025-05-01'),
         dateTo: new Date('2025-05-31'),
         params: {},
@@ -95,7 +96,8 @@ describe('fetcher', () => {
         version: 'JZRm7',
         date: new Date('2025-05-01'),
         sort: 101,
-        money: fromRUB(85),
+        amount: 85_00,
+        currency: 'RUB',
         description: 'кофе',
         createdAt: new Date(1759154425085),
         updatedAt: new Date(1759154543304),
@@ -130,7 +132,8 @@ describe('fetcher', () => {
       description: 'кофе',
       createdAt: new Date('2025-09-29T14:00:25.085Z'),
       updatedAt: new Date('2025-09-29T15:02:23.304Z'),
-      money: fromRUB(90), // изменил цену
+      amount: 90_00, // изменил цену
+      currency: 'RUB',
       sort: 101,
       receiptGroupId: 0,
     })
@@ -203,7 +206,8 @@ describe('updater', () => {
       version: 'ver1',
       date: new Date('2025-10-03'),
       sort: 100,
-      money: fromRUB(1000),
+      amount: 1000_00,
+      currency: 'RUB',
       description: 'любовь',
       createdAt: new Date('2025-10-03T10:54:44.020Z'),
       updatedAt: new Date('2025-10-03T10:54:44.020Z'),
@@ -297,7 +301,8 @@ describe('updater', () => {
       prev: {version: 'ver1', amount: 0, currency: 'RUB', description: ''},
       date: new Date('2025-10-03'),
       sort: 777,
-      money: fromRUB(20_000),
+      amount: 20_000_00,
+      currency: 'RUB',
       description: 'dyson',
       createdAt: new Date('2025-10-02T12:22:22.023Z'),
       updatedAt: new Date('2025-10-03T12:22:22.023Z'),
@@ -661,7 +666,7 @@ function makeApiSpending(sp: Partial<ApiSpending> = {}): ApiSpending {
     id: sp.id ?? '',
     date: sp.date ?? '',
     sort: sp.sort ?? 0,
-    money: sp.money ?? fromRUB(0),
+    money: sp.money ?? {amount: 0, fraction: 0, currency: ''},
     description: sp.description ?? '',
     createdAt: sp.createdAt ?? '',
     updatedAt: sp.updatedAt ?? '',
