@@ -69,6 +69,7 @@ export interface Budget {
   dateFrom: Date
   dateTo: Date
   params: {
+    perDay?: boolean
     [key: string]: unknown
   }
 }

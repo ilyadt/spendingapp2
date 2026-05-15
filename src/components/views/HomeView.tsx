@@ -1,78 +1,35 @@
 import {
-  type Currency,
   formatAmount,
   toMajorUnits
 } from '@src/helpers/money'
 import {dateFormat, daysLeft, percentPassed} from '@src//helpers/date'
-import { Facade } from '@src/facade'
-import type { Budget } from '@src/models/models'
+import {type BudgetWithSpent, useBudgetsWithSpent} from "@src/stores/budgets.ts";
 
-interface Props {
-  budgets: Budget[]
-}
+export default function HomeView() {
+  const budgetsById = useBudgetsWithSpent(s => s.budgets)
 
-interface TemplateBudget {
-  id: number
-  name: string
-  sort: number
-  dateFrom: Date
-  dateTo: Date
-  amount: number
-  currency: Currency
-  description?: string
-  amountSpent: number
-  showPerDay: boolean
-}
-
-export default function HomeView({
-  budgets,
-}: Props) {
-  const todayDate = new Date()
-
-  const templateBudgets = (() => {
-      const result: TemplateBudget[] = []
-
-      for (const b of budgets) {
-        const sps =
-          Facade.spendingsByBudgetId(b.id)
-
-        let spentAmount = 0
-
-        for (const sp of sps) {
-          spentAmount += sp.amount
-        }
-
-        result.push({
-          id: b.id,
-          name: b.name,
-          sort: b.sort ? b.sort : 1e6,
-          dateFrom: new Date(b.dateFrom),
-          dateTo: new Date(b.dateTo),
-          amount: b.amount,
-          currency: b.currency,
-          description: b.description,
-          amountSpent: spentAmount,
-          showPerDay: Boolean(b.params['perDay']),
-        })
+  const budgets = Object.values(budgetsById)
+    .sort((a, b) => {
+      if (a.sort === 0 && b.sort === 0) { // by id if sort = 0
+        return a.id - b.id
       }
 
-      result.sort((a, b) => a.sort - b.sort)
+      if (a.sort === 0) return 1
+      if (b.sort === 0) return -1
 
-      return result
-    })()
+      return a.sort - b.sort
+    })
 
+  const percentAmount = (b: BudgetWithSpent) => Math.floor(b.amountSpent/b.amount * 100)
 
-  function percentAmount(b: TemplateBudget): number {
-    return Math.floor((b.amountSpent / b.amount) * 100)
-  }
-
+  const todayDate = new Date()
   const buildCommit = import.meta.env.VITE_BUILD_COMMIT
 
   return (
     <>
       <h1>Love you so much ♥{' '} <span style={{fontSize: 'small'}}> {buildCommit.slice(0, 7)} </span> </h1>
 
-      {templateBudgets.map((b) => (
+      {budgets.map(b=> (
         <div key={b.id} style={{borderTop: 'outset', marginTop: '5px', opacity: b.dateTo >= todayDate ? 1 : 0.5}}>
           <h4 style={{marginBottom: 0}}>
             {b.name} #{b.id}
@@ -93,17 +50,16 @@ export default function HomeView({
 
           <div className="row">
             <div className="col-5" style={{fontSize: '0.7rem'}}>
-              <b>{formatAmount(b.amount - b.amountSpent, b.currency)}</b>{' '} {b.currency} left. Money:
+              <b>{toMajorUnits(b.amount - b.amountSpent, b.currency)}</b>{' '} {b.currency} left. Money:
               <br />
               <b>{daysLeft(todayDate, b.dateTo)}</b>{' '} days left. Days:
               <br />
-              {b.showPerDay &&
-                todayDate <= b.dateTo && (
+              {b.params?.perDay && todayDate <= b.dateTo && (
                   <p>
                       <b>{Math.floor(toMajorUnits(b.amount - b.amountSpent, b.currency) / daysLeft(todayDate, b.dateTo))}</b>
                       {' '} {b.currency}/Day left
                   </p>
-                )}
+              )}
             </div>
 
             <div className="dual-progress-container col-6">

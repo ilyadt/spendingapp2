@@ -20,7 +20,7 @@ function App() {
       <div className="container">
         <StatusBar/>
         <Routes>
-          <Route index element={<HomeView budgets={budgets}/>}/>
+          <Route index element={<HomeView />}/>
           <Route path="budget/:budgetId" element={<BudgetView budgets={budgets}/>}/>
           <Route path="cross-budget" element={<CrossBudgetView budgets={budgets}/>}/>
           <Route path="errors" element={<ErrorsView/>}/>
