@@ -1,6 +1,7 @@
 import { Uploader } from '@src/api'
 import type { Budget, DelSpending, Spending } from '@src/models/models'
 import { BudgetSpendingsStore } from '@src/stores/budgetSpendings'
+import {budgetsWithSpentFacade} from "@src/stores/budgets.ts";
 
 class FacadeImpl {
   constructor(
@@ -49,6 +50,6 @@ function createComposite(subjects: CudSpending[]): CudSpending {
   }
 }
 
-export const Composite = createComposite([BudgetSpendingsStore, Uploader])
+export const Composite = createComposite([BudgetSpendingsStore, Uploader, budgetsWithSpentFacade])
 
 export const Facade = new FacadeImpl(Composite, BudgetSpendingsStore)

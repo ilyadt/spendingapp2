@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "check": "tsc -b && eslint .",
     "preview": "vite preview",
     "test": "vitest run"
   },
@@ -16,6 +16,7 @@
     "bootstrap": "^5.3.8",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "immer": "^11.1.8",
     "nanoid": "^5.1.11",
     "nanoid-dictionary": "^5.0.0",
     "openapi-fetch": "^0.17.0",
