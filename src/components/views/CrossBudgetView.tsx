@@ -4,7 +4,7 @@ import { dateISO, dateRange} from '@src/helpers/date'
 import {toMajorUnits} from '@src/helpers/money'
 import { type Budget} from '@src/models/models'
 import {type SpendingRow} from "@src/models/viewmodels.ts";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 
 type Props = {
   budgets: Budget[]
@@ -60,21 +60,16 @@ export function CrossBudgetView({budgets} : Props) {
     return  spendingsByDate
   })
 
-  useEffect(() => {
-    const el = document.getElementById('todayDate')
+  const todayRef = useRef<HTMLDivElement>(null)
 
-    if (el) {
-      el.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      })
-    }
-  }, [])
+  useEffect(() => todayRef.current?.scrollIntoView({behavior: 'smooth', block: 'center'}), [])
+
+  const today = dateISO(new Date())
 
   return (
     <>
       {Object.entries(spsByDates).map(([date, sps]) => (
-        <div key={date} id={date == dateISO(new Date()) ? 'todayDate' : undefined}>
+        <div key={date} ref={date == today ? todayRef : undefined}>
           <SpendingTable
             date={new Date(date)}
             spendings={sps}
