@@ -21,7 +21,7 @@ function App() {
         <StatusBar/>
         <Routes>
           <Route index element={<HomeView />}/>
-          <Route path="budget/:budgetId" element={<BudgetView budgets={budgets}/>}/>
+          <Route path="budget/:budgetId" element={<BudgetView />}/>
           <Route path="cross-budget" element={<CrossBudgetView budgets={budgets}/>}/>
           <Route path="errors" element={<ErrorsView/>}/>
         </Routes>

@@ -1,7 +1,7 @@
 import { Facade } from '@src/facade'
 import {dateFormat, dateISO, dateRangePlusFromItems} from '@src/helpers/date'
 import {toMajorUnits, fromMajorUnits} from '@src/helpers/money'
-import { genSpendingID, genVersion, type Budget, type Spending } from '@src/models/models'
+import { genSpendingID, genVersion, type Spending } from '@src/models/models'
 import { type SpendingRow } from '@src/models/viewmodels'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
@@ -9,21 +9,17 @@ import SpendingTable from '@src/components/SpendingTable'
 import {useState,type SubmitEvent} from "react";
 import styles from './BudgetView.module.css'
 import {useParams} from "react-router";
+import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
 
-type Props = {
-  budgets: Budget[]
-}
-
-export function BudgetView({budgets}: Props) {
+export function BudgetView() {
   const {budgetId}= useParams()
-  const budget = budgets.find(b => b.id === Number(budgetId))!;
 
-  const [spendings, setSpendings] = useState<Spending[]>(Facade.spendingsByBudgetId(budget.id))
+  const budget = useBudgetsWithSpent(s => s.budgets[Number(budgetId)])
 
-  let moneyLeft = budget.amount
+  const [spendings, setSpendings] = useState<Spending[]>(budget ? Facade.spendingsByBudgetId(budget.id) : [])
 
-  for (const sp of spendings) {
-    moneyLeft = moneyLeft - sp.amount
+  if (!budget) {
+    return <div>Budget {budgetId} not found</div>
   }
 
   const spendingsByDate: Record<string, SpendingRow[]> = {}
@@ -98,7 +94,7 @@ export function BudgetView({budgets}: Props) {
           >{ dateFormat(budget.dateFrom) } &mdash;
             { dateFormat(budget.dateTo) }</b
           ><br />
-          <b>{ toMajorUnits(moneyLeft, budget.currency) } { budget.currency }</b> (из
+          <b>{ toMajorUnits(budget.amount - budget.amountSpent, budget.currency) } { budget.currency }</b> (из
           <b>{ toMajorUnits(budget.amount, budget.currency) } { budget.currency }</b
           >)
         </p>
