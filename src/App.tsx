@@ -1,4 +1,3 @@
-import {Facade} from "@src/facade.ts";
 import StatusBar from "@src/components/StatusBar.tsx";
 import HomeView from "@src/components/views/HomeView.tsx";
 import {NavLink, Route, Routes} from "react-router";
@@ -9,9 +8,10 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHome} from "@fortawesome/free-solid-svg-icons/faHome";
 import clsx from "clsx";
 import styles from './App.module.css'
+import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
 
 function App() {
-  const budgets = Facade.getBudgets()
+  const budgets = Object.values(useBudgetsWithSpent(s => s.budgets))
     .map(b => ({...b, sort: b.sort || 1e6}))
     .sort((a, b) => a.sort - b.sort)
 

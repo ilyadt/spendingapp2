@@ -135,23 +135,23 @@ describe('storage_test', () => {
     expect(() => BudgetSpendingsStore.spendingsByBudgetId(555)).toThrow(SyntaxError)
   })
 
-  test('spendings_by_budget_ids', () => {
-    expect(BudgetSpendingsStore.spendingsByBudgetIds([])).toEqual([])
-
+  test('spendings_by_budget_id', () => {
     BudgetSpendingsStore.storeBudgetsFromRemote([makeBudget(1), makeBudget(2)])
 
     BudgetSpendingsStore.storeSpendingsFromRemote(1, [makeApiSpending({ id: 'sp11' }), makeApiSpending({ id: 'sp12' })])
 
     BudgetSpendingsStore.storeSpendingsFromRemote(2, [makeApiSpending({ id: 'sp21' }), makeApiSpending({ id: 'sp22' })])
 
-    const res = BudgetSpendingsStore.spendingsByBudgetIds([1, 2])
+    const res1 = BudgetSpendingsStore.spendingsByBudgetId(1)
+    const res2 = BudgetSpendingsStore.spendingsByBudgetId(2)
 
-    expect(res).length(4)
+    expect(res1).length(2)
+    expect(res2).length(2)
 
-    expect(eq({ id: 'sp11' }, res[0]!)).toBe(true)
-    expect(eq({ id: 'sp12' }, res[1]!)).toBe(true)
-    expect(eq({ id: 'sp21' }, res[2]!)).toBe(true)
-    expect(eq({ id: 'sp22' }, res[3]!)).toBe(true)
+    expect(eq({ id: 'sp11' }, res1[0]!)).toBe(true)
+    expect(eq({ id: 'sp12' }, res1[1]!)).toBe(true)
+    expect(eq({ id: 'sp21' }, res2[0]!)).toBe(true)
+    expect(eq({ id: 'sp22' }, res2[1]!)).toBe(true)
   })
 
   test(BudgetSpendingsStore.storeSpendingsFromRemote.name, () => {

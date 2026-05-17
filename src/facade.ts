@@ -1,5 +1,5 @@
 import { Uploader } from '@src/api'
-import type { Budget, DelSpending, Spending } from '@src/models/models'
+import type { DelSpending, Spending } from '@src/models/models'
 import { BudgetSpendingsStore } from '@src/stores/budgetSpendings'
 import {budgetsWithSpentFacade} from "@src/stores/budgets.ts";
 
@@ -8,10 +8,6 @@ class FacadeImpl {
     private readonly composite: CudSpending,
     private readonly storage = BudgetSpendingsStore,
   ) {}
-
-  getBudgets(): Budget[] {
-    return this.storage.getBudgets()
-  }
 
   spendingsByBudgetId(bid: number): Spending[] {
     return this.storage.spendingsByBudgetId(bid)

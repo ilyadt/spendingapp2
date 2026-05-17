@@ -62,7 +62,6 @@ interface BudgetSpendingsStoreInterface {
 
   getBudgets(): Budget[]
   spendingsByBudgetId(bid: number): Spending[]
-  spendingsByBudgetIds(bids: number[]): Spending[]
 
   // -----------------------------------------------------------------
 
@@ -161,10 +160,6 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
     }
 
     return res
-  },
-
-  spendingsByBudgetIds(bids: number[]): Spending[] {
-    return bids.flatMap(bid => this.spendingsByBudgetId(bid))
   },
 
   createSpending(bid: number, newSp: Spending): void {
