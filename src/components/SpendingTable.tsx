@@ -3,7 +3,7 @@ import { dateFormat, dayName } from '@src/helpers/date'
 import { type Currency } from '@src/helpers/money'
 import {type SpendingRow} from '@src/models/viewmodels'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faReceipt } from '@fortawesome/free-solid-svg-icons'
+import { faReceipt, faXmark } from '@fortawesome/free-solid-svg-icons'
 
 type Props = {
     date: Date
@@ -81,7 +81,7 @@ export default function SpendingTable({ date, spendings, showBudgetCol }: Props)
 
                             <td>
                                 <button className="btn btn-warning btn-sm">
-                                    <FontAwesomeIcon icon={['fas', 'xmark']} />
+                                    <FontAwesomeIcon icon={faXmark} />
                                 </button>
                             </td>
                         </tr>

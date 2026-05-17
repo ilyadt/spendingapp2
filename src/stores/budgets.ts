@@ -55,15 +55,3 @@ export const useBudgetsWithSpentCreator= immer<BudgetsStore>(
 )
 
 export const useBudgetsWithSpent = create<BudgetsStore>()(useBudgetsWithSpentCreator)
-
-export const budgetsWithSpentFacade: CudSpending = {
-  createSpending(bid: number, newSp: Spending): void {
-    useBudgetsWithSpent.getState().createSpending(bid, newSp)
-  },
-  deleteSpending(bid: number, del: DelSpending): void {
-    useBudgetsWithSpent.getState().deleteSpending(bid, del)
-  },
-  updateSpending(bid: number, upd: Spending): void {
-    useBudgetsWithSpent.getState().updateSpending(bid, upd)
-  }
-}
