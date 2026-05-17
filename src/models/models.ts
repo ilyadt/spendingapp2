@@ -88,7 +88,7 @@ export interface ConflictVersion {
 }
 
 // TODO: move
-export function receiptTotals(tableRows: SpendingRow[]): Array<number> {
+export function receiptTotals(tableRows: SpendingRow[]): number[] {
   const rId2total: Record<number, [number, number] > = {}
 
   for (const [i, sp] of tableRows.entries()) {
