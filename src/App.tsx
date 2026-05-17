@@ -22,7 +22,7 @@ function App() {
         <Routes>
           <Route index element={<HomeView />}/>
           <Route path="budget/:budgetId" element={<BudgetView />}/>
-          <Route path="cross-budget" element={<CrossBudgetView budgets={budgets}/>}/>
+          <Route path="cross-budget" element={<CrossBudgetView />}/>
           <Route path="errors" element={<ErrorsView/>}/>
         </Routes>
       </div>

@@ -1,37 +1,17 @@
 import SpendingTable from '@src/components/SpendingTable'
 import { Facade } from '@src/facade'
-import { dateISO, dateRange} from '@src/helpers/date'
+import {dateISO, dateRangePlusItemSet} from '@src/helpers/date'
 import {toMajorUnits} from '@src/helpers/money'
-import { type Budget} from '@src/models/models'
 import {type SpendingRow} from "@src/models/viewmodels.ts";
 import {useEffect, useRef, useState} from "react";
+import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
 
-type Props = {
-  budgets: Budget[]
-}
+export function CrossBudgetView() {
+  const budgets = Object.values(useBudgetsWithSpent(s => s.budgets))
 
-export function CrossBudgetView({budgets} : Props) {
-  const { dateFrom, dateTo } = budgets.reduce(
-    (acc, { dateFrom: df, dateTo: dt }) => {
-      return {
-        dateFrom: df < acc.dateFrom ? df : acc.dateFrom,
-        dateTo: dt > acc.dateTo ? dt : acc.dateTo,
-      }
-    },
-    { dateFrom: new Date(8640000000000000), dateTo: new Date(-8640000000000000) },
-  )
-
-  type SpendingsByDate = {
-    [date: string]: SpendingRow[]
-  }
-
-  const [spsByDates] = useState<SpendingsByDate>(() => {
+  const [{spendingsByDate, spendingsDateSet}] = useState(() => {
     const spendingsByDate: Record<string, SpendingRow[]> = {}
-
-    // init
-    for (const date of dateRange(dateFrom, dateTo)) {
-      spendingsByDate[dateISO(date)] = []
-    }
+    const spendingsDateSet = new Set<string>()
 
     // fill
     for (const b of budgets) {
@@ -39,6 +19,8 @@ export function CrossBudgetView({budgets} : Props) {
 
       for (const s of spendings) {
         const key = dateISO(s.date)
+
+        spendingsDateSet.add(dateISO(s.date))
 
         spendingsByDate[key] ??= []
         spendingsByDate[key].push({
@@ -57,8 +39,14 @@ export function CrossBudgetView({budgets} : Props) {
       }
     }
 
-    return  spendingsByDate
+    return {spendingsByDate, spendingsDateSet}
   })
+
+  const dates = dateRangePlusItemSet(
+    budgets.map(b => b.dateFrom).sort().at(0)!,
+    budgets.map(b => b.dateTo).sort().at(-1)!,
+    spendingsDateSet,
+  )
 
   const todayRef = useRef<HTMLDivElement>(null)
 
@@ -68,11 +56,11 @@ export function CrossBudgetView({budgets} : Props) {
 
   return (
     <>
-      {Object.entries(spsByDates).map(([date, sps]) => (
+      {dates.map(date => (
         <div key={date} ref={date == today ? todayRef : undefined}>
           <SpendingTable
             date={new Date(date)}
-            spendings={sps}
+            spendings={spendingsByDate[date] ?? []}
             showBudgetCol={false}
           ></SpendingTable>
         </div>

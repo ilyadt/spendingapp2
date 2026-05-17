@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import {dateRangePlusFromItems, daysLeft, percentPassed} from '@src/helpers/date'
+import {describe, it, expect, test} from 'vitest'
+import {dateRangePlusFromItems, dateRangePlusItemSet, daysLeft, percentPassed} from '@src/helpers/date'
 
 describe('daysLeft', () => {
   it('returns 1 when today and deadline are on the same day', () => {
@@ -162,5 +162,37 @@ describe('dateRangePlusFromItems', () => {
     )
 
     expect(result).toEqual([])
+  })
+})
+
+describe('dateRangePlusItemSet', () => {
+  const d = (v: string) => new Date(v)
+  const s = (v: string[]) => new Set<string>(v)
+
+  test.each([
+    {
+      in: {from: '2026-05-01', to: '2026-05-03', additional: []},
+      out: ['2026-05-01', '2026-05-02', '2026-05-03'],
+    },
+    {
+      in: {from: '2026-05-01', to: '2026-05-03', additional: ['2026-04-29', '2026-05-05']},
+      out: ['2026-04-29', '2026-05-01', '2026-05-02', '2026-05-03', '2026-05-05'],
+    },
+    {
+      in: {from: '2026-05-01', to: '2026-05-03', additional: ['2026-05-01', '2026-05-02']},
+      out: ['2026-05-01', '2026-05-02', '2026-05-03'],
+    },
+    {
+      in: {from: '2026-05-03', to: '2026-05-01', additional: []},
+      out: [],
+    },
+  ])('%#', ({ in: input, out }) => {
+    expect(
+      dateRangePlusItemSet(
+        d(input.from),
+        d(input.to),
+        s(input.additional),
+      )
+    ).toEqual(out)
   })
 })

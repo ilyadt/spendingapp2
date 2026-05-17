@@ -90,10 +90,8 @@ export function BudgetView() {
       <div>
         <p>
           <b>Бюджет #{ budget.id }: { budget.name }</b> <br />
-          <b
-          >{ dateFormat(budget.dateFrom) } &mdash;
-            { dateFormat(budget.dateTo) }</b
-          ><br />
+          <b>{ dateFormat(budget.dateFrom) } &mdash; { dateFormat(budget.dateTo) }</b>
+          <br />
           <b>{ toMajorUnits(budget.amount - budget.amountSpent, budget.currency) } { budget.currency }</b> (из
           <b>{ toMajorUnits(budget.amount, budget.currency) } { budget.currency }</b
           >)
