@@ -1,7 +1,6 @@
 import StatusBar from "@src/components/StatusBar.tsx";
 import HomeView from "@src/components/views/HomeView.tsx";
 import {NavLink, Route, Routes} from "react-router";
-import {BudgetView} from "@src/components/views/BudgetView.tsx";
 import {CrossBudgetView} from "@src/components/views/CrossBudgetView.tsx";
 import {ErrorsView} from "@src/components/views/ErrorsView.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -9,6 +8,7 @@ import {faHome} from "@fortawesome/free-solid-svg-icons/faHome";
 import clsx from "clsx";
 import styles from './App.module.css'
 import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
+import {BudgetViewRoute} from "@src/components/views/BudgetViewRoute.tsx";
 
 function App() {
   const budgets = Object.values(useBudgetsWithSpent(s => s.budgets))
@@ -21,7 +21,7 @@ function App() {
         <StatusBar/>
         <Routes>
           <Route index element={<HomeView />}/>
-          <Route path="budget/:budgetId" element={<BudgetView />}/>
+          <Route path="budget/:budgetId" element={<BudgetViewRoute />}/>
           <Route path="cross-budget" element={<CrossBudgetView />}/>
           <Route path="errors" element={<ErrorsView/>}/>
         </Routes>

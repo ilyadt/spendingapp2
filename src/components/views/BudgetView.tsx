@@ -7,10 +7,9 @@ import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
 import SpendingTable from '@src/components/SpendingTable'
 import {type SubmitEvent} from "react";
 import styles from './BudgetView.module.css'
-import {useParams} from "react-router";
-import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
 import {type Updater, useImmer} from "use-immer";
 import type {SpendingRow} from "@src/models/viewmodels.ts";
+import type {BudgetWithSpent} from "@src/stores/budgets.ts";
 
 function topForm(b: Budget, stateUpdater: Updater<SpendingRow[]>) {
   return {
@@ -59,11 +58,7 @@ function topForm(b: Budget, stateUpdater: Updater<SpendingRow[]>) {
   }
 }
 
-export function BudgetView() {
-  const {budgetId}= useParams()
-
-  const budget = useBudgetsWithSpent(s => s.budgets[Number(budgetId)])
-
+export function BudgetView({budget}: {budget: BudgetWithSpent}) {
   const [spendings, updateSpendings] = useImmer<SpendingRow[]>(
     budget
       ? Facade.spendingsByBudgetId(budget.id).map(s => ({
@@ -74,10 +69,6 @@ export function BudgetView() {
   )
 
   const tf = topForm(budget, updateSpendings)
-
-  if (!budget) {
-    return <div>Budget {budgetId} not found</div>
-  }
 
   const spendingsByDate: Record<string, SpendingRow[]> = {}
 
