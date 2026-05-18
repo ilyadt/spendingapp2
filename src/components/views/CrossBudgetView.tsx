@@ -1,46 +1,35 @@
 import SpendingTable from '@src/components/SpendingTable'
 import { Facade } from '@src/facade'
 import {dateISO, dateRangePlusItemSet} from '@src/helpers/date'
-import {toMajorUnits} from '@src/helpers/money'
-import {type SpendingRow} from "@src/models/viewmodels.ts";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useRef} from "react";
 import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
+import {useImmer} from "use-immer";
+import type {SpendingRow} from "@src/models/viewmodels.ts";
 
 export function CrossBudgetView() {
   const budgets = Object.values(useBudgetsWithSpent(s => s.budgets))
 
-  const [{spendingsByDate, spendingsDateSet}] = useState(() => {
-    const spendingsByDate: Record<string, SpendingRow[]> = {}
-    const spendingsDateSet = new Set<string>()
+  const [spendings, updateSpendings] = useImmer<SpendingRow[]>(() =>
+    budgets.flatMap(b =>
+      Facade.spendingsByBudgetId(b.id).map(s => ({
+        ...s,
+        budgetId: b.id,
+      }))
+    )
+  )
 
-    // fill
-    for (const b of budgets) {
-      const spendings = Facade.spendingsByBudgetId(b.id)
+  const spendingsByDate: Record<string, SpendingRow[]> = {}
+  const spendingsDateSet = new Set<string>()
 
-      for (const s of spendings) {
-        const key = dateISO(s.date)
+  // fill
+  for (const s of spendings) {
+      const key = dateISO(s.date)
 
-        spendingsDateSet.add(dateISO(s.date))
+      spendingsDateSet.add(dateISO(s.date))
 
-        spendingsByDate[key] ??= []
-        spendingsByDate[key].push({
-          amountFull: toMajorUnits(s.amount, s.currency),
-          budgetId: b.id,
-          createdAt: s.createdAt,
-          currency: s.currency,
-          date: s.date,
-          description: s.description,
-          id: s.id,
-          receiptGroupId: s.receiptGroupId,
-          sort: s.sort,
-          updatedAt: s.updatedAt,
-          version: s.version,
-        })
-      }
-    }
-
-    return {spendingsByDate, spendingsDateSet}
-  })
+      spendingsByDate[key] ??= []
+      spendingsByDate[key].push(s)
+  }
 
   const dates = dateRangePlusItemSet(
     budgets.map(b => b.dateFrom).sort().at(0)!,
@@ -61,7 +50,8 @@ export function CrossBudgetView() {
           <SpendingTable
             date={new Date(date)}
             spendings={spendingsByDate[date] ?? []}
-            showBudgetCol={false}
+            showBudgetCol={true}
+            updateSpendings={updateSpendings}
           ></SpendingTable>
         </div>
       ))}

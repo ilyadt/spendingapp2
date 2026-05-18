@@ -5,7 +5,7 @@ export interface SpendingRow {
   version: string
   budgetId: number
   date: Date
-  amountFull: number
+  amount: number
   currency: Currency
   description: string
   sort: number

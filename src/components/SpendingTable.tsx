@@ -1,20 +1,25 @@
 import { isToday } from 'date-fns'
 import { dateFormat, dayName } from '@src/helpers/date'
-import { type Currency } from '@src/helpers/money'
-import {type SpendingRow} from '@src/models/viewmodels'
+import {type Currency, toMajorUnits} from '@src/helpers/money'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faReceipt, faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faReceipt, faXmark} from '@fortawesome/free-solid-svg-icons'
+import { faGripDotsVertical } from '@src/helpers/icons'
+import type {Updater} from "use-immer";
+import {genVersion} from "@src/models/models.ts";
+import {Facade} from "@src/facade.ts";
+import type {SpendingRow} from "@src/models/viewmodels.ts";
 
 type Props = {
     date: Date
     spendings: SpendingRow[]
+    updateSpendings: Updater<SpendingRow[]>
     showBudgetCol: boolean
 }
 
-export default function SpendingTable({ date, spendings, showBudgetCol }: Props) {
+export default function SpendingTable({ date, spendings, updateSpendings, showBudgetCol }: Props) {
     const dayTotal: Partial<Record<Currency, number>> = {}
-    for (const { currency, amountFull } of spendings) {
-        dayTotal[currency!] = (dayTotal[currency!] ?? 0) + amountFull
+    for (const { currency, amount } of spendings) {
+        dayTotal[currency!] = (dayTotal[currency!] ?? 0) + amount
     }
 
     function colorFromReceiptId(rId: number) {
@@ -26,8 +31,33 @@ export default function SpendingTable({ date, spendings, showBudgetCol }: Props)
         return `#${color.toString(16).padStart(6, '0')}`
     }
 
+    function delSpending(s: SpendingRow) {
+      if (!window.confirm(`Удалить запись "${s.description}" ?`)) {
+        return
+      }
 
-    return (
+      const now = new Date()
+      const newVer = genVersion(s.version)
+
+      Facade.deleteSpending(s.budgetId!, {
+        id: s.id,
+        version: newVer,
+        prev: {
+          version: s.version,
+          amount: s.amount,
+          currency: s.currency,
+          description: s.description,
+        },
+        updatedAt: now,
+      })
+
+      updateSpendings(prev => {
+        const idx = prev.findIndex(sp => sp.id === s.id)
+        prev.splice(idx, 1)
+      })
+    }
+
+  return (
         <div className="row">
             <p style={{ position: 'relative', marginBottom: 0 }}>
             <span style={{ padding: 5, marginLeft: 6, cursor: 'pointer' }}>
@@ -71,29 +101,32 @@ export default function SpendingTable({ date, spendings, showBudgetCol }: Props)
                         >
                             <td style={{ position: 'relative', textAlign: 'right' }}>
                               <span>
-                                  {sp.amountFull}
+                                  {toMajorUnits(sp.amount, sp.currency)}
                               </span>
                             </td>
 
                             <td>{sp.description}</td>
 
-                            {showBudgetCol && (<td>{sp.budgetId}</td>)}
+                            {showBudgetCol && <td>{sp.budgetId}</td>}
 
-                            <td>
-                                <button className="btn btn-warning btn-sm">
-                                    <FontAwesomeIcon icon={faXmark} />
-                                </button>
-                            </td>
+                          <td>
+                            <button className="btn btn-warning btn-sm p-1 m-1" onClick={() => delSpending(sp)}>
+                              <FontAwesomeIcon icon={faXmark}/>
+                            </button>
+                            <button className="btn btn-sm p-1 m-1">
+                              <FontAwesomeIcon icon={faGripDotsVertical} />
+                            </button>
+                          </td>
                         </tr>
                     ))}
 
                     <tr>
-                        <td>
-                            <button className="btn btn-success btn-small"> + </button>
+                      <td>
+                        <button className="btn btn-success btn-small"> + </button>
                         </td>
                         <td />
                         {showBudgetCol && <td />}
-                        <td>{dayTotal.RUB ?? 0} ₽</td>
+                        <td>{toMajorUnits(dayTotal.RUB ?? 0, 'RUB') } ₽</td>
                     </tr>
 
                     </tbody>

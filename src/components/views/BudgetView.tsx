@@ -2,7 +2,6 @@ import { Facade } from '@src/facade'
 import {dateFormat, dateISO, dateRangePlusFromItems} from '@src/helpers/date'
 import {toMajorUnits, fromMajorUnits} from '@src/helpers/money'
 import {type Budget, genSpendingID, genVersion, type Spending} from '@src/models/models'
-import { type SpendingRow } from '@src/models/viewmodels'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
 import SpendingTable from '@src/components/SpendingTable'
@@ -11,8 +10,9 @@ import styles from './BudgetView.module.css'
 import {useParams} from "react-router";
 import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
 import {type Updater, useImmer} from "use-immer";
+import type {SpendingRow} from "@src/models/viewmodels.ts";
 
-function topForm(b: Budget, stateUpdater: Updater<Spending[]>) {
+function topForm(b: Budget, stateUpdater: Updater<SpendingRow[]>) {
   return {
     save(e: SubmitEvent<HTMLFormElement>) {
       e.preventDefault()
@@ -45,12 +45,16 @@ function topForm(b: Budget, stateUpdater: Updater<Spending[]>) {
       }
 
       Facade.createSpending(b.id, newSpending)
-      stateUpdater(prev => { prev.push(newSpending) })
+      stateUpdater(prev => {
+        prev.push({
+          ...newSpending,
+          budgetId: b.id,
+        })
+      })
 
       // clear form
       form.reset()
-
-      alert('Сохранено!')
+      setTimeout(() => { alert('Сохранено!') }, 0)
     }
   }
 }
@@ -60,7 +64,14 @@ export function BudgetView() {
 
   const budget = useBudgetsWithSpent(s => s.budgets[Number(budgetId)])
 
-  const [spendings, updateSpendings] = useImmer<Spending[]>(budget ? Facade.spendingsByBudgetId(budget.id) : [])
+  const [spendings, updateSpendings] = useImmer<SpendingRow[]>(
+    budget
+      ? Facade.spendingsByBudgetId(budget.id).map(s => ({
+        ...s,
+        budgetId: budget.id,
+      }))
+      : []
+  )
 
   const tf = topForm(budget, updateSpendings)
 
@@ -75,7 +86,7 @@ export function BudgetView() {
 
     spendingsByDate[key] ??= []
     spendingsByDate[key].push({
-      amountFull: toMajorUnits(s.amount, s.currency),
+      amount: s.amount,
       budgetId: budget.id,
       createdAt: s.createdAt,
       currency: s.currency,
@@ -135,6 +146,7 @@ export function BudgetView() {
           key={date}
           date={new Date(date)}
           spendings={spendingsByDate[date] ?? []}
+          updateSpendings={updateSpendings}
           showBudgetCol={false}
         />
       ))}
