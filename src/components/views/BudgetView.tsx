@@ -1,22 +1,68 @@
 import { Facade } from '@src/facade'
 import {dateFormat, dateISO, dateRangePlusFromItems} from '@src/helpers/date'
 import {toMajorUnits, fromMajorUnits} from '@src/helpers/money'
-import { genSpendingID, genVersion, type Spending } from '@src/models/models'
+import {type Budget, genSpendingID, genVersion, type Spending} from '@src/models/models'
 import { type SpendingRow } from '@src/models/viewmodels'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
 import SpendingTable from '@src/components/SpendingTable'
-import {useState,type SubmitEvent} from "react";
+import {type SubmitEvent} from "react";
 import styles from './BudgetView.module.css'
 import {useParams} from "react-router";
 import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
+import {type Updater, useImmer} from "use-immer";
+
+function topForm(b: Budget, stateUpdater: Updater<Spending[]>) {
+  return {
+    save(e: SubmitEvent<HTMLFormElement>) {
+      e.preventDefault()
+
+      const form = e.currentTarget
+      const formData = new FormData(form)
+
+      const date = formData.get('date')?.toString();
+      const amount = Number(formData.get('amount'));
+      const description = formData.get('description')?.toString();
+
+      if (!date || !amount || !description) {
+        alert('Заполните все поля')
+        return
+      }
+
+      const now = new Date();
+
+      const newSpending: Spending = {
+        id: genSpendingID(),
+        version: genVersion(null),
+        date: new Date(date),
+        sort: now.getTime(),
+        amount: fromMajorUnits(amount, b.currency),
+        currency: b.currency,
+        description: description,
+        createdAt: now,
+        updatedAt: now,
+        receiptGroupId: 0,
+      }
+
+      Facade.createSpending(b.id, newSpending)
+      stateUpdater(prev => { prev.push(newSpending) })
+
+      // clear form
+      form.reset()
+
+      alert('Сохранено!')
+    }
+  }
+}
 
 export function BudgetView() {
   const {budgetId}= useParams()
 
   const budget = useBudgetsWithSpent(s => s.budgets[Number(budgetId)])
 
-  const [spendings, setSpendings] = useState<Spending[]>(budget ? Facade.spendingsByBudgetId(budget.id) : [])
+  const [spendings, updateSpendings] = useImmer<Spending[]>(budget ? Facade.spendingsByBudgetId(budget.id) : [])
+
+  const tf = topForm(budget, updateSpendings)
 
   if (!budget) {
     return <div>Budget {budgetId} not found</div>
@@ -45,45 +91,6 @@ export function BudgetView() {
 
   const dates = dateRangePlusFromItems(budget.dateFrom, budget.dateTo, spendings)
 
-  function saveTopForm(e: SubmitEvent<HTMLFormElement>) {
-    e.preventDefault()
-
-    const form = e.currentTarget
-    const formData = new FormData(form)
-
-    const date = formData.get('date')?.toString();
-    const amount = Number(formData.get('amount'));
-    const description = formData.get('description')?.toString();
-
-    if (!date || !amount || !description) {
-      alert('Заполните все поля')
-      return
-    }
-
-    const now = new Date();
-
-    const sendData: Spending = {
-      id: genSpendingID(),
-      version: genVersion(null),
-      date: new Date(date),
-      sort: now.getTime(),
-      amount: fromMajorUnits(amount, budget.currency),
-      currency: budget.currency,
-      description: description,
-      createdAt: now,
-      updatedAt: now,
-      receiptGroupId: 0,
-    }
-
-    Facade.createSpending(budget.id, sendData)
-    setSpendings(spendings => [...spendings, sendData])
-
-    // clear form
-    form.reset()
-
-    alert('Сохранено!')
-  }
-
   return (
     <>
       { /* Отображение бюджета с тратами */ }
@@ -98,7 +105,7 @@ export function BudgetView() {
         </p>
         <p v-if="budget?.description" style={{whiteSpace: 'pre'}}>{budget.description }</p>
       </div>
-      <form className="d-flex align-items-center gap-1 mb-5" onSubmit={saveTopForm}>
+      <form className="d-flex align-items-center gap-1 mb-5" onSubmit={tf.save}>
         <input
           type="date"
           name="date"
