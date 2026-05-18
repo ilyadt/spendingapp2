@@ -4,7 +4,7 @@ import { customAlphabet } from 'nanoid/non-secure'
 import type {Currency} from '@src/helpers/money'
 import type { components, paths } from '@src/models/oaschema'
 import { v7 as uuidv7 } from 'uuid'
-import type { SpendingRow } from '@src/models/view'
+import type { SpendingRowOld } from '@src/models/view'
 
 export const genSpendingID = (): string => uuidv7()
 
@@ -88,7 +88,7 @@ export interface ConflictVersion {
 }
 
 // TODO: move
-export function receiptTotals(tableRows: SpendingRow[]): number[] {
+export function receiptTotals(tableRows: SpendingRowOld[]): number[] {
   const rId2total: Record<number, [number, number] > = {}
 
   for (const [i, sp] of tableRows.entries()) {

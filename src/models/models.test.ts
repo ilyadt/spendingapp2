@@ -1,7 +1,7 @@
 
 import { describe, expect, test } from 'vitest'
 import { genVersion, receiptTotals } from '@src/models/models'
-import type { SpendingRow } from '@src/models/view'
+import type { SpendingRowOld } from '@src/models/view'
 
 test('genVersion', () => {
   expect(genVersion(null)).toMatch(/^v1-[0-9a-f]{5}$/)
@@ -19,16 +19,16 @@ describe('receiptTotals', () => {
   })
 
   test('ignores rows with receiptGroupId = 0', () => {
-    const rows: Partial<SpendingRow>[] = [
+    const rows: Partial<SpendingRowOld>[] = [
       { receiptGroupId: 0, amountFull: 100 },
       { receiptGroupId: 0, amountFull: 200 },
     ]
 
-    expect(receiptTotals(rows as SpendingRow[])).toEqual([0, 0])
+    expect(receiptTotals(rows as SpendingRowOld[])).toEqual([0, 0])
   })
 
   test('sums amounts per receipt group and assigns to last row index', () => {
-    const rows: Partial<SpendingRow>[] = [
+    const rows: Partial<SpendingRowOld>[] = [
       { receiptGroupId: 1, amountFull: 10 }, // index 0
       { receiptGroupId: 1, amountFull: 15 }, // index 1
       { receiptGroupId: 2, amountFull: 7 },  // index 2
@@ -36,7 +36,7 @@ describe('receiptTotals', () => {
       { receiptGroupId: 0, amountFull: 5 },
     ]
 
-    expect(receiptTotals(rows as SpendingRow[])).toEqual([
+    expect(receiptTotals(rows as SpendingRowOld[])).toEqual([
       0,  // group 1 not finished yet
       0,
       7,  // group 2 ends at index 2
@@ -46,14 +46,14 @@ describe('receiptTotals', () => {
   })
 
   test('handles interleaved receipt groups correctly', () => {
-    const rows: Partial<SpendingRow>[] = [
+    const rows: Partial<SpendingRowOld>[] = [
       { receiptGroupId: 1, amountFull: 10 }, // 0
       { receiptGroupId: 2, amountFull: 5 },  // 1
       { receiptGroupId: 1, amountFull: 20 }, // 2
       { receiptGroupId: 2, amountFull: 15 }, // 3
     ]
 
-    expect(receiptTotals(rows as SpendingRow[])).toEqual([
+    expect(receiptTotals(rows as SpendingRowOld[])).toEqual([
       0,
       0,
       30, // group 1 ends here

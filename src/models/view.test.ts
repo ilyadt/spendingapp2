@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest'
-import { PendingSpendingRow, SpendingRow, type SaveData } from '@src/models/view'
+import { PendingSpendingRow, SpendingRowOld, type SaveData } from '@src/models/view'
 import * as models from '@src/models/models'
 import { type Budget } from '@src/models/models'
 import { dateISO } from '@src/helpers/date'
@@ -88,7 +88,7 @@ describe('PendingSpendingRow', () => {
 
     const spMock = {
       saveChanges: vi.fn(),
-    } as unknown as SpendingRow
+    } as unknown as SpendingRowOld
 
     const mockDestroy = vi.fn()
 
@@ -177,7 +177,7 @@ function makeBudget(b: Partial<Budget>): Budget {
 
 describe('SpendingRow', () => {
   test('save', () => {
-    const sp = new SpendingRow(
+    const sp = new SpendingRowOld(
       'id1',
       2,
       'RUB',

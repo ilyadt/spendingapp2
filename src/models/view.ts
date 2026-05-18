@@ -26,7 +26,7 @@ export class PendingSpendingRow {
   private readonly initHash: string
 
   // Backlink to the creator
-  private sp: SpendingRow | null  = null
+  private sp: SpendingRowOld | null  = null
 
   // Backlink to the place where PendingSpendingRow lives (to destroy itself)
   public destroy: () => void = () => {};
@@ -115,7 +115,7 @@ export class PendingSpendingRow {
     this.destroy = fn
   }
 
-  public setOriginalSpending(sp: SpendingRow): void {
+  public setOriginalSpending(sp: SpendingRowOld): void {
     this.sp = sp
   }
 
@@ -137,7 +137,7 @@ export interface DataTable {
 }
 
 // ViewModel
-export class SpendingRow {
+export class SpendingRowOld {
   public selected: boolean = false;
 
   constructor(
@@ -296,10 +296,10 @@ export class Table implements DataTable {
 
   constructor(
     public date: Date,
-    public rows: SpendingRow[],
+    public rows: SpendingRowOld[],
   ) {}
 
-  addRow(sp: SpendingRow): void {
+  addRow(sp: SpendingRowOld): void {
     sp.setDataTable(this)
     this.rows.push(sp)
   }
@@ -324,8 +324,8 @@ export class Table implements DataTable {
     this.rows.sort((a, b) => a.sort - b.sort)
   }
 
-  addNewSpending(): SpendingRow {
-    const sp = new SpendingRow(
+  addNewSpending(): SpendingRowOld {
+    const sp = new SpendingRowOld(
       genSpendingID(),
       this.budget?.id ?? null,
       this.budget?.currency ?? null,
