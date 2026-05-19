@@ -153,81 +153,65 @@ export default function SpendingTable({ date, spendings, updateSpendings, showBu
     return (
         <div className="row">
             <p style={{ position: 'relative', marginBottom: 0 }}>
-            <span style={{ padding: 5, marginLeft: 6, cursor: 'pointer' }} onClick={onReceiptClick}>
-              <FontAwesomeIcon icon={faReceipt} />
-            </span>
+              <span style={{ padding: 5, marginLeft: 6, cursor: 'pointer' }} onClick={onReceiptClick}>
+                <FontAwesomeIcon icon={faReceipt} />
+              </span>
 
-            <span
-                style={{
-                    position: 'absolute',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    whiteSpace: 'nowrap',
-                }}
-            >
-              <b>
-                <i>
-                  {dateFormat(date)} ({dayName(date)})
-                </i>
-              </b>
-            </span>
+              <span style={{position: 'absolute', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap'}}>
+                <b><i>{dateFormat(date)} ({dayName(date)})</i></b>
+              </span>
             </p>
 
             <div style={{ position: 'relative' }}>
                 <table
                     className="table table-bordered table-sm align-middle"
-                    style={{
-                        tableLayout: 'fixed',
-                        minWidth: 350,
-                        opacity: isToday(date) ? 1 : 0.5,
-                        marginBottom: 20,
-                    }}
+                    style={{tableLayout: 'fixed', minWidth: 350, opacity: isToday(date) ? 1 : 0.5, marginBottom: 20}}
                 >
                     <tbody>
-                    {spendings.sort((a,b) => a.sort - b.sort).map((sp) => (
-                        <tr
-                          key={sp.id}
-                          className={sp.receiptGroupId ? styles.bgRow : ''}
-                          style={{
-                            ['--row-bg-color' as string]: rgbToCss(colorFromReceiptId(sp.receiptGroupId)),
-                          }}
-                        >
-                          <td style={{position: 'relative', textAlign: 'right'}}>
-                            <span>{toMajorUnits(sp.amount, sp.currency)}</span>
-                            {mode === 'groupSelect' && (
-                                <input
-                                  onChange={() => toggleSelected(sp.id)}
-                                  style={{position: 'absolute', top: '10px', left: '10px'}}
-                                  type="checkbox"
-                                  checked={selectedItems.has(sp.id)}
-                                />
-                              )
-                            }
+                      {spendings.sort((a,b) => a.sort - b.sort).map((sp) => (
+                          <tr
+                            key={sp.id}
+                            className={sp.receiptGroupId ? styles.bgRow : ''}
+                            style={{
+                              ['--row-bg-color' as string]: rgbToCss(colorFromReceiptId(sp.receiptGroupId)),
+                            }}
+                          >
+                            <td style={{position: 'relative', textAlign: 'right'}}>
+                              <span>{toMajorUnits(sp.amount, sp.currency)}</span>
+                              {mode === 'groupSelect' && (
+                                  <input
+                                    onChange={() => toggleSelected(sp.id)}
+                                    style={{position: 'absolute', top: '10px', left: '10px'}}
+                                    type="checkbox"
+                                    checked={selectedItems.has(sp.id)}
+                                  />
+                                )
+                              }
+                            </td>
+
+                            <td>{sp.description}</td>
+
+                            {showBudgetCol && <td>{sp.budgetId}</td>}
+
+                            <td>
+                              <button className="btn btn-warning btn-sm p-1 m-1" onClick={() => delSpending(sp)}>
+                                <FontAwesomeIcon icon={faXmark}/>
+                              </button>
+                              <button className="btn btn-sm p-1 m-1">
+                                <FontAwesomeIcon icon={faGripDotsVertical} />
+                              </button>
+                            </td>
+                          </tr>
+                      ))}
+
+                      <tr>
+                        <td>
+                          <button className="btn btn-success btn-small"> + </button>
                           </td>
-
-                          <td>{sp.description}</td>
-
-                          {showBudgetCol && <td>{sp.budgetId}</td>}
-
-                          <td>
-                            <button className="btn btn-warning btn-sm p-1 m-1" onClick={() => delSpending(sp)}>
-                              <FontAwesomeIcon icon={faXmark}/>
-                            </button>
-                            <button className="btn btn-sm p-1 m-1">
-                              <FontAwesomeIcon icon={faGripDotsVertical} />
-                            </button>
-                          </td>
-                        </tr>
-                    ))}
-
-                    <tr>
-                      <td>
-                        <button className="btn btn-success btn-small"> + </button>
-                        </td>
-                        <td />
-                        {showBudgetCol && <td />}
-                        <td>{toMajorUnits(dayTotal.RUB ?? 0, 'RUB') } ₽</td>
-                    </tr>
+                          <td />
+                          {showBudgetCol && <td />}
+                          <td>{toMajorUnits(dayTotal.RUB ?? 0, 'RUB') } ₽</td>
+                      </tr>
 
                     </tbody>
                 </table>
