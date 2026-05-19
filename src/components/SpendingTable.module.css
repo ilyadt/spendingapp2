@@ -1,0 +1,3 @@
+.bg-row > td {
+    background: var(--row-bg-color) !important;
+}

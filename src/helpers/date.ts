@@ -85,3 +85,15 @@ export function percentPassed(today: Date, interval: DateRange): number {
 
   return result
 }
+
+export function daysFrom2000UTC(dt: Date):number {
+  const y = dt.getUTCFullYear();
+  const m = dt.getUTCMonth();
+  const d = dt.getUTCDate();
+
+  const base = Date.UTC(2000, 0, 1);
+  const current = Date.UTC(y, m, d);
+
+  return Math.floor((current - base) / 86_400_000) + 1;
+}
+

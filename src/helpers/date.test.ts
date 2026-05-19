@@ -1,5 +1,5 @@
 import {describe, it, expect, test} from 'vitest'
-import {dateRangePlusFromItems, dateRangePlusItemSet, daysLeft, percentPassed} from '@src/helpers/date'
+import {dateRangePlusFromItems, dateRangePlusItemSet, daysFrom2000UTC, daysLeft, percentPassed} from '@src/helpers/date'
 
 describe('daysLeft', () => {
   it('returns 1 when today and deadline are on the same day', () => {
@@ -195,4 +195,9 @@ describe('dateRangePlusItemSet', () => {
       )
     ).toEqual(out)
   })
+})
+
+test('daysFrom2000UTC', () => {
+  expect(daysFrom2000UTC(new Date('2000-01-01'))).toEqual(1)
+  expect(daysFrom2000UTC(new Date('2001-01-01'))).toEqual(367)
 })
