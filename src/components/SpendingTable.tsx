@@ -47,6 +47,7 @@ function receiptIdUpdater(date: Date, spendings: SpendingRow[], updateSpendings:
 
       prev[idx] = {
         ...newSp,
+        internalRowId: prev[idx].internalRowId,
         budgetId: spRow.budgetId,
       }
     })

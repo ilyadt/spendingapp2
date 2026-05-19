@@ -8,3 +8,5 @@ export function randomSoftRGB(): number {
 
   return (r << 16) | (g << 8) | b;
 }
+
+export const genRandInt = () => Math.floor(Math.random() * 1e15)

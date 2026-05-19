@@ -10,6 +10,7 @@ import styles from './BudgetView.module.css'
 import {type Updater, useImmer} from "use-immer";
 import type {SpendingRow} from "@src/models/viewmodels.ts";
 import type {BudgetWithSpent} from "@src/stores/budgets.ts";
+import {genRandInt} from "@src/helpers/helper.ts";
 
 function topForm(b: Budget, stateUpdater: Updater<SpendingRow[]>) {
   return {
@@ -48,6 +49,7 @@ function topForm(b: Budget, stateUpdater: Updater<SpendingRow[]>) {
         prev.push({
           ...newSpending,
           budgetId: b.id,
+          internalRowId: genRandInt(),
         })
       })
 
@@ -59,13 +61,12 @@ function topForm(b: Budget, stateUpdater: Updater<SpendingRow[]>) {
 }
 
 export function BudgetView({budget}: {budget: BudgetWithSpent}) {
-  const [spendings, updateSpendings] = useImmer<SpendingRow[]>(
-    budget
-      ? Facade.spendingsByBudgetId(budget.id).map(s => ({
-        ...s,
-        budgetId: budget.id,
-      }))
-      : []
+  const [spendings, updateSpendings] = useImmer<SpendingRow[]>(() =>
+    Facade.spendingsByBudgetId(budget.id).map(s => ({
+      ...s,
+      budgetId: budget.id,
+      internalRowId: genRandInt(),
+    }))
   )
 
   const tf = topForm(budget, updateSpendings)
@@ -76,19 +77,7 @@ export function BudgetView({budget}: {budget: BudgetWithSpent}) {
     const key = dateISO(s.date)
 
     spendingsByDate[key] ??= []
-    spendingsByDate[key].push({
-      amount: s.amount,
-      budgetId: budget.id,
-      createdAt: s.createdAt,
-      currency: s.currency,
-      date: s.date,
-      description: s.description,
-      id: s.id,
-      receiptGroupId: s.receiptGroupId,
-      sort: s.sort,
-      updatedAt: s.updatedAt,
-      version: s.version,
-    })
+    spendingsByDate[key].push(s)
   }
 
   const dates = dateRangePlusFromItems(budget.dateFrom, budget.dateTo, spendings)

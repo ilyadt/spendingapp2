@@ -5,15 +5,17 @@ import {useEffect, useRef} from "react";
 import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
 import {useImmer} from "use-immer";
 import type {SpendingRow} from "@src/models/viewmodels.ts";
+import {genRandInt} from "@src/helpers/helper.ts";
 
 export function CrossBudgetView() {
   const budgets = Object.values(useBudgetsWithSpent(s => s.budgets))
 
   const [spendings, updateSpendings] = useImmer<SpendingRow[]>(() =>
     budgets.flatMap(b =>
-      Facade.spendingsByBudgetId(b.id).map(s => ({
+      Facade.spendingsByBudgetId(b.id).map((s):SpendingRow => ({
         ...s,
         budgetId: b.id,
+        internalRowId: genRandInt(),
       }))
     )
   )
