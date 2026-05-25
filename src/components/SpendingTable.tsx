@@ -13,7 +13,7 @@ import {
   updateSpending
 } from "@src/models/viewmodels.ts";
 import {useRef, useState} from "react";
-import {colorFromReceiptId, randomSoftRGB} from "@src/helpers/helper.ts";
+import {budgetsSortFn, colorFromReceiptId, randomSoftRGB} from "@src/helpers/helper.ts";
 import styles from './SpendingTable.module.css'
 import {createPortal} from "react-dom";
 import type {KeyboardEvent} from "react"
@@ -172,7 +172,7 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
     setPendingRow({...spRow, idx: spendings.length})
   }
 
-  const budgetsSorted = Object.values(budgets).sort((a, b) => (a.sort ?? 1e6) - (b.sort ?? 1e6) || a.id - b.id)
+  const budgetsSorted = Object.values(budgets).sort(budgetsSortFn)
   const spendingsSorted = spendings.sort((a, b) => a.sort - b.sort)
   const crossBudget = !budget
 

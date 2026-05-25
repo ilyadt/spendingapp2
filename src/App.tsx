@@ -9,11 +9,10 @@ import clsx from "clsx";
 import styles from './App.module.css'
 import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
 import {BudgetViewRoute} from "@src/components/views/BudgetViewRoute.tsx";
+import {budgetsSortFn} from "@src/helpers/helper.ts";
 
 function App() {
-  const budgets = Object.values(useBudgetsWithSpent(s => s.budgets))
-    .map(b => ({...b, sort: b.sort || 1e6}))
-    .sort((a, b) => a.sort - b.sort)
+  const budgets = Object.values(useBudgetsWithSpent(s => s.budgets)).sort(budgetsSortFn)
 
   return (
     <>

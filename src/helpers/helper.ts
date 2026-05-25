@@ -1,3 +1,4 @@
+import type {Budget} from "@src/models/models.ts";
 
 export function randomSoftRGB(): number {
   const rand = () => Math.floor(100 + Math.random() * 120); // 100–219
@@ -13,5 +14,22 @@ export function colorFromReceiptId(rId: number): number {
   return rId & 0xff_ff_ff
 }
 
+export function budgetsSortFn(a: Budget, b: Budget) {
+  let aSort = a.sort
+  if (a.sort == 0) {
+    aSort = 1e6
+  }
+
+  let bSort = b.sort
+  if (b.sort == 0) {
+    bSort = 1e6
+  }
+
+  if (aSort == bSort) {
+    return a.id - b.id
+  }
+
+  return aSort - bSort
+}
 
 export const genRandInt = () => Math.floor(Math.random() * 1e15)
