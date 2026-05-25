@@ -1,24 +1,14 @@
 import SpendingTable from '@src/components/SpendingTable'
-import { Facade } from '@src/facade'
 import {dateISO, dateRangePlusItemSet} from '@src/helpers/date'
 import {useEffect, useRef} from "react";
 import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
-import {useImmer} from "use-immer";
 import type {SpendingRow} from "@src/models/viewmodels.ts";
-import {genRandInt} from "@src/helpers/helper.ts";
+import {useSpendingRows} from "@src/stores/spendingRowsState.ts";
 
 export function CrossBudgetView() {
   const budgets = Object.values(useBudgetsWithSpent(s => s.budgets))
 
-  const [spendings, updateSpendings] = useImmer<SpendingRow[]>(() =>
-    budgets.flatMap(b =>
-      Facade.spendingsByBudgetId(b.id).map((s):SpendingRow => ({
-        ...s,
-        budgetId: b.id,
-        internalRowId: genRandInt(),
-      }))
-    )
-  )
+  const {spendings, actions} = useSpendingRows(budgets.map(b => b.id))
 
   const spendingsByDate: Record<string, SpendingRow[]> = {}
   const spendingsDateSet = new Set<string>()
@@ -52,8 +42,7 @@ export function CrossBudgetView() {
           <SpendingTable
             date={new Date(date)}
             spendings={spendingsByDate[date] ?? []}
-            showBudgetCol={true}
-            updateSpendings={updateSpendings}
+            spRowsActions={actions}
           ></SpendingTable>
         </div>
       ))}

@@ -1,18 +1,16 @@
-import { Facade } from '@src/facade'
 import {dateFormat, dateISO, dateRangePlusFromItems} from '@src/helpers/date'
 import {toMajorUnits, fromMajorUnits} from '@src/helpers/money'
-import {type Budget, genSpendingID, genVersion, type Spending} from '@src/models/models'
+import {type Budget} from '@src/models/models'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
 import SpendingTable from '@src/components/SpendingTable'
 import {type SubmitEvent} from "react";
 import styles from './BudgetView.module.css'
-import {type Updater, useImmer} from "use-immer";
-import type {SpendingRow} from "@src/models/viewmodels.ts";
+import {createSpending, type SpendingRow} from "@src/models/viewmodels.ts";
 import type {BudgetWithSpent} from "@src/stores/budgets.ts";
-import {genRandInt} from "@src/helpers/helper.ts";
+import {type SpendingRowsActions, useSpendingRows} from "@src/stores/spendingRowsState.ts";
 
-function topForm(b: Budget, stateUpdater: Updater<SpendingRow[]>) {
+function topForm(b: Budget, spRowsActions: SpendingRowsActions) {
   return {
     save(e: SubmitEvent<HTMLFormElement>) {
       e.preventDefault()
@@ -29,29 +27,12 @@ function topForm(b: Budget, stateUpdater: Updater<SpendingRow[]>) {
         return
       }
 
-      const now = new Date();
-
-      const newSpending: Spending = {
-        id: genSpendingID(),
-        version: genVersion(null),
-        date: new Date(date),
-        sort: now.getTime(),
+      const newSpending = createSpending(b, new Date(date), {
         amount: fromMajorUnits(amount, b.currency),
-        currency: b.currency,
         description: description,
-        createdAt: now,
-        updatedAt: now,
-        receiptGroupId: 0,
-      }
+      }, new Date())
 
-      Facade.createSpending(b.id, newSpending)
-      stateUpdater(prev => {
-        prev.push({
-          ...newSpending,
-          budgetId: b.id,
-          internalRowId: genRandInt(),
-        })
-      })
+      spRowsActions.createSpendingRow(b.id, newSpending)
 
       // clear form
       form.reset()
@@ -61,15 +42,9 @@ function topForm(b: Budget, stateUpdater: Updater<SpendingRow[]>) {
 }
 
 export function BudgetView({budget}: {budget: BudgetWithSpent}) {
-  const [spendings, updateSpendings] = useImmer<SpendingRow[]>(() =>
-    Facade.spendingsByBudgetId(budget.id).map(s => ({
-      ...s,
-      budgetId: budget.id,
-      internalRowId: genRandInt(),
-    }))
-  )
+  const {spendings, actions} = useSpendingRows([budget.id])
 
-  const tf = topForm(budget, updateSpendings)
+  const tf = topForm(budget, actions)
 
   const spendingsByDate: Record<string, SpendingRow[]> = {}
 
@@ -126,8 +101,8 @@ export function BudgetView({budget}: {budget: BudgetWithSpent}) {
           key={date}
           date={new Date(date)}
           spendings={spendingsByDate[date] ?? []}
-          updateSpendings={updateSpendings}
-          showBudgetCol={false}
+          spRowsActions={actions}
+          budget={budget}
         />
       ))}
     </>

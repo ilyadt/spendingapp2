@@ -1,10 +1,11 @@
 import { alphanumeric } from 'nanoid-dictionary'
 import { customAlphabet } from 'nanoid/non-secure'
 
-import type {Currency} from '@src/helpers/money'
+import {type Currency, fromMajorUnits} from '@src/helpers/money'
 import type { components, paths } from '@src/models/oaschema'
 import { v7 as uuidv7 } from 'uuid'
 import type { SpendingRowOld } from '@src/models/view'
+import type {SpendingRow} from "@src/models/viewmodels.ts";
 
 export const genSpendingID = (): string => uuidv7()
 
@@ -48,6 +49,10 @@ export interface Spending {
   createdAt: Date
   updatedAt: Date
   receiptGroupId: number
+}
+
+export function isNew(sp: Spending): boolean {
+  return !sp.id
 }
 
 // Предыдущая версия Spending
@@ -106,4 +111,51 @@ export function receiptTotals(tableRows: SpendingRowOld[]): number[] {
   }
 
   return res
+}
+
+export interface spendingEditForm {
+  budget: Budget|undefined,
+  isEmpty():boolean
+  isEqual(sp: SpendingRow): boolean
+  validate(): string|null
+  data(): spendingEditFormData,
+}
+
+export interface spendingEditFormData {
+  amount: number,
+  description: string,
+  budget: Budget|undefined,
+}
+
+export function createSpendingEditForm(fd: FormData, bs: Record<number, Budget>): spendingEditForm {
+  const budget: Budget|undefined = bs[Number(fd.get('budgetId'))]
+
+  const amountFull = Number(fd.get('amount'))
+  const amount = budget ? fromMajorUnits(amountFull, budget.currency) : 0
+  const description = fd.get('description')?.toString() ?? ''
+
+  return {
+    budget,
+    data: () => ({amount, description, budget}),
+    isEmpty: (): boolean => !budget && !amountFull && !description,
+    validate: function () {
+      if (!budget) {
+        return 'не выбран бюджет'
+      }
+
+      if (!amount) {
+        return 'пустая сумма'
+      }
+
+      if (!description) {
+        return 'пустое описание'
+      }
+
+      return null
+    },
+    isEqual: (s: SpendingRow) =>
+      budget?.id === s.budgetId
+      && amount === s.amount
+      && description === s.description,
+  }
 }

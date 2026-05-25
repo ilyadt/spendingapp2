@@ -1,3 +1,9 @@
 .bg-row > td {
     background: var(--row-bg-color) !important;
 }
+
+
+.modal-table {
+    position: absolute;
+    z-index: 2001;
+}

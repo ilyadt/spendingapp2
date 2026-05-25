@@ -1,116 +1,48 @@
 import {isToday} from 'date-fns'
 import {dateFormat, dateISO, dayName, daysFrom2000UTC} from '@src/helpers/date'
-import {type Currency, toMajorUnits} from '@src/helpers/money'
+import {type Currency, formatAmount, toMajorUnits} from '@src/helpers/money'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faReceipt, faXmark} from '@fortawesome/free-solid-svg-icons'
+import {faCheck, faReceipt, faXmark} from '@fortawesome/free-solid-svg-icons'
 import {faGripDotsVertical} from '@src/helpers/icons'
-import type {Updater} from "use-immer";
-import {genVersion, type Spending} from "@src/models/models.ts";
-import {Facade} from "@src/facade.ts";
-import type {SpendingRow} from "@src/models/viewmodels.ts";
-import {useState} from "react";
-import {randomSoftRGB} from "@src/helpers/helper.ts";
+import {useImmer} from "use-immer";
+import {type Budget, createSpendingEditForm, isNew} from "@src/models/models.ts";
+import {
+  deleteSpending,
+  saveSpendingChanges,
+  type SpendingRow,
+  updateSpending
+} from "@src/models/viewmodels.ts";
+import {useRef, useState} from "react";
+import {colorFromReceiptId, randomSoftRGB} from "@src/helpers/helper.ts";
 import styles from './SpendingTable.module.css'
+import {createPortal} from "react-dom";
+import type {KeyboardEvent} from "react"
+import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
+import type {SpendingRowsActions} from "@src/stores/spendingRowsState.ts";
 
 type Mode = 'view' | 'groupSelect'
 
 type Props = {
   date: Date
+  budget?: Budget,
   spendings: SpendingRow[]
-  updateSpendings: Updater<SpendingRow[]>
-  showBudgetCol: boolean
+  spRowsActions: SpendingRowsActions // TODO: spRowsStateActions
 }
 
-function receiptIdUpdater(date: Date, spendings: SpendingRow[], updateSpendings: Updater<SpendingRow[]>) {
-  return function (spId: string, receiptId: number, updatedAt: Date) {
-    const spRow = spendings.find(s => (s.id == spId) && (dateISO(s.date) == dateISO(date)))!
+export default function SpendingTable({date, budget, spendings, spRowsActions}: Props) {
+  const budgets = useBudgetsWithSpent(s => s.budgets)
+  const tblMode = useTableMode()
 
-    const newSp: Spending = {
-      ...spRow,
-      version: genVersion(spRow.version),
-      receiptGroupId: receiptId,
-      updatedAt: updatedAt,
-      prev: {
-        version: spRow.version,
-        amount: spRow.amount,
-        currency: spRow.currency,
-        description: spRow.description,
-      },
-    }
-
-    Facade.updateSpending(spRow.budgetId, newSp)
-
-    updateSpendings(prev => {
-      const idx = prev.findIndex(s =>
-        (s.id == spId) && (s.version == spRow.version) && (dateISO(s.date) == dateISO(date)) && (s.budgetId == spRow.budgetId)
-      )!
-
-      prev[idx] = {
-        ...newSp,
-        internalRowId: prev[idx].internalRowId,
-        budgetId: spRow.budgetId,
-      }
-    })
-  }
-}
-
-export default function SpendingTable({date, spendings, updateSpendings, showBudgetCol}: Props) {
-  const rIdUpdater = receiptIdUpdater(date, spendings, updateSpendings)
-
-  const dayTotal: Partial<Record<Currency, number>> = {}
-  for (const {currency, amount} of spendings) {
-    dayTotal[currency!] = (dayTotal[currency!] ?? 0) + amount
-  }
-
-  function colorFromReceiptId(rId: number) {
-    return rId & 0xffffff
-  }
-
-  function rgbToCss(color: number) {
-    if (!color) return undefined
-    return `#${color.toString(16).padStart(6, '0')}`
-  }
+  const [pendingRow, setPendingRow] = useImmer<SpendingRow & { idx: number } | null>(null)
+  const pendingSpForm = useRef<HTMLFormElement>(null)
 
   function delSpending(s: SpendingRow) {
     if (!window.confirm(`Удалить запись "${s.description}" ?`)) {
       return
     }
 
-    const now = new Date()
-    const newVer = genVersion(s.version)
-
-    Facade.deleteSpending(s.budgetId!, {
-      id: s.id,
-      version: newVer,
-      prev: {
-        version: s.version,
-        amount: s.amount,
-        currency: s.currency,
-        description: s.description,
-      },
-      updatedAt: now,
-    })
-
-    updateSpendings(prev => {
-      const idx = prev.findIndex(sp => sp.id === s.id)
-      prev.splice(idx, 1)
-    })
-  }
-
-  const [mode, setMode] = useState<Mode>('view')
-  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set<string>())
-
-  function setGroupSelectMode() {
-    setMode('groupSelect')
-    setSelectedItems(new Set())
-  }
-
-  function onReceiptClick() {
-    setGroupSelectMode()
-  }
-
-  function cancelGroupOperation() {
-    setMode('view')
+    deleteSpending(s, new Date())
+    spRowsActions.deleteSpendingRow(s.internalRowId)
   }
 
   function uniteReceipt() {
@@ -121,42 +53,151 @@ export default function SpendingTable({date, spendings, updateSpendings, showBud
     const receiptId: number = Number(BigInt(days) << 24n | BigInt(color))
     const now = new Date()
 
-    for (const spId of selectedItems) {
-      rIdUpdater(spId, receiptId, now)
+    for (const spId of tblMode.selectedItems) {
+      updateReceiptId(spId, receiptId, now)
     }
 
-    setMode('view')
+    tblMode.setViewMode()
   }
 
   function separateReceipt() {
     const now = new Date()
-    for (const spId of selectedItems) {
-      rIdUpdater(spId, 0, now)
+    for (const spId of tblMode.selectedItems) {
+      updateReceiptId(spId, 0, now)
     }
 
-    setMode('view')
+    tblMode.setViewMode()
   }
 
-  function toggleSelected(spId: string) {
-    setSelectedItems(prev => {
-      const next = new Set(prev)
+  function updateReceiptId(spId: string, receiptId: number, updatedAt: Date) {
+    const spRow = spendings.find(s => (s.id == spId) && (dateISO(s.date) == dateISO(date)))!
+    const newSp = updateSpending(spRow, {receiptId: receiptId}, updatedAt)
+    spRowsActions.patchSpendingRow(spRow.internalRowId, {...newSp})
+  }
 
-      if (next.has(spId)) {
-        next.delete(spId)
-      } else {
-        next.add(spId)
-      }
+  function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault()
 
-      return next
+    const f = createSpendingEditForm(new FormData(e.currentTarget!), budgets)
+    const sp = pendingRow!
+
+    // Do nothing
+    const error = f.validate()
+    if (error) {
+      window.alert(error)
+      return
+    }
+
+    // Nothing changed
+    if (f.isEqual(sp)) {
+      setPendingRow(null)
+      return
+    }
+
+    const newSp = saveSpendingChanges(date, sp, f.data(), new Date())
+
+    spRowsActions.patchSpendingRow(sp.internalRowId, {...newSp, budgetId: f.budget!.id})
+    setPendingRow(null)
+  }
+
+  function onCancel(e: React.KeyboardEvent<HTMLInputElement>|React.MouseEvent<HTMLButtonElement>) {
+    const f = createSpendingEditForm(new FormData(e.currentTarget.form!), budgets)
+    const sp = pendingRow!
+
+    if (f.isEmpty() && isNew(sp)) {
+      setPendingRow(null)
+      spRowsActions.deleteSpendingRow(sp.internalRowId)
+      return
+    }
+
+    if (f.isEqual(sp)) {
+      setPendingRow(null)
+      return
+    }
+
+    const fd = f.data()
+
+    if (!window.confirm(`Отменить изменение "${fd.description}" ?`)) {
+      return
+    }
+
+    setPendingRow(null)
+  }
+
+  function onOverlayClick() {
+    const f = createSpendingEditForm(new FormData(pendingSpForm.current!), budgets)
+    const sp = pendingRow!
+
+    if (f.isEmpty() && isNew(sp)) {
+      setPendingRow(null)
+      spRowsActions.deleteSpendingRow(sp.internalRowId)
+      return
+    }
+
+    const error = f.validate()
+    if (error) {
+      window.alert(error)
+      return
+    }
+
+    if (f.isEqual(sp)) {
+      setPendingRow(null)
+      return
+    }
+
+    const newSp = saveSpendingChanges(date, sp, f.data(), new Date())
+
+    spRowsActions.patchSpendingRow(sp.internalRowId, {...newSp, budgetId: f.budget!.id})
+    setPendingRow(null)
+  }
+
+  function addNewSpending() {
+    const spRow = spRowsActions.createSpendingRow(0, {
+      id: '',
+      version: '',
+      date: date,
+      amount: 0,
+      currency: '' as Currency,
+      description: '',
+      sort: Date.now(),
+      createdAt: new Date(0),
+      updatedAt: new Date(0),
+      receiptGroupId: 0,
     })
+
+    setPendingRow({...spRow, idx: spendings.length})
   }
 
+  const budgetsSorted = Object.values(budgets).sort((a, b) => (a.sort ?? 1e6) - (b.sort ?? 1e6) || a.id - b.id)
   const spendingsSorted = spendings.sort((a, b) => a.sort - b.sort)
+  const crossBudget = !budget
+
+  function dayTotal(cur: Currency): number {
+    const res: Partial<Record<Currency, number>> = {}
+
+    for (const {currency, amount} of spendings) {
+      res[currency] = (res[currency] ?? 0) + amount
+    }
+
+    return res[cur] ?? 0
+  }
+
+  function onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    switch (e.key) {
+      case 'Enter':
+        // handles naturally
+        break
+
+      case 'Escape':
+        onCancel(e)
+        break
+    }
+  }
 
   return (
     <div className="row">
       <p style={{position: 'relative', marginBottom: 0}}>
-        <span style={{padding: 5, marginLeft: 6, cursor: 'pointer'}} onClick={onReceiptClick}>
+        <span style={{padding: 5, marginLeft: 6, cursor: 'pointer'}} onClick={tblMode.setGroupSelectMode}>
           <FontAwesomeIcon icon={faReceipt}/>
         </span>
 
@@ -171,29 +212,38 @@ export default function SpendingTable({date, spendings, updateSpendings, showBud
           style={{tableLayout: 'fixed', minWidth: 350, opacity: isToday(date) ? 1 : 0.5, marginBottom: 20}}
         >
           <tbody>
-          {spendingsSorted.map(sp => (
+
+          {spendingsSorted.map((sp, idx) => (
             <tr
-              key={sp.id}
+              key={sp.internalRowId}
               className={sp.receiptGroupId ? styles.bgRow : ''}
               style={{
-                ['--row-bg-color' as string]: rgbToCss(colorFromReceiptId(sp.receiptGroupId)),
+                ['--row-bg-color' as string]: '#' + colorFromReceiptId(sp.receiptGroupId).toString(16),
               }}
             >
               <td style={{position: 'relative', textAlign: 'right'}}>
-                <span>{toMajorUnits(sp.amount, sp.currency)}</span>
-                {mode === 'groupSelect' && (
+
+                <span onClick={() => setPendingRow({...sp, idx})}>{toMajorUnits(sp.amount, sp.currency)}</span>
+
+                {tblMode.isGroupSelectMode && (
                   <input
-                    onChange={() => toggleSelected(sp.id)}
+                    onChange={() => tblMode.toggleSelected(sp.id)}
                     style={{position: 'absolute', top: '10px', left: '10px'}}
                     type="checkbox"
-                    checked={selectedItems.has(sp.id)}
+                    checked={tblMode.selectedItems.has(sp.id)}
                   />
                 )}
               </td>
 
-              <td>{sp.description}</td>
+              <td>
+                <span onClick={() => setPendingRow({...sp, idx})}>{sp.description}</span>
+              </td>
 
-              {showBudgetCol && <td>{sp.budgetId}</td>}
+              {crossBudget &&
+                  <td>
+                      <span onClick={() => setPendingRow({...sp, idx})}>{budgets[sp.budgetId].alias}</span>
+                  </td>
+              }
 
               <td>
                 <button className="btn btn-warning btn-sm p-1 m-1" onClick={() => delSpending(sp)}>
@@ -206,26 +256,161 @@ export default function SpendingTable({date, spendings, updateSpendings, showBud
             </tr>
           ))}
 
-          <tr>
+          <tr key="sp-add">
             <td>
-              <button className="btn btn-success btn-small"> +</button>
+              <button onClick={addNewSpending} className="btn btn-success btn-small"> +</button>
             </td>
             <td/>
-            {showBudgetCol && <td/>}
-            <td>{toMajorUnits(dayTotal.RUB ?? 0, 'RUB')} ₽</td>
+            {crossBudget && <td/>}
+            <td>{toMajorUnits(dayTotal("RUB"), 'RUB')} ₽</td>
           </tr>
 
           </tbody>
         </table>
 
-        {mode === 'groupSelect' &&
+        {pendingRow &&
+            <>
+                <form ref={pendingSpForm} onSubmit={onSubmit}>
+                  { budget &&
+                      <input name="budgetId" defaultValue={budget.id} style={{visibility: 'hidden'}} />
+                  }
+                    <table
+                        className={`table table-bordered table-sm align-middle ${styles.modalTable}`}
+                        style={{top: pendingRow.idx * 37.25 + 'px', background: 'white'}}
+                    >
+                      {crossBudget ? (
+                        <colgroup>
+                          <col style={{width: '50px'}}/>
+                          <col style={{width: '160px'}}/>
+                          <col style={{width: '50px'}}/>
+                          <col style={{width: '55px'}}/>
+                        </colgroup>
+                      ) : (
+                        <colgroup>
+                          <col style={{width: '70px'}}/>
+                          <col style={{width: '190px'}}/>
+                          <col style={{width: '65px'}}/>
+                        </colgroup>
+                      )}
+                        <tbody>
+                        <tr>
+                            <td className="text-end">
+                                <input
+                                    name="amount"
+                                    className="form-control cell-input"
+                                    type="number"
+                                    defaultValue={toMajorUnits(pendingRow.amount, pendingRow.currency)}
+                                    onKeyDown={onKeyDown}
+                                />
+                            </td>
+                            <td>
+                                <input
+                                    name="description"
+                                    className="form-control cell-input"
+                                    defaultValue={pendingRow.description}
+                                    onKeyDown={onKeyDown}
+                                />
+                            </td>
+
+                          {crossBudget &&
+                              <td>
+                                  <select name="budgetId" className="form-select cell-input"
+                                          defaultValue={pendingRow.budgetId}>
+                                      <option disabled value="">бюджет</option>
+                                    {
+                                      budgetsSorted.map(b =>
+                                        <option key={b.id} value={b.id}>
+                                          {b.alias}: {formatAmount(b.amountSpent, b.currency)}
+                                        </option>
+                                      )
+                                    }
+                                  </select>
+                              </td>
+                          }
+
+                            <td style={{padding: '2px'}}>
+                                <button
+                                    type="button"
+                                    className="btn btn-danger btn-sm p-1 m-1"
+                                    style={{minWidth: '20px', lineHeight: 1}}
+                                    onClick={onCancel}
+                                >
+                                    <FontAwesomeIcon icon={faXmark}/>
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="btn btn-success btn-sm p-1 m-1"
+                                    style={{minWidth: '20px', lineHeight: 1}}
+                                >
+                                    <FontAwesomeIcon icon={faCheck}/>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </form>
+                <Overlay onClick={onOverlayClick}/>
+            </>
+        }
+
+        {tblMode.isGroupSelectMode &&
             <div>
                 <button onClick={uniteReceipt} className="btn btn-success btn-small">Объединить в чек</button>
                 <button onClick={separateReceipt} className="btn btn-success btn-small">Разъединить чек</button>
-                <button onClick={cancelGroupOperation} className="btn btn-warning btn-small">Отменить</button>
+                <button onClick={tblMode.setViewMode} className="btn btn-warning btn-small">Отменить</button>
             </div>
         }
       </div>
     </div>
   )
+}
+
+function useTableMode() {
+  const [mode, setMode] = useState<Mode>('view')
+
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(() => new Set())
+
+  return {
+    isViewMode: mode === 'view',
+    isGroupSelectMode: mode === 'groupSelect',
+
+    setViewMode() {
+      setMode('view')
+    },
+
+    setGroupSelectMode() {
+      setSelectedItems(new Set())
+      setMode('groupSelect')
+    },
+
+    toggleSelected(item: string) {
+      setSelectedItems(prev => {
+        const next = new Set(prev)
+
+        if (next.has(item)) {
+          next.delete(item)
+        } else {
+          next.add(item)
+        }
+
+        return next
+      })
+    },
+
+    selectedItems,
+  }
+}
+
+function Overlay({onClick}: {onClick: () => void}) {
+  return createPortal(
+    <div
+     onClick={onClick}
+     style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'aqua',
+        opacity: 0.5,
+        zIndex: 2000,
+     }}
+    />, document.body)
 }

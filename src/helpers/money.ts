@@ -28,6 +28,10 @@ export function fromMajorUnits(amountMajor: number, cur: Currency): number {
 }
 
 export function toMajorUnits(amount: number, cur: Currency): number {
+  if (amount === 0) {
+    return 0
+  }
+
   const fraction = currencyFraction(cur)
 
   return amount / 10 ** fraction

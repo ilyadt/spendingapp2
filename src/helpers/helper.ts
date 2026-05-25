@@ -9,4 +9,9 @@ export function randomSoftRGB(): number {
   return (r << 16) | (g << 8) | b;
 }
 
+export function colorFromReceiptId(rId: number): number {
+  return rId & 0xff_ff_ff
+}
+
+
 export const genRandInt = () => Math.floor(Math.random() * 1e15)

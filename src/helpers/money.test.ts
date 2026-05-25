@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest'
-import {formatAmount, fromMajorUnits, toMajorUnits} from './money'
+import {type Currency, formatAmount, fromMajorUnits, toMajorUnits} from './money'
 
 test('fromMajorUnits', () => {
   expect(fromMajorUnits(12.34, 'RUB')).toBe(1234)
@@ -14,6 +14,8 @@ test('toMajorUnits', () => {
   expect(toMajorUnits(100_00, 'RUB')).toBe(100)
   expect(toMajorUnits(100_99, 'RUB')).toBe(100.99)
   expect(toMajorUnits(2, 'BTC')).toBe(0.00000002)
+
+  expect(toMajorUnits(0, 'INVALID' as Currency)).toBe(0)
 
   expect(() => {toMajorUnits(10, 'INVALID' as never)}).toThrow('invalid currency: INVALID')
 })
