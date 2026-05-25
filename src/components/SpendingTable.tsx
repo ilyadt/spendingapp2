@@ -327,7 +327,7 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
                                     {
                                       budgetsSorted.map(b =>
                                         <option key={b.id} value={b.id}>
-                                          {b.alias}: {formatAmount(b.amountSpent, b.currency)}
+                                          {b.alias}: {formatAmount(b.amount - b.amountSpent, b.currency)}
                                         </option>
                                       )
                                     }
