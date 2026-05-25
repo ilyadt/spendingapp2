@@ -91,7 +91,7 @@ export const Uploader = {
         return
       }
 
-      await this.processEvents(...events)
+      await this.processEvents(events)
     }
 
     // Initially run
@@ -122,10 +122,10 @@ export const Uploader = {
       },
     }
 
-    this.addEvent(ev)
+    const evts = this.addEvent(ev)
 
     // Async send event
-    const h = this.processEvents(ev)
+    const h = this.processEvents(evts)
 
     return h
   },
@@ -152,10 +152,10 @@ export const Uploader = {
       },
     }
 
-    this.addEvent(ev)
+    const evts = this.addEvent(ev)
 
     // Async send event
-    const h = this.processEvents(ev)
+    const h = this.processEvents(evts)
 
     return h
   },
@@ -173,10 +173,10 @@ export const Uploader = {
       },
     }
 
-    this.addEvent(ev)
+    const evts = this.addEvent(ev)
 
     // Async send event
-    const h = this.processEvents(ev)
+    const h = this.processEvents(evts)
 
     return h
   },
@@ -215,7 +215,7 @@ export const Uploader = {
     return { success: [], conflict: [], errors: [] }
   },
 
-  async processEvents(...events: ApiSpendingEvent[]) {
+  async processEvents(events: ApiSpendingEvent[]) {
     const { success, conflict, errors } = await this.sendEvents(events)
 
     // Помечаем все события во внешнем Storage
