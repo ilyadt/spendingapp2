@@ -1,5 +1,5 @@
 import {isToday} from 'date-fns'
-import {dateFormat, dateISO, dayName, daysFrom2000UTC} from '@src/helpers/date'
+import {dateFormat, dateISO, dayName} from '@src/helpers/date'
 import {type Currency, formatAmount, toMajorUnits} from '@src/helpers/money'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCheck, faReceipt, faXmark} from '@fortawesome/free-solid-svg-icons'
@@ -13,7 +13,7 @@ import {
   updateSpending
 } from "@src/models/viewmodels.ts";
 import {useRef, useState} from "react";
-import {budgetsSortFn, colorFromReceiptId, randomSoftRGB} from "@src/helpers/helper.ts";
+import {budgetsSortFn, colorFromReceiptId, genReceiptId} from "@src/helpers/helper.ts";
 import styles from './SpendingTable.module.css'
 import {createPortal} from "react-dom";
 import type {KeyboardEvent} from "react"
@@ -46,24 +46,18 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
   }
 
   function uniteReceipt() {
-    const days = daysFrom2000UTC(date)
-    const color = randomSoftRGB()
+    setReceiptIdForSelectedItems(genReceiptId(date))
+  }
 
-    // 3byte + 3byte
-    const receiptId: number = Number(BigInt(days) << 24n | BigInt(color))
+  function separateReceipt() {
+    setReceiptIdForSelectedItems(0)
+  }
+
+  function setReceiptIdForSelectedItems(receiptId: number) {
     const now = new Date()
 
     for (const spId of tblMode.selectedItems) {
       updateReceiptId(spId, receiptId, now)
-    }
-
-    tblMode.setViewMode()
-  }
-
-  function separateReceipt() {
-    const now = new Date()
-    for (const spId of tblMode.selectedItems) {
-      updateReceiptId(spId, 0, now)
     }
 
     tblMode.setViewMode()
