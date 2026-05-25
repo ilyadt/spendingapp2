@@ -17,6 +17,7 @@ export interface SpendingData {
   amount: number,
   description: string,
   receiptId?: number,
+  sort?: number,
 }
 
 export function createSpending(b: Budget, date: Date, fd: SpendingData, createdAt: Date): Spending {
@@ -29,8 +30,8 @@ export function createSpending(b: Budget, date: Date, fd: SpendingData, createdA
     updatedAt: createdAt,
     createdAt: createdAt,
     date: date,
-    sort: createdAt.getTime(),
-    receiptGroupId: fd.receiptId ? fd.receiptId : 0,
+    sort: fd.sort ?? createdAt.getTime(),
+    receiptGroupId: fd.receiptId  ?? 0,
   }
 
   Facade.createSpending(b.id, sp)
@@ -75,9 +76,15 @@ export function saveSpendingChanges(date: Date, oldRow: SpendingRow, fdata: spen
     deleteSpending(oldRow, now)
   }
 
+  const spData: SpendingData = {
+    sort: oldRow.sort ?? undefined,
+    receiptId: oldRow.receiptGroupId ?? undefined,
+    ...fdata,
+  }
+
   return budgetChanged
-    ? createSpending(fdata.budget!, date, fdata, now)
-    : updateSpending(oldRow, fdata, now)
+    ? createSpending(fdata.budget!, date, spData, now)
+    : updateSpending(oldRow, spData, now)
 }
 
 export function deleteSpending(oldRow: SpendingRow, deletedAt: Date) {
