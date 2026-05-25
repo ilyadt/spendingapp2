@@ -121,6 +121,10 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
       return
     }
 
+    if (isNew(sp)) {
+      spRowsActions.deleteSpendingRow(sp.internalRowId)
+    }
+
     setPendingRow(null)
   }
 
@@ -241,7 +245,11 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
 
               {crossBudget &&
                   <td>
-                      <span onClick={() => setPendingRow({...sp, idx})}>{budgets[sp.budgetId].alias}</span>
+                      <span onClick={() => setPendingRow({...sp, idx})}>{
+                        isNew(sp)
+                          ? ''
+                          : budgets[sp.budgetId].alias}
+                      </span>
                   </td>
               }
 
@@ -258,7 +266,7 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
 
           <tr key="sp-add">
             <td>
-              <button onClick={addNewSpending} className="btn btn-success btn-small"> +</button>
+              <button type="button" onClick={addNewSpending} className="btn btn-success btn-small"> +</button>
             </td>
             <td/>
             {crossBudget && <td/>}
@@ -314,9 +322,8 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
 
                           {crossBudget &&
                               <td>
-                                  <select name="budgetId" className="form-select cell-input"
-                                          defaultValue={pendingRow.budgetId}>
-                                      <option disabled value="">бюджет</option>
+                                  <select name="budgetId" className="form-select cell-input" defaultValue={pendingRow.budgetId}>
+                                      <option disabled key="0" value="0">бюджет</option>
                                     {
                                       budgetsSorted.map(b =>
                                         <option key={b.id} value={b.id}>

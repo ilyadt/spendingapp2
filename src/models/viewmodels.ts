@@ -41,7 +41,7 @@ export function createSpending(b: Budget, date: Date, fd: SpendingData, createdA
 export function updateSpending(old: SpendingRow, fd: Partial<SpendingData>, updatedAt: Date): Spending {
   const amount = fd.amount ? fd.amount: old.amount
   const description = fd.description ? fd.description : old.description
-  const receiptId = fd.receiptId ? fd.receiptId : old.receiptGroupId
+  const receiptId = (fd.receiptId != null) ? fd.receiptId : old.receiptGroupId
 
   const sp = {
     id: old.id,
@@ -68,13 +68,14 @@ export function updateSpending(old: SpendingRow, fd: Partial<SpendingData>, upda
 }
 
 export function saveSpendingChanges(date: Date, oldRow: SpendingRow, fdata: spendingEditFormData, now: Date): Spending {
-  const budgetChanged = !isNew(oldRow) && (oldRow.budgetId !== fdata.budget!.id)
+  const isNewSp = isNew(oldRow)
+  const budgetChanged = (oldRow.budgetId !== fdata.budget!.id)
 
-  if (budgetChanged) {
+  if (!isNewSp && budgetChanged) {
     deleteSpending(oldRow, now)
   }
 
-  return isNew(oldRow)
+  return budgetChanged
     ? createSpending(fdata.budget!, date, fdata, now)
     : updateSpending(oldRow, fdata, now)
 }
