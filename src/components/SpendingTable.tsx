@@ -20,8 +20,6 @@ import type {KeyboardEvent} from "react"
 import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
 import type {SpendingRowsActions} from "@src/stores/spendingRowsState.ts";
 
-type Mode = 'view' | 'groupSelect'
-
 type Props = {
   date: Date
   budget?: Budget,
@@ -33,7 +31,7 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
   const budgets = useBudgetsWithSpent(s => s.budgets)
   const tblMode = useTableMode()
 
-  const [pendingRow, setPendingRow] = useImmer<SpendingRow & { idx: number } | null>(null)
+  const [pendingRow, setPendingRow] = useImmer<SpendingRow | null>(null)
   const pendingSpForm = useRef<HTMLFormElement>(null)
 
   function delSpending(s: SpendingRow) {
@@ -163,11 +161,11 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
       receiptGroupId: 0,
     })
 
-    setPendingRow({...spRow, idx: spendings.length})
+    setPendingRow(spRow)
   }
 
   const budgetsSorted = Object.values(budgets).sort(budgetsSortFn)
-  const spendingsSorted = spendings.sort((a, b) => a.sort - b.sort)
+  const spendingsSorted = [...spendings].sort((a, b) => a.sort - b.sort)
   const receiptTotal = receiptTotals(spendingsSorted)
   const crossBudget = !budget
 
@@ -193,6 +191,10 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
     }
   }
 
+  function rowIdx(rowId: number): number {
+    return spendingsSorted.findIndex(s => s.rowId == rowId)
+  }
+
   return (
     <div className="row">
       <p style={{position: 'relative', marginBottom: 0}}>
@@ -212,7 +214,7 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
         >
           <tbody>
 
-          {spendingsSorted.map((sp, idx) => (
+          {spendingsSorted.map((sp) => (
             <tr
               key={sp.rowId}
               className={sp.receiptGroupId ? styles.bgRow : ''}
@@ -222,7 +224,7 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
             >
               <td style={{position: 'relative', textAlign: 'right'}}>
 
-                <span onClick={() => setPendingRow({...sp, idx})}>
+                <span onClick={() => setPendingRow(sp)}>
                   {receiptTotal[sp.rowId] && `${toMajorUnits(receiptTotal[sp.rowId], sp.currency)} \\ `}
                   {toMajorUnits(sp.amount, sp.currency)}
                 </span>
@@ -238,12 +240,12 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
               </td>
 
               <td>
-                <span onClick={() => setPendingRow({...sp, idx})}>{sp.description}</span>
+                <span onClick={() => setPendingRow(sp)}>{sp.description}</span>
               </td>
 
               {crossBudget &&
                   <td>
-                      <span onClick={() => setPendingRow({...sp, idx})}>{
+                      <span onClick={() => setPendingRow(sp)}>{
                         isNew(sp)
                           ? ''
                           : budgets[sp.budgetId].alias}
@@ -282,7 +284,7 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
                   }
                     <table
                         className={`table table-bordered table-sm align-middle ${styles.modalTable}`}
-                        style={{top: pendingRow.idx * 37.25 + 'px', background: 'white'}}
+                        style={{top: rowIdx(pendingRow.rowId) * 37.25 + 'px', background: 'white'}}
                     >
                       {crossBudget ? (
                         <colgroup>
@@ -371,6 +373,8 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
 }
 
 function useTableMode() {
+  type Mode = 'view' | 'groupSelect'
+
   const [mode, setMode] = useState<Mode>('view')
 
   const [selectedItems, setSelectedItems] = useState<Set<string>>(() => new Set())
