@@ -16,14 +16,14 @@ export function useSpendingRows(bids: number[]) {
       Facade.spendingsByBudgetId(bid).map((s):SpendingRow => ({
         ...s,
         budgetId: bid,
-        internalRowId: genRandInt(),
+        rowId: genRandInt(),
       }))
     )
   )
 
   function createSpendingRow(bid: number, sp: Spending): SpendingRow {
-    const spRow = {
-      internalRowId: genRandInt(),
+    const spRow: SpendingRow = {
+      rowId: genRandInt(),
       budgetId: bid,
       ...sp,
     }
@@ -33,17 +33,17 @@ export function useSpendingRows(bids: number[]) {
     return spRow
   }
 
-  function patchSpendingRow(internalRowId: number, patch: Partial<SpendingRow>) {
+  function patchSpendingRow(rowId: number, patch: Partial<SpendingRow>) {
     updateSpendings((sps) => {
       Object.assign(
-        sps.find((s) => s.internalRowId === internalRowId)!,
+        sps.find((s) => s.rowId === rowId)!,
         patch,
       )
     })
   }
 
-  function deleteSpendingRow(internalRowId: number) {
-    updateSpendings(sps => sps.filter(s => s.internalRowId != internalRowId))
+  function deleteSpendingRow(rowId: number) {
+    updateSpendings(sps => sps.filter(s => s.rowId != rowId))
   }
 
   return {

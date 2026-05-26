@@ -42,7 +42,7 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
     }
 
     deleteSpending(s, new Date())
-    spRowsActions.deleteSpendingRow(s.internalRowId)
+    spRowsActions.deleteSpendingRow(s.rowId)
   }
 
   function uniteReceipt() {
@@ -66,7 +66,7 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
   function updateReceiptId(spId: string, receiptId: number, updatedAt: Date) {
     const spRow = spendings.find(s => (s.id == spId) && (dateISO(s.date) == dateISO(date)))!
     const newSp = updateSpending(spRow, {receiptId: receiptId}, updatedAt)
-    spRowsActions.patchSpendingRow(spRow.internalRowId, {...newSp})
+    spRowsActions.patchSpendingRow(spRow.rowId, {...newSp})
   }
 
   function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
@@ -90,7 +90,7 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
 
     const newSp = saveSpendingChanges(date, sp, f.data(), new Date())
 
-    spRowsActions.patchSpendingRow(sp.internalRowId, {...newSp, budgetId: f.budget!.id})
+    spRowsActions.patchSpendingRow(sp.rowId, {...newSp, budgetId: f.budget!.id})
     setPendingRow(null)
   }
 
@@ -100,7 +100,7 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
 
     if (f.isEmpty() && isNew(sp)) {
       setPendingRow(null)
-      spRowsActions.deleteSpendingRow(sp.internalRowId)
+      spRowsActions.deleteSpendingRow(sp.rowId)
       return
     }
 
@@ -116,7 +116,7 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
     }
 
     if (isNew(sp)) {
-      spRowsActions.deleteSpendingRow(sp.internalRowId)
+      spRowsActions.deleteSpendingRow(sp.rowId)
     }
 
     setPendingRow(null)
@@ -128,7 +128,7 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
 
     if (f.isEmpty() && isNew(sp)) {
       setPendingRow(null)
-      spRowsActions.deleteSpendingRow(sp.internalRowId)
+      spRowsActions.deleteSpendingRow(sp.rowId)
       return
     }
 
@@ -145,7 +145,7 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
 
     const newSp = saveSpendingChanges(date, sp, f.data(), new Date())
 
-    spRowsActions.patchSpendingRow(sp.internalRowId, {...newSp, budgetId: f.budget!.id})
+    spRowsActions.patchSpendingRow(sp.rowId, {...newSp, budgetId: f.budget!.id})
     setPendingRow(null)
   }
 
@@ -153,7 +153,7 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
     const spRow = spRowsActions.createSpendingRow(0, {
       id: '',
       version: '',
-      date: date,
+      date: date, // TODO: сделать State по дням ?
       amount: 0,
       currency: '' as Currency,
       description: '',
@@ -213,7 +213,7 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
 
           {spendingsSorted.map((sp, idx) => (
             <tr
-              key={sp.internalRowId}
+              key={sp.rowId}
               className={sp.receiptGroupId ? styles.bgRow : ''}
               style={{
                 ['--row-bg-color' as string]: '#' + colorFromReceiptId(sp.receiptGroupId).toString(16),

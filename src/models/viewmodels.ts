@@ -9,7 +9,7 @@ import {
 import {Facade} from "@src/facade.ts";
 
 export type SpendingRow = Spending & {
-  internalRowId: number
+  rowId: number
   budgetId: number
 }
 
