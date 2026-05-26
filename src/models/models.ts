@@ -137,7 +137,7 @@ export function createSpendingEditForm(fd: FormData, bs: Record<number, Budget>)
   return {
     budget,
     data: () => ({amount, description, budget}),
-    isEmpty: (): boolean => !budget && !amountFull && !description,
+    isEmpty: (): boolean => !amountFull && !description, // TODO: split form for cross-budget / not
     validate: function () {
       if (!budget) {
         return 'не выбран бюджет'
