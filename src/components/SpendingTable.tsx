@@ -44,24 +44,24 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
   }
 
   function uniteReceipt() {
-    setReceiptIdForSelectedItems(genReceiptId(date))
+    _setReceiptIdForSelectedItems(genReceiptId(date))
   }
 
   function separateReceipt() {
-    setReceiptIdForSelectedItems(0)
+    _setReceiptIdForSelectedItems(0)
   }
 
-  function setReceiptIdForSelectedItems(receiptId: number) {
+  function _setReceiptIdForSelectedItems(receiptId: number) {
     const now = new Date()
 
     for (const spId of tblMode.selectedItems) {
-      updateReceiptId(spId, receiptId, now)
+      _updateReceiptId(spId, receiptId, now)
     }
 
     tblMode.setViewMode()
   }
 
-  function updateReceiptId(spId: string, receiptId: number, updatedAt: Date) {
+  function _updateReceiptId(spId: string, receiptId: number, updatedAt: Date) {
     const spRow = spendings.find(s => (s.id == spId) && (dateISO(s.date) == dateISO(date)))!
     const newSp = updateSpending(spRow, {receiptId: receiptId}, updatedAt)
     spRowsActions.patchSpendingRow(spRow.rowId, {...newSp})
