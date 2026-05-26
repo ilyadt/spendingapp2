@@ -13,7 +13,7 @@ import {
   updateSpending
 } from "@src/models/viewmodels.ts";
 import {useRef, useState} from "react";
-import {budgetsSortFn, colorFromReceiptId, genReceiptId} from "@src/helpers/helper.ts";
+import {budgetsSortFn, colorFromReceiptId, genReceiptId, receiptTotals} from "@src/helpers/helper.ts";
 import styles from './SpendingTable.module.css'
 import {createPortal} from "react-dom";
 import type {KeyboardEvent} from "react"
@@ -168,6 +168,7 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
 
   const budgetsSorted = Object.values(budgets).sort(budgetsSortFn)
   const spendingsSorted = spendings.sort((a, b) => a.sort - b.sort)
+  const receiptTotal = receiptTotals(spendingsSorted)
   const crossBudget = !budget
 
   function dayTotal(cur: Currency): number {
@@ -221,7 +222,10 @@ export default function SpendingTable({date, budget, spendings, spRowsActions}: 
             >
               <td style={{position: 'relative', textAlign: 'right'}}>
 
-                <span onClick={() => setPendingRow({...sp, idx})}>{toMajorUnits(sp.amount, sp.currency)}</span>
+                <span onClick={() => setPendingRow({...sp, idx})}>
+                  {receiptTotal[sp.rowId] && `${toMajorUnits(receiptTotal[sp.rowId], sp.currency)} \\ `}
+                  {toMajorUnits(sp.amount, sp.currency)}
+                </span>
 
                 {tblMode.isGroupSelectMode && (
                   <input

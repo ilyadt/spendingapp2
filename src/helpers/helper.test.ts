@@ -1,5 +1,6 @@
 import {expect, test} from 'vitest'
-import {colorFromReceiptId, genReceiptId, randomSoftRGB} from "@src/helpers/helper.ts";
+import {colorFromReceiptId, genReceiptId, randomSoftRGB, receiptTotals} from "@src/helpers/helper.ts";
+import type {SpendingRow} from "@src/models/viewmodels.ts";
 
 test('randomSoftRGB', () => {
   const res = randomSoftRGB()
@@ -34,4 +35,41 @@ test('genReceiptId', () => {
 
   const rId2 = genReceiptId(date)
   expect(rId2).not.toBe(rId)
+})
+
+
+test('receiptTotals', () => {
+  expect(receiptTotals([])).toEqual({})
+
+  const rows: Partial<SpendingRow>[] = [
+    { receiptGroupId: 0, amount: 100 },
+    { receiptGroupId: 0, amount: 200 },
+  ]
+  expect(receiptTotals(rows as SpendingRow[])).toEqual({})
+
+
+  const rows2: Partial<SpendingRow>[] = [
+    { rowId: 100, receiptGroupId: 1, amount: 10 },
+    { rowId: 200, receiptGroupId: 1, amount: 15 },
+    { rowId: 300, receiptGroupId: 2, amount: 7 },
+    { rowId: 400, receiptGroupId: 1, amount: 5 },
+    { rowId: 500, receiptGroupId: 0, amount: 5 },
+  ]
+
+  expect(receiptTotals(rows2 as SpendingRow[])).toEqual({
+    400: 30,
+    300: 7,
+  })
+
+  const rows3: Partial<SpendingRow>[] = [
+    { rowId: 100, receiptGroupId: 1, amount: 10 },
+    { rowId: 200, receiptGroupId: 2, amount: 5 },
+    { rowId: 300, receiptGroupId: 1, amount: 20 },
+    { rowId: 400, receiptGroupId: 2, amount: 15 },
+  ]
+
+  expect(receiptTotals(rows3 as SpendingRow[])).toEqual({
+    300: 30,
+    400: 20,
+  })
 })

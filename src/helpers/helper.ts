@@ -1,5 +1,6 @@
 import type {Budget} from "@src/models/models.ts";
 import {daysFrom2000UTC} from "@src/helpers/date.ts";
+import type {SpendingRow} from "@src/models/viewmodels.ts";
 
 export function randomSoftRGB(): number {
   const rand = () => Math.floor(100 + Math.random() * 120); // 100–219
@@ -42,3 +43,29 @@ export function budgetsSortFn(a: Budget, b: Budget) {
 }
 
 export const genRandInt = () => Math.floor(Math.random() * 1e15)
+
+type RowId = number
+type Total = number
+type ReceiptId = number
+
+export function receiptTotals(rows: SpendingRow[]): Record<RowId, Total> {
+  const rId2total: Record<ReceiptId, [RowId, Total] > = {}
+
+  for (const spRow of rows) {
+    if (spRow.receiptGroupId == 0) {
+      continue
+    }
+
+    const amount = rId2total[spRow.receiptGroupId]?.[1] ?? 0
+
+    rId2total[spRow.receiptGroupId] = [spRow.rowId, amount + spRow.amount]
+  }
+
+  const res: Record<RowId, Total> = {}
+
+  for (const [rowIdx, totalReceipt] of  Object.values(rId2total)) {
+    res[rowIdx] = totalReceipt
+  }
+
+  return res
+}
