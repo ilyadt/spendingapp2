@@ -97,13 +97,11 @@ export interface spendingEditForm {
   isEmpty():boolean
   isEqual(sp: SpendingRow): boolean
   validate(): string|null
-  data(): spendingEditFormData,
-}
-
-export interface spendingEditFormData {
-  amount: number,
-  description: string,
-  budget: Budget,
+  data(): {
+    amount: number,
+    description: string,
+    budget: Budget,
+  },
 }
 
 export function createSpendingEditForm(fd: FormData, bs: Record<number, Budget>): spendingEditForm {

@@ -31,7 +31,8 @@ export function BudgetView({budget}: {budget: BudgetWithSpent}) {
       return
     }
 
-    const newSpending = createSpending(budget, new Date(date), {
+    const newSpending = createSpending(new Date(date), {
+      budget: budget,
       amount: fromMajorUnits(amount, budget.currency),
       description: description,
     }, new Date())

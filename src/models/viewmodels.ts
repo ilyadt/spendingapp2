@@ -4,7 +4,6 @@ import {
   genVersion,
   isNew,
   type Spending,
-  type spendingEditFormData,
 } from "@src/models/models.ts";
 import {Facade} from "@src/facade.ts";
 
@@ -14,18 +13,19 @@ export type SpendingRow = Spending & {
 }
 
 export interface SpendingData {
+  budget: Budget,
   amount: number,
   description: string,
   receiptId?: number,
   sort?: number,
 }
 
-export function createSpending(b: Budget, date: Date, fd: SpendingData, createdAt: Date): Spending {
+export function createSpending(date: Date, fd: SpendingData, createdAt: Date): Spending {
   const sp: Spending = {
     id: genSpendingID(),
     version: genVersion(null),
     amount: fd.amount,
-    currency: b.currency,
+    currency: fd.budget.currency,
     description: fd.description,
     updatedAt: createdAt,
     createdAt: createdAt,
@@ -34,7 +34,7 @@ export function createSpending(b: Budget, date: Date, fd: SpendingData, createdA
     receiptGroupId: fd.receiptId  ?? 0,
   }
 
-  Facade.createSpending(b.id, sp)
+  Facade.createSpending(fd.budget.id, sp)
 
   return sp
 }
@@ -68,7 +68,7 @@ export function updateSpending(old: SpendingRow, fd: Partial<SpendingData>, upda
   return sp
 }
 
-export function saveSpendingChanges(date: Date, oldRow: SpendingRow, fdata: spendingEditFormData, now: Date): Spending {
+export function saveSpendingChanges(date: Date, oldRow: SpendingRow, fdata: SpendingData, now: Date): Spending {
   const isNewSp = isNew(oldRow)
   const budgetChanged = (oldRow.budgetId !== fdata.budget.id)
 
@@ -83,7 +83,7 @@ export function saveSpendingChanges(date: Date, oldRow: SpendingRow, fdata: spen
   }
 
   return budgetChanged
-    ? createSpending(fdata.budget, date, spData, now)
+    ? createSpending(date, spData, now)
     : updateSpending(oldRow, spData, now)
 }
 
