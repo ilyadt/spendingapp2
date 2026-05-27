@@ -18,13 +18,16 @@ if (nodeVersion >= 25) {
 
 
 export default defineConfig({
+    test: {
+        env: {
+            VITE_SERVER_URL: 'http://localhost:3000',
+        },
+        environment: 'jsdom',
+        execArgv: execArgv
+    },
     resolve: {
         alias: {
             '@src': path.resolve(__dirname, 'src'),
         },
-    },
-    test: {
-        environment: 'jsdom',
-        execArgv: execArgv
     },
 })
