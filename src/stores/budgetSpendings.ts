@@ -105,7 +105,7 @@ interface BudgetSpendingsStoreInterface {
   revokeConflictVersion(bid: number, spId: string, version: string): ConflictVersion[]
 }
 
-const lsPrefix = 'storage'
+const lsPrefix = 'storageV2'
 
 function lsSpendingsKey(bid: number): string {
   return `${lsPrefix}:b:${bid}:spendings`

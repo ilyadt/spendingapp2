@@ -31,7 +31,7 @@ export const useConflictVersionStore = create<ConflictVersionState>()(
             reset: () => set({ conflictVersions: [] }),
         }),
         {
-            name: 'ConflictVersions',
+            name: 'conflictVersionsV2',
         }
     )
 )

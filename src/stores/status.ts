@@ -28,7 +28,7 @@ export const useStatusStore = create<StatusState>()(
             set({ pendingEvents: n }),
         }),
         {
-            name: 'status',
+            name: 'statusV2',
         }
     )
 )
