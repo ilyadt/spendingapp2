@@ -1,6 +1,5 @@
-import type {Budget} from "@src/models/models.ts";
+import type {Budget, SpendingRow} from "@src/models/models.ts";
 import {daysFrom2000UTC} from "@src/helpers/date.ts";
-import type {SpendingRow} from "@src/models/viewmodels.ts";
 
 export function randomSoftRGB(): number {
   const rand = () => Math.floor(100 + Math.random() * 120); // 100–219

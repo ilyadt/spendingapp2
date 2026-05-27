@@ -1,5 +1,4 @@
-import type {Spending} from "@src/models/models.ts";
-import type {SpendingRow} from "@src/models/viewmodels.ts";
+import type {Spending, SpendingRow} from "@src/models/models.ts";
 import {genRandInt} from "@src/helpers/helper.ts";
 import {useImmer} from "use-immer";
 

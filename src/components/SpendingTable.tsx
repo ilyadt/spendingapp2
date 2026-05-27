@@ -5,13 +5,12 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCheck, faReceipt, faXmark} from '@fortawesome/free-solid-svg-icons'
 import {faGripDotsVertical} from '@src/helpers/icons'
 import {useImmer} from "use-immer";
-import {type Budget, createSpendingEditForm, isNew} from "@src/models/models.ts";
+import {type Budget, type SpendingRow, createSpendingEditForm, isNew} from "@src/models/models.ts";
 import {
   deleteSpending,
   saveSpendingChanges,
-  type SpendingRow,
   updateSpending
-} from "@src/models/viewmodels.ts";
+} from "@src/models/facadewrapper.ts";
 import {useRef, useState} from "react";
 import {budgetsSortFn, colorFromReceiptId, genReceiptId, receiptTotals} from "@src/helpers/helper.ts";
 import styles from './SpendingTable.module.css'

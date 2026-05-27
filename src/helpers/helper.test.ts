@@ -1,6 +1,6 @@
 import {expect, test} from 'vitest'
 import {colorFromReceiptId, genReceiptId, randomSoftRGB, receiptTotals} from "@src/helpers/helper.ts";
-import type {SpendingRow} from "@src/models/viewmodels.ts";
+import type {SpendingRow} from "@src/models/models.ts";
 
 test('randomSoftRGB', () => {
   const res = randomSoftRGB()

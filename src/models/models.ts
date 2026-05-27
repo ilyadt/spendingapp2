@@ -4,7 +4,6 @@ import { customAlphabet } from 'nanoid/non-secure'
 import {type Currency, fromMajorUnits} from '@src/helpers/money'
 import type { components, paths } from '@src/models/oaschema'
 import { v7 as uuidv7 } from 'uuid'
-import type {SpendingRow} from "@src/models/viewmodels.ts";
 
 export const genSpendingID = (): string => uuidv7()
 
@@ -60,6 +59,11 @@ export interface SpendingPrev {
   amount: number
   currency: Currency
   description: string
+}
+
+export type SpendingRow = Spending & {
+  rowId: number
+  budgetId: number
 }
 
 export interface Budget {

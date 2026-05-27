@@ -1,7 +1,6 @@
-import type {SpendingRow} from "@src/models/viewmodels.ts";
 import {useImmer} from "use-immer";
 import {dateISO} from "@src/helpers/date.ts";
-import type {Spending} from "@src/models/models.ts";
+import type {Spending, SpendingRow} from "@src/models/models.ts";
 import {genRandInt} from "@src/helpers/helper.ts";
 
 type SpendingsByDate = Record<

@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
 import SpendingTable from '@src/components/SpendingTable'
 import styles from './BudgetView.module.css'
-import {createSpending} from "@src/models/viewmodels.ts";
+import {createSpending} from "@src/models/facadewrapper.ts";
 import type {BudgetWithSpent} from "@src/stores/budgets.ts";
 import {useSpendingRowsByDate} from "@src/stores/spendingRowsByDateState.ts";
 import {Facade} from "@src/facade.ts";

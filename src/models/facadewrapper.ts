@@ -4,13 +4,9 @@ import {
   genVersion,
   isNew,
   type Spending,
+  type SpendingRow,
 } from "@src/models/models.ts";
 import {Facade} from "@src/facade.ts";
-
-export type SpendingRow = Spending & {
-  rowId: number
-  budgetId: number
-}
 
 export interface SpendingData {
   budget: Budget,
@@ -20,29 +16,29 @@ export interface SpendingData {
   sort?: number,
 }
 
-export function createSpending(date: Date, fd: SpendingData, createdAt: Date): Spending {
+export function createSpending(date: Date, data: SpendingData, createdAt: Date): Spending {
   const sp: Spending = {
     id: genSpendingID(),
     version: genVersion(null),
-    amount: fd.amount,
-    currency: fd.budget.currency,
-    description: fd.description,
+    amount: data.amount,
+    currency: data.budget.currency,
+    description: data.description,
     updatedAt: createdAt,
     createdAt: createdAt,
     date: date,
-    sort: fd.sort ?? createdAt.getTime(),
-    receiptGroupId: fd.receiptId  ?? 0,
+    sort: data.sort ?? createdAt.getTime(),
+    receiptGroupId: data.receiptId  ?? 0,
   }
 
-  Facade.createSpending(fd.budget.id, sp)
+  Facade.createSpending(data.budget.id, sp)
 
   return sp
 }
 
-export function updateSpending(old: SpendingRow, fd: Partial<SpendingData>, updatedAt: Date): Spending {
-  const amount = fd.amount ? fd.amount: old.amount
-  const description = fd.description ? fd.description : old.description
-  const receiptId = (fd.receiptId != null) ? fd.receiptId : old.receiptGroupId
+export function updateSpending(old: SpendingRow, data: Partial<SpendingData>, updatedAt: Date): Spending {
+  const amount = data.amount ? data.amount: old.amount
+  const description = data.description ? data.description : old.description
+  const receiptId = (data.receiptId != null) ? data.receiptId : old.receiptGroupId
 
   const sp = {
     id: old.id,
@@ -68,9 +64,9 @@ export function updateSpending(old: SpendingRow, fd: Partial<SpendingData>, upda
   return sp
 }
 
-export function saveSpendingChanges(date: Date, oldRow: SpendingRow, fdata: SpendingData, now: Date): Spending {
+export function saveSpendingChanges(date: Date, oldRow: SpendingRow, data: SpendingData, now: Date): Spending {
   const isNewSp = isNew(oldRow)
-  const budgetChanged = (oldRow.budgetId !== fdata.budget.id)
+  const budgetChanged = (oldRow.budgetId !== data.budget.id)
 
   if (!isNewSp && budgetChanged) {
     deleteSpending(oldRow, now)
@@ -79,7 +75,7 @@ export function saveSpendingChanges(date: Date, oldRow: SpendingRow, fdata: Spen
   const spData: SpendingData = {
     sort: oldRow.sort ?? undefined,
     receiptId: oldRow.receiptGroupId ?? undefined,
-    ...fdata,
+    ...data,
   }
 
   return budgetChanged

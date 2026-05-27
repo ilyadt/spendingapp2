@@ -1,7 +1,6 @@
 
 import { describe, expect, test } from 'vitest'
-import {type Budget, createSpendingEditForm, genVersion} from '@src/models/models'
-import type {SpendingRow} from "@src/models/viewmodels.ts";
+import {type Budget, type SpendingRow, createSpendingEditForm, genVersion} from '@src/models/models'
 import {fromMajorUnits} from "@src/helpers/money.ts";
 
 test('genVersion', () => {

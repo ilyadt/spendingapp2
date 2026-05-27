@@ -1,6 +1,6 @@
 import {it, expect, vi, afterEach } from 'vitest'
-import type {Budget, DelSpending, Spending} from "@src/models/models.ts"
-import {saveSpendingChanges, type SpendingRow} from "@src/models/viewmodels.ts";
+import type {Budget, DelSpending, Spending, SpendingRow} from "@src/models/models.ts"
+import {saveSpendingChanges} from "./facadewrapper.ts";
 import * as models from '@src/models/models'
 import {Facade} from "@src/facade.ts";
 
