@@ -70,7 +70,7 @@ export function updateSpending(old: SpendingRow, fd: Partial<SpendingData>, upda
 
 export function saveSpendingChanges(date: Date, oldRow: SpendingRow, fdata: spendingEditFormData, now: Date): Spending {
   const isNewSp = isNew(oldRow)
-  const budgetChanged = (oldRow.budgetId !== fdata.budget!.id)
+  const budgetChanged = (oldRow.budgetId !== fdata.budget.id)
 
   if (!isNewSp && budgetChanged) {
     deleteSpending(oldRow, now)
@@ -83,7 +83,7 @@ export function saveSpendingChanges(date: Date, oldRow: SpendingRow, fdata: spen
   }
 
   return budgetChanged
-    ? createSpending(fdata.budget!, date, spData, now)
+    ? createSpending(fdata.budget, date, spData, now)
     : updateSpending(oldRow, spData, now)
 }
 

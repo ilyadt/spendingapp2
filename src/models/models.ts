@@ -103,7 +103,7 @@ export interface spendingEditForm {
 export interface spendingEditFormData {
   amount: number,
   description: string,
-  budget: Budget|undefined,
+  budget: Budget,
 }
 
 export function createSpendingEditForm(fd: FormData, bs: Record<number, Budget>): spendingEditForm {
