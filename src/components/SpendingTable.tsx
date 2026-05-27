@@ -18,16 +18,17 @@ import styles from './SpendingTable.module.css'
 import {createPortal} from "react-dom";
 import type {KeyboardEvent} from "react"
 import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
-import type {SpendingRowsActions} from "@src/stores/spendingRowsState.ts";
+import {useSpendingRows} from "@src/stores/spendingRowsState.ts";
 
 type Props = {
   date: Date
   budget?: Budget,
-  spendings: SpendingRow[]
-  spRowsActions: SpendingRowsActions // TODO: spRowsStateActions
+  initSpendings: SpendingRow[]
 }
 
-export default function SpendingTable({date, budget, spendings, spRowsActions}: Props) {
+export default function SpendingTable({date, budget, initSpendings}: Props) {
+  const [spendings, spRowsActions] = useSpendingRows(initSpendings)
+
   const budgets = useBudgetsWithSpent(s => s.budgets)
   const tblMode = useTableMode()
 

@@ -2,7 +2,6 @@ import type {Spending} from "@src/models/models.ts";
 import type {SpendingRow} from "@src/models/viewmodels.ts";
 import {genRandInt} from "@src/helpers/helper.ts";
 import {useImmer} from "use-immer";
-import {Facade} from "@src/facade.ts";
 
 export interface SpendingRowsActions {
   createSpendingRow: (bid: number, sp: Spending) => SpendingRow
@@ -10,16 +9,8 @@ export interface SpendingRowsActions {
   deleteSpendingRow: (internalRowId: number) => void
 }
 
-export function useSpendingRows(bids: number[]) {
-  const [spendings, updateSpendings] = useImmer<SpendingRow[]>(() =>
-    bids.flatMap(bid =>
-      Facade.spendingsByBudgetId(bid).map((s):SpendingRow => ({
-        ...s,
-        budgetId: bid,
-        rowId: genRandInt(),
-      }))
-    )
-  )
+export function useSpendingRows(initSps: SpendingRow[]) {
+  const [spendings, updateSpendings] = useImmer<SpendingRow[]>(() => initSps)
 
   function createSpendingRow(bid: number, sp: Spending): SpendingRow {
     const spRow: SpendingRow = {
@@ -46,12 +37,11 @@ export function useSpendingRows(bids: number[]) {
     updateSpendings(sps => sps.filter(s => s.rowId != rowId))
   }
 
-  return {
-    spendings,
-    actions: {
-      createSpendingRow,
-      patchSpendingRow,
-      deleteSpendingRow,
-    }
+  const actions = {
+    createSpendingRow,
+    patchSpendingRow,
+    deleteSpendingRow,
   }
+
+  return [spendings, actions] as const
 }

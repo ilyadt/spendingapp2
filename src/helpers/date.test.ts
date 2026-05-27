@@ -1,5 +1,5 @@
 import {describe, it, expect, test} from 'vitest'
-import {dateRangePlusFromItems, dateRangePlusItemSet, daysFrom2000UTC, daysLeft, percentPassed} from '@src/helpers/date'
+import {dateRangePlusItemSet, daysFrom2000UTC, daysLeft, percentPassed} from '@src/helpers/date'
 
 describe('daysLeft', () => {
   it('returns 1 when today and deadline are on the same day', () => {
@@ -82,86 +82,6 @@ describe('percentPassed', () => {
 
     const today = new Date('2026-05-01T12:00:00Z')
     expect(percentPassed(today, single)).toBe(0) // start of day → 0%
-  })
-})
-
-
-describe('dateRangePlusFromItems', () => {
-  it('returns all dates in range', () => {
-    const result = dateRangePlusFromItems(
-      new Date('2026-05-01'),
-      new Date('2026-05-03'),
-      []
-    )
-
-    expect(result).toEqual([
-      '2026-05-01',
-      '2026-05-02',
-      '2026-05-03',
-    ])
-  })
-
-  it('adds dates from items outside range', () => {
-    const result = dateRangePlusFromItems(
-      new Date('2026-05-01'),
-      new Date('2026-05-03'),
-      [
-        { date: new Date('2026-04-29') },
-        { date: new Date('2026-05-05') },
-      ]
-    )
-
-    expect(result).toEqual([
-      '2026-04-29',
-      '2026-05-01',
-      '2026-05-02',
-      '2026-05-03',
-      '2026-05-05',
-    ])
-  })
-
-  it('does not duplicate dates already in range', () => {
-    const result = dateRangePlusFromItems(
-      new Date('2026-05-01'),
-      new Date('2026-05-03'),
-      [
-        { date: new Date('2026-05-01') },
-        { date: new Date('2026-05-02') },
-      ]
-    )
-
-    expect(result).toEqual([
-      '2026-05-01',
-      '2026-05-02',
-      '2026-05-03',
-    ])
-  })
-
-  it('returns sorted dates', () => {
-    const result = dateRangePlusFromItems(
-      new Date('2026-05-03'),
-      new Date('2026-05-03'),
-      [
-        { date: new Date('2026-05-01') },
-        { date: new Date('2026-05-02') },
-      ]
-    )
-
-    expect(result).toEqual([
-      '2026-05-01',
-      '2026-05-02',
-      '2026-05-03',
-    ])
-  })
-
-  it('wrong period', () => {
-    const result = dateRangePlusFromItems(
-      new Date('2026-05-03'),
-      new Date('2026-05-01'),
-      []
-    )
-
-    expect(result).toEqual([])
   })
 })
 

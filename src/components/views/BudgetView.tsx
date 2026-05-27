@@ -1,61 +1,49 @@
-import {dateFormat, dateISO, dateRangePlusFromItems} from '@src/helpers/date'
+import {dateFormat, dateRangePlusItemSet} from '@src/helpers/date'
 import {toMajorUnits, fromMajorUnits} from '@src/helpers/money'
-import {type Budget} from '@src/models/models'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
 import SpendingTable from '@src/components/SpendingTable'
-import {type SubmitEvent} from "react";
 import styles from './BudgetView.module.css'
-import {createSpending, type SpendingRow} from "@src/models/viewmodels.ts";
+import {createSpending} from "@src/models/viewmodels.ts";
 import type {BudgetWithSpent} from "@src/stores/budgets.ts";
-import {type SpendingRowsActions, useSpendingRows} from "@src/stores/spendingRowsState.ts";
-
-function topForm(b: Budget, spRowsActions: SpendingRowsActions) {
-  return {
-    save(e: SubmitEvent<HTMLFormElement>) {
-      e.preventDefault()
-
-      const form = e.currentTarget
-      const formData = new FormData(form)
-
-      const date = formData.get('date')?.toString();
-      const amount = Number(formData.get('amount'));
-      const description = formData.get('description')?.toString();
-
-      if (!date || !amount || !description) {
-        alert('Заполните все поля')
-        return
-      }
-
-      const newSpending = createSpending(b, new Date(date), {
-        amount: fromMajorUnits(amount, b.currency),
-        description: description,
-      }, new Date())
-
-      spRowsActions.createSpendingRow(b.id, newSpending)
-
-      // clear form
-      form.reset()
-      setTimeout(() => { alert('Сохранено!') }, 0)
-    }
-  }
-}
+import {useSpendingRowsByDate} from "@src/stores/spendingRowsByDateState.ts";
+import {Facade} from "@src/facade.ts";
 
 export function BudgetView({budget}: {budget: BudgetWithSpent}) {
-  const {spendings, actions} = useSpendingRows([budget.id])
+  const dbSps = Facade.spendingsByBudgetId(budget.id)
 
-  const tf = topForm(budget, actions)
+  const [spendingsByDate, addSpendingRow] = useSpendingRowsByDate({
+    [budget.id]: dbSps,
+  })
 
-  const spendingsByDate: Record<string, SpendingRow[]> = {}
+  function onSubmitTopForm(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault()
 
-  for (const s of spendings) {
-    const key = dateISO(s.date)
+    const form = e.currentTarget
+    const formData = new FormData(form)
 
-    spendingsByDate[key] ??= []
-    spendingsByDate[key].push(s)
+    const date = formData.get('date')?.toString();
+    const amount = Number(formData.get('amount'));
+    const description = formData.get('description')?.toString();
+
+    if (!date || !amount || !description) {
+      alert('Заполните все поля')
+      return
+    }
+
+    const newSpending = createSpending(budget, new Date(date), {
+      amount: fromMajorUnits(amount, budget.currency),
+      description: description,
+    }, new Date())
+
+    addSpendingRow(budget.id, newSpending)
+
+    // clear form
+    form.reset()
+    setTimeout(() => { alert('Сохранено!') }, 0)
   }
 
-  const dates = dateRangePlusFromItems(budget.dateFrom, budget.dateTo, spendings)
+  const dates = dateRangePlusItemSet(budget.dateFrom, budget.dateTo, new Set(Object.keys(spendingsByDate)))
 
   return (
     <>
@@ -71,7 +59,7 @@ export function BudgetView({budget}: {budget: BudgetWithSpent}) {
         </p>
         <p v-if="budget?.description" style={{whiteSpace: 'pre'}}>{budget.description }</p>
       </div>
-      <form className="d-flex align-items-center gap-1 mb-5" onSubmit={tf.save}>
+      <form className="d-flex align-items-center gap-1 mb-5" onSubmit={onSubmitTopForm}>
         <input
           type="date"
           name="date"
@@ -98,10 +86,9 @@ export function BudgetView({budget}: {budget: BudgetWithSpent}) {
       </form>
       {dates.map((date) => (
         <SpendingTable
-          key={date}
+          key={spendingsByDate[date]?.key ?? date}
           date={new Date(date)}
-          spendings={spendingsByDate[date] ?? []}
-          spRowsActions={actions}
+          initSpendings={spendingsByDate[date]?.values ?? []}
           budget={budget}
         />
       ))}

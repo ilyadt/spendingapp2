@@ -25,15 +25,6 @@ export function dateRange(dateFrom: Date, dateTo: Date): Date[] {
   return dates
 }
 
-export function dateRangePlusFromItems(dateFrom: Date, dateTo: Date, items: {date: Date}[]): string[] {
-  const dateSet = new Set<string>()
-  for (const item of items) {
-    dateSet.add(dateISO(item.date))
-  }
-
-  return dateRangePlusItemSet(dateFrom, dateTo, dateSet)
-}
-
 export function dateRangePlusItemSet(dateFrom: Date, dateTo: Date, items: Set<string>): string[] {
   const dateSet = new Set<string>()
   const current = new Date(dateFrom)

@@ -2,31 +2,26 @@ import SpendingTable from '@src/components/SpendingTable'
 import {dateISO, dateRangePlusItemSet} from '@src/helpers/date'
 import {useEffect, useRef} from "react";
 import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
-import type {SpendingRow} from "@src/models/viewmodels.ts";
-import {useSpendingRows} from "@src/stores/spendingRowsState.ts";
+import {Facade} from "@src/facade.ts";
+import {useSpendingRowsByDate} from "@src/stores/spendingRowsByDateState.ts";
+import type {Spending} from "@src/models/models.ts";
 
 export function CrossBudgetView() {
-  const budgets = Object.values(useBudgetsWithSpent(s => s.budgets))
+  const budgets = Object.values(
+    useBudgetsWithSpent(s => s.budgets)
+  )
 
-  const {spendings, actions} = useSpendingRows(budgets.map(b => b.id))
-
-  const spendingsByDate: Record<string, SpendingRow[]> = {}
-  const spendingsDateSet = new Set<string>()
-
-  // fill
-  for (const s of spendings) {
-      const key = dateISO(s.date)
-
-      spendingsDateSet.add(dateISO(s.date))
-
-      spendingsByDate[key] ??= []
-      spendingsByDate[key].push(s)
+  const spendingsByBudgetId: Record<number, Spending[]> = {}
+  for (const b of budgets) {
+    spendingsByBudgetId[b.id] = Facade.spendingsByBudgetId(b.id)
   }
+
+  const [spendingsByDate] = useSpendingRowsByDate(spendingsByBudgetId)
 
   const dates = dateRangePlusItemSet(
     budgets.map(b => b.dateFrom).sort().at(0)!,
     budgets.map(b => b.dateTo).sort().at(-1)!,
-    spendingsDateSet,
+    new Set(Object.keys(spendingsByDate)),
   )
 
   const todayRef = useRef<HTMLDivElement>(null)
@@ -40,9 +35,9 @@ export function CrossBudgetView() {
       {dates.map(date => (
         <div key={date} ref={date == today ? todayRef : undefined}>
           <SpendingTable
+            key={spendingsByDate[date]?.key ?? date}
             date={new Date(date)}
-            spendings={spendingsByDate[date] ?? []}
-            spRowsActions={actions}
+            initSpendings={spendingsByDate[date]?.values ?? []}
           ></SpendingTable>
         </div>
       ))}
