@@ -38,7 +38,7 @@ export function CrossBudgetView() {
             key={spendingsByDate[date]?.key ?? date}
             date={new Date(date)}
             initSpendings={spendingsByDate[date]?.values ?? []}
-          ></SpendingTable>
+          />
         </div>
       ))}
     </>

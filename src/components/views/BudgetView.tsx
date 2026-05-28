@@ -10,10 +10,8 @@ import {useSpendingRowsByDate} from "@src/stores/spendingRowsByDateState.ts";
 import {Facade} from "@src/facade.ts";
 
 export function BudgetView({budget}: {budget: BudgetWithSpent}) {
-  const dbSps = Facade.spendingsByBudgetId(budget.id)
-
   const [spendingsByDate, addSpendingRow] = useSpendingRowsByDate({
-    [budget.id]: dbSps,
+    [budget.id]: Facade.spendingsByBudgetId(budget.id),
   })
 
   function onSubmitTopForm(e: React.SubmitEvent<HTMLFormElement>) {
@@ -44,21 +42,24 @@ export function BudgetView({budget}: {budget: BudgetWithSpent}) {
     setTimeout(() => { alert('Сохранено!') }, 0)
   }
 
-  const dates = dateRangePlusItemSet(budget.dateFrom, budget.dateTo, new Set(Object.keys(spendingsByDate)))
+  const dates = dateRangePlusItemSet(
+    budget.dateFrom,
+    budget.dateTo,
+    new Set(Object.keys(spendingsByDate)),
+  )
 
   return (
     <>
-      { /* Отображение бюджета с тратами */ }
       <div>
         <p>
           <b>Бюджет #{ budget.id }: { budget.name }</b> <br />
           <b>{ dateFormat(budget.dateFrom) } &mdash; { dateFormat(budget.dateTo) }</b>
           <br />
-          <b>{ toMajorUnits(budget.amount - budget.amountSpent, budget.currency) } { budget.currency }</b> (из
-          <b>{ toMajorUnits(budget.amount, budget.currency) } { budget.currency }</b
-          >)
+          <b>{ toMajorUnits(budget.amount - budget.amountSpent, budget.currency) } { budget.currency }</b>
+          &nbsp; из &nbsp;
+          <b>{ toMajorUnits(budget.amount, budget.currency) } { budget.currency }</b>
         </p>
-        <p v-if="budget?.description" style={{whiteSpace: 'pre'}}>{budget.description }</p>
+        <p style={{whiteSpace: 'pre'}}>{budget.description }</p>
       </div>
       <form className="d-flex align-items-center gap-1 mb-5" onSubmit={onSubmitTopForm}>
         <input

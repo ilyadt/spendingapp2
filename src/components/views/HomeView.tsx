@@ -4,23 +4,16 @@ import {
 } from '@src/helpers/money'
 import {dateFormat, daysLeft, percentPassed} from '@src//helpers/date'
 import {type BudgetWithSpent, useBudgetsWithSpent} from "@src/stores/budgets.ts";
+import {budgetsSortFn} from "@src/helpers/helper.ts";
 
 export default function HomeView() {
   const budgetsById = useBudgetsWithSpent(s => s.budgets)
 
-  const budgets = Object.values(budgetsById)
-    .sort((a, b) => {
-      if (a.sort === 0 && b.sort === 0) { // by id if sort = 0
-        return a.id - b.id
-      }
+  const budgets = Object.values(budgetsById).sort(budgetsSortFn)
 
-      if (a.sort === 0) return 1
-      if (b.sort === 0) return -1
-
-      return a.sort - b.sort
-    })
-
-  const percentAmount = (b: BudgetWithSpent) => Math.floor(b.amountSpent/b.amount * 100)
+  function percentAmount(b: BudgetWithSpent) {
+    return Math.floor(b.amountSpent/b.amount * 100)
+  }
 
   const todayDate = new Date()
   const buildCommit = import.meta.env.VITE_BUILD_COMMIT
@@ -30,14 +23,20 @@ export default function HomeView() {
       <h1>Love you so much ♥{' '} <span style={{fontSize: 'small'}}> {buildCommit.slice(0, 7)} </span> </h1>
 
       {budgets.map(b=> (
-        <div key={b.id} style={{borderTop: 'outset', marginTop: '5px', opacity: b.dateTo >= todayDate ? 1 : 0.5}}>
+        <div
+          key={b.id}
+          style={{
+            borderTop: 'outset',
+            marginTop: '5px',
+            opacity: b.dateTo >= todayDate ? 1 : 0.5,
+          }}
+        >
           <h4 style={{marginBottom: 0}}>
             {b.name} #{b.id}
           </h4>
 
-          <p style={{marginBottom: 0,}}>
-            {dateFormat(b.dateFrom)}-
-            {dateFormat(b.dateTo)}
+          <p style={{marginBottom: 0}}>
+            {dateFormat(b.dateFrom)}-{dateFormat(b.dateTo)}
           </p>
 
           <p style={{marginBottom: '2px'}}>
@@ -55,10 +54,10 @@ export default function HomeView() {
               <b>{daysLeft(todayDate, b.dateTo)}</b>{' '} days left. Days:
               <br />
               {b.params?.perDay && todayDate <= b.dateTo && (
-                  <p>
-                      <b>{Math.floor(toMajorUnits(b.amount - b.amountSpent, b.currency) / daysLeft(todayDate, b.dateTo))}</b>
-                      {' '} {b.currency}/Day left
-                  </p>
+                <p>
+                  <b>{Math.floor(toMajorUnits(b.amount - b.amountSpent, b.currency) / daysLeft(todayDate, b.dateTo))}</b>
+                  {' '} {b.currency}/Day left
+                </p>
               )}
             </div>
 
