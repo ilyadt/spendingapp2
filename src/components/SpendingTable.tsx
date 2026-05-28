@@ -305,9 +305,10 @@ export default function SpendingTable({date, budget, initSpendings}: Props) {
                             <td className="text-end">
                                 <input
                                     name="amount"
+                                    step="0.01"
                                     className="form-control cell-input"
                                     type="number"
-                                    defaultValue={toMajorUnits(pendingRow.amount, pendingRow.currency)}
+                                    defaultValue={toMajorUnits(pendingRow.amount, pendingRow.currency) || ''}
                                     onKeyDown={onKeyDown}
                                 />
                             </td>
