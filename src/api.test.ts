@@ -58,7 +58,7 @@ describe('fetcher', () => {
     expect(Fetcher.isInitialized()).toBe(true)
     expect(Fetcher.getUpdatedAt()).toBe(777)
 
-    expect(useConflictVersionStore.getState().conflictVersions).toEqual([])
+    expect(useConflictVersionStore.getState().conflictVersionsArr()).toEqual([])
 
     const exp: Budget[] = [
       {
@@ -168,7 +168,7 @@ describe('fetcher', () => {
       },
     ]
 
-    expect(useConflictVersionStore.getState().conflictVersions).toEqual(expConflicted)
+    expect(useConflictVersionStore.getState().conflictVersionsArr()).toEqual(expConflicted)
   })
 })
 
@@ -340,7 +340,7 @@ describe('updater', () => {
     expect(mockSpendingsStore_revokeConflictVersion).toHaveBeenCalledWith(22, 'sp1', 'ver2')
 
     // Отправились в ConflictVersions
-    expect(useConflictVersionStore.getState().conflictVersions).toEqual(conflictedVersions)
+    expect(useConflictVersionStore.getState().conflictVersionsArr()).toEqual(conflictedVersions)
 
     ////////////////
 

@@ -5,11 +5,13 @@ import type { ConflictVersion } from '@src/models/models'
 import {immer} from "zustand/middleware/immer";
 
 type ConflictVersionState = {
-    conflictVersions: ConflictVersion[]
+    conflictVersions: Record<string, ConflictVersion>
 
     add: (...ver: ConflictVersion[]) => void
     remove: (ver: string) => void
     reset: () => void
+
+    conflictVersionsArr: () => ConflictVersion[]
 }
 
 type StateWithPersist = StateCreator<
@@ -23,26 +25,27 @@ type StateWithPersist = StateCreator<
 export const conflictVersionStateCreator: StateWithPersist =
   persist(
     immer(
-      set => ({
-        conflictVersions: [],
+      (set, get) => ({
+        conflictVersions: {},
 
         add: (...vers) =>
           set((state) => {
-            state.conflictVersions.push(...vers)
+            for (const v of vers) {
+              if (state.conflictVersions[v.version]) {
+                throw new Error(`Conflict version ${v.version} already exists`)
+              }
+
+              state.conflictVersions[v.version] = v
+            }
           }),
 
         remove: (ver) =>
           set((state) => {
-            const idx = state.conflictVersions.findIndex((v) => v.version === ver)
-
-            if (idx === -1) {
-              return
-            }
-
-            state.conflictVersions.splice(idx, 1)
+            delete state.conflictVersions[ver]
           }),
 
-        reset: () => set({ conflictVersions: [] }),
+        reset: () => set({ conflictVersions: {} }),
+        conflictVersionsArr: () => Object.values(get().conflictVersions)
       }),
     ),
     {

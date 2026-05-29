@@ -22,7 +22,7 @@ export function ErrorsView() {
             </tr>
           </thead>
           <tbody>
-            {store.conflictVersions.map((ver) => (
+            {store.conflictVersionsArr().map((ver) => (
               <tr key={ver.version}>
                 <td>{ format(ver.conflictedAt, 'HH:mm:ss dd.MM.yy') }</td>
                 <td>{ ver.spendingId }</td>

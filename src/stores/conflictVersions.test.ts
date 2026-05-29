@@ -1,6 +1,6 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
-import { conflictVersionStateCreator } from './conflictVersions'
+import {conflictVersionStateCreator} from './conflictVersions'
 import type { ConflictVersion } from '@src/models/models'
 import {create} from "zustand";
 
@@ -22,18 +22,18 @@ describe('useConflictVersionStore', () => {
     useConflictVersionStore.getState().add(ver1, ver2)
 
     expect(
-      useConflictVersionStore.getState().conflictVersions
+      useConflictVersionStore.getState().conflictVersionsArr()
     ).toEqual([ver1, ver2])
 
     useConflictVersionStore.getState().remove('v1')
 
     expect(
-      useConflictVersionStore.getState().conflictVersions
+      useConflictVersionStore.getState().conflictVersionsArr()
     ).toEqual([ver2])
 
     const useConflictVersionStore2 = create(conflictVersionStateCreator)
     expect(
-      useConflictVersionStore2.getState().conflictVersions
+      useConflictVersionStore2.getState().conflictVersionsArr()
     ).toEqual([ver2])
   })
 
