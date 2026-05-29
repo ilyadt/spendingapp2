@@ -1,4 +1,4 @@
-import { create } from 'zustand'
+import {create, type StateCreator} from 'zustand'
 import { persist } from 'zustand/middleware'
 
 import type { ConflictVersion } from '@src/models/models'
@@ -11,27 +11,30 @@ type ConflictVersionState = {
     reset: () => void
 }
 
-export const useConflictVersionStore = create<ConflictVersionState>()(
-    persist(
-        (set) => ({
-            conflictVersions: [],
+type StateWithPersist = StateCreator<ConflictVersionState, [], [['zustand/persist', unknown]]>
 
-            add: (...ver) =>
-                set((state) => ({
-                    conflictVersions: [...state.conflictVersions, ...ver],
-                })),
+export const conflictVersionStateCreator: StateWithPersist =
+  persist(
+    set => ({
+        conflictVersions: [],
 
-            remove: (ver) =>
-                set((state) => ({
-                    conflictVersions: state.conflictVersions.filter(
-                        (v) => v.version !== ver
-                    ),
-                })),
+        add: (...ver) =>
+            set((state) => ({
+                conflictVersions: [...state.conflictVersions, ...ver],
+            })),
 
-            reset: () => set({ conflictVersions: [] }),
-        }),
-        {
-            name: 'conflictVersionsV2',
-        }
-    )
+        remove: (ver) =>
+            set((state) => ({
+                conflictVersions: state.conflictVersions.filter(
+                    (v) => v.version !== ver
+                ),
+            })),
+
+        reset: () => set({ conflictVersions: [] }),
+    }),
+    {
+        name: 'conflictVersionsV2',
+    }
 )
+
+export const useConflictVersionStore = create(conflictVersionStateCreator)
