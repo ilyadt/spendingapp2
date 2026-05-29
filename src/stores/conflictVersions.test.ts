@@ -1,4 +1,4 @@
-import {beforeEach, describe, expect, it} from 'vitest'
+import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 import { conflictVersionStateCreator } from './conflictVersions'
 import type { ConflictVersion } from '@src/models/models'
@@ -48,5 +48,24 @@ describe('useConflictVersionStore', () => {
 
     expect(raw).toContain('"version":"v1"')
     expect(raw).not.toContain('"version":"v2"')
+  })
+
+  it('subscribers notify', () => {
+    const useConflictVersionStore = create(conflictVersionStateCreator)
+
+    const listener = vi.fn()
+
+    useConflictVersionStore.subscribe(listener)
+
+    useConflictVersionStore.getState().add(ver1)
+    expect(listener).toHaveBeenCalledTimes(1)
+    useConflictVersionStore.getState().add(ver2)
+    expect(listener).toHaveBeenCalledTimes(2)
+
+    useConflictVersionStore.getState().remove(ver2.version)
+    expect(listener).toHaveBeenCalledTimes(3)
+
+    useConflictVersionStore.getState().remove('unknown version')
+    expect(listener).toHaveBeenCalledTimes(3) // not called again
   })
 })

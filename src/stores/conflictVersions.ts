@@ -2,6 +2,7 @@ import {create, type StateCreator} from 'zustand'
 import { persist } from 'zustand/middleware'
 
 import type { ConflictVersion } from '@src/models/models'
+import {immer} from "zustand/middleware/immer";
 
 type ConflictVersionState = {
     conflictVersions: ConflictVersion[]
@@ -11,27 +12,39 @@ type ConflictVersionState = {
     reset: () => void
 }
 
-type StateWithPersist = StateCreator<ConflictVersionState, [], [['zustand/persist', unknown]]>
+type StateWithPersist = StateCreator<
+  ConflictVersionState,
+  [],
+  [
+    ['zustand/persist', unknown],
+    ["zustand/immer", never],
+  ]>
 
 export const conflictVersionStateCreator: StateWithPersist =
   persist(
-    set => ({
+    immer(
+      set => ({
         conflictVersions: [],
 
-        add: (...ver) =>
-            set((state) => ({
-                conflictVersions: [...state.conflictVersions, ...ver],
-            })),
+        add: (...vers) =>
+          set((state) => {
+            state.conflictVersions.push(...vers)
+          }),
 
         remove: (ver) =>
-            set((state) => ({
-                conflictVersions: state.conflictVersions.filter(
-                    (v) => v.version !== ver
-                ),
-            })),
+          set((state) => {
+            const idx = state.conflictVersions.findIndex((v) => v.version === ver)
+
+            if (idx === -1) {
+              return
+            }
+
+            state.conflictVersions.splice(idx, 1)
+          }),
 
         reset: () => set({ conflictVersions: [] }),
-    }),
+      }),
+    ),
     {
         name: 'conflictVersionsV2',
     }
