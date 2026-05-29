@@ -9,7 +9,6 @@ type ConflictVersionState = {
 
     add: (...ver: ConflictVersion[]) => void
     remove: (ver: string) => void
-    reset: () => void
 
     conflictVersionsArr: () => ConflictVersion[]
 }
@@ -43,8 +42,6 @@ export const conflictVersionStateCreator: StateWithPersist =
           set((state) => {
             delete state.conflictVersions[ver]
           }),
-
-        reset: () => set({ conflictVersions: {} }),
         conflictVersionsArr: () => Object.values(get().conflictVersions)
       }),
     ),

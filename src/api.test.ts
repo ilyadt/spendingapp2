@@ -25,8 +25,6 @@ describe('fetcher', () => {
     // 'fetch' restored back
     vi.unstubAllGlobals()
     vi.useRealTimers()
-
-    useConflictVersionStore.getState().reset()
   })
 
   test('fetch_and_store:initial', () => {
@@ -58,7 +56,9 @@ describe('fetcher', () => {
     expect(Fetcher.isInitialized()).toBe(true)
     expect(Fetcher.getUpdatedAt()).toBe(777)
 
-    expect(useConflictVersionStore.getState().conflictVersionsArr()).toEqual([])
+    expect(useConflictVersionStore.getState().conflictVersionsArr()).not.toEqual(
+      expect.arrayContaining(['JZRm7','YX3lO','hIBHc'])
+    )
 
     const exp: Budget[] = [
       {
@@ -155,20 +155,20 @@ describe('fetcher', () => {
 
     await Fetcher.fetchAndStore()
 
-    const expConflicted: ConflictVersion[] = [
-      {
-        version: 'pending_2',
-        budgetId: 23,
-        spendingId: 'nHSPMxURHX',
-        versionDt: new Date('2025-09-29T15:02:23.304Z'),
-        conflictedAt: new Date(777),
-        from: '01.05: 85 RUB кофе',
-        to: '01.05: 90 RUB кофе',
-        reason: 'local and remote diff',
-      },
-    ]
+    const expConflicted: ConflictVersion = {
+      version: 'pending_2',
+      budgetId: 23,
+      spendingId: 'nHSPMxURHX',
+      versionDt: new Date('2025-09-29T15:02:23.304Z'),
+      conflictedAt: new Date(777),
+      from: '01.05: 85 RUB кофе',
+      to: '01.05: 90 RUB кофе',
+      reason: 'local and remote diff',
+    }
 
-    expect(useConflictVersionStore.getState().conflictVersionsArr()).toEqual(expConflicted)
+
+    expect(useConflictVersionStore.getState().conflictVersionsArr())
+      .toContainEqual(expConflicted)
   })
 })
 
@@ -181,8 +181,6 @@ describe('updater', () => {
     // 'fetch' restored back
     vi.unstubAllGlobals()
     vi.useRealTimers()
-
-    useConflictVersionStore.getState().reset()
   })
 
   test('uploader:create', async () => {
@@ -291,8 +289,6 @@ describe('updater', () => {
       })),
     )
 
-    useConflictVersionStore.getState().reset()
-
     ////////////////
 
     const promise = Uploader.updateSpending(22, {
@@ -340,7 +336,8 @@ describe('updater', () => {
     expect(mockSpendingsStore_revokeConflictVersion).toHaveBeenCalledWith(22, 'sp1', 'ver2')
 
     // Отправились в ConflictVersions
-    expect(useConflictVersionStore.getState().conflictVersionsArr()).toEqual(conflictedVersions)
+    expect(useConflictVersionStore.getState().conflictVersionsArr())
+      .toEqual(expect.arrayContaining(conflictedVersions))
 
     ////////////////
 

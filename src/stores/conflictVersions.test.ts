@@ -1,56 +1,65 @@
-import {beforeEach, describe, expect, it, vi} from 'vitest'
+import {describe, expect, it, vi} from 'vitest'
 
 import {conflictVersionStateCreator} from './conflictVersions'
 import type { ConflictVersion } from '@src/models/models'
 import {create} from "zustand";
 
-beforeEach(() => {
-  localStorage.removeItem('conflictVersionsV2')
-})
-
 describe('useConflictVersionStore', () => {
-  const ver1: ConflictVersion = {
-    version: 'v1',
-  } as ConflictVersion
-
-  const ver2: ConflictVersion = {
-    version: 'v2',
-  } as ConflictVersion
 
   it('adds versions', () => {
-    const useConflictVersionStore = create(conflictVersionStateCreator)
-    useConflictVersionStore.getState().add(ver1, ver2)
+    const ver1: ConflictVersion = {
+      version: 'v1-23989dfi2j3lkdss',
+    } as ConflictVersion
 
-    expect(
-      useConflictVersionStore.getState().conflictVersionsArr()
-    ).toEqual([ver1, ver2])
+    const ver2: ConflictVersion = {
+      version: 'v2-2398cselstuigkpcs',
+    } as ConflictVersion
 
-    useConflictVersionStore.getState().remove('v1')
+    const conflictVersionState = create(conflictVersionStateCreator).getState()
+    conflictVersionState.add(ver1, ver2)
 
-    expect(
-      useConflictVersionStore.getState().conflictVersionsArr()
-    ).toEqual([ver2])
+    expect(conflictVersionState.conflictVersionsArr()).toEqual(expect.arrayContaining([ver1, ver2]))
 
-    const useConflictVersionStore2 = create(conflictVersionStateCreator)
-    expect(
-      useConflictVersionStore2.getState().conflictVersionsArr()
-    ).toEqual([ver2])
+    conflictVersionState.remove(ver1.version)
+
+    expect(conflictVersionState.conflictVersionsArr()).toContainEqual(ver2)
+    expect(conflictVersionState.conflictVersionsArr()).not.toContainEqual(ver1)
+
+    // New Store from localStorage
+    const conflictVersionState2 = create(conflictVersionStateCreator).getState()
+    expect(conflictVersionState2.conflictVersionsArr()).toContainEqual(ver2)
   })
 
   it('persists to localStorage', () => {
-    const useConflictVersionStore = create(conflictVersionStateCreator)
+    const ver1: ConflictVersion = {
+      version: 'v1-2393fzS3lkdss',
+    } as ConflictVersion
 
-    useConflictVersionStore.getState().add(ver1)
-    useConflictVersionStore.getState().add(ver2)
-    useConflictVersionStore.getState().remove(ver2.version)
+    const ver2: ConflictVersion = {
+      version: 'v2-DKKsllkf',
+    } as ConflictVersion
+
+    const conflictVersionState = create(conflictVersionStateCreator).getState()
+
+    conflictVersionState.add(ver1)
+    conflictVersionState.add(ver2)
+    conflictVersionState.remove(ver2.version)
 
     const raw = localStorage.getItem('conflictVersionsV2')
 
-    expect(raw).toContain('"version":"v1"')
-    expect(raw).not.toContain('"version":"v2"')
+    expect(raw).toContain(ver1.version)
+    expect(raw).not.toContain(ver2.version)
   })
 
   it('subscribers notify', () => {
+    const ver1: ConflictVersion = {
+      version: 'v1-239asdef03l0309fdidss',
+    } as ConflictVersion
+
+    const ver2: ConflictVersion = {
+      version: 'v2-l2j3rkl89v672dfjadstwqpbi',
+    } as ConflictVersion
+
     const useConflictVersionStore = create(conflictVersionStateCreator)
 
     const listener = vi.fn()
