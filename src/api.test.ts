@@ -2,14 +2,13 @@ import { test, describe, beforeEach, afterEach, expect, vi } from 'vitest'
 import { Fetcher, Uploader } from '@src/api'
 import { BudgetSpendingsStore } from '@src/stores/budgetSpendings'
 import { useStatusStore } from '@src/stores/status'
-import { useConflictVersionStore } from '@src/stores/conflictVersions'
+import { type ConflictSpendingVersion, useConflictVersionStore } from '@src/stores/conflictVersions'
 import type {
   ApiBudget,
   ApiSpending,
   ApiSpendingEvent,
   ApiUpdateSpendingsErrorsResponse,
   Budget,
-  ConflictVersion,
   Spending,
 } from '@src/models/models'
 import * as uuid from 'uuid'
@@ -155,7 +154,7 @@ describe('fetcher', () => {
 
     await Fetcher.fetchAndStore()
 
-    const expConflicted: ConflictVersion = {
+    const expConflicted: ConflictSpendingVersion = {
       version: 'pending_2',
       budgetId: 23,
       spendingId: 'nHSPMxURHX',
@@ -249,7 +248,7 @@ describe('updater', () => {
     const spyUuid = vi.spyOn(uuid, 'v4' as any).mockReturnValue('event_id_uuid_v4')
 
     // Upper conflicted versions evicted from SpendingsStore
-    const conflictedVersions: ConflictVersion[] = [
+    const conflictedVersions: ConflictSpendingVersion[] = [
       {
         version: 'ver2',
         budgetId: 22,

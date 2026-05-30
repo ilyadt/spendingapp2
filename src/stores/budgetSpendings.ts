@@ -2,12 +2,12 @@ import type {
   ApiBudget,
   ApiSpending,
   Budget,
-  ConflictVersion,
   DelSpending,
   Spending,
 } from '@src/models/models'
 import {type Currency, formatAmount} from '@src/helpers/money'
 import { format, isAfter, isBefore, subSeconds } from 'date-fns'
+import type {ConflictSpendingVersion} from "@src/stores/conflictVersions";
 
 export enum VersionStatus {
   InDb = 'FROM_BACKEND', // версия, полученная с бека
@@ -95,14 +95,14 @@ interface BudgetSpendingsStoreInterface {
 
   // Поэлементное spendingID, сравнение текущих данных и новых.
   // Новые данные имеют точку правды, все несоответствующие pending переносятся в <Error Storage>.
-  storeSpendingsFromRemote(bid: number, sps: ApiSpending[]): ConflictVersion[]
+  storeSpendingsFromRemote(bid: number, sps: ApiSpending[]): ConflictSpendingVersion[]
 
   // После доставки обновления на бек изменяем статус версии в Storage
   setStatusApplied(bid: number, spId: string, version: string): void
 
   // Если произошел конфликт обновления (обновление не может быть применено), то удаляем эту версию из Storage,
   // возвращая удаленные (не примененные) версии
-  revokeConflictVersion(bid: number, spId: string, version: string): ConflictVersion[]
+  revokeConflictVersion(bid: number, spId: string, version: string): ConflictSpendingVersion[]
 }
 
 const lsPrefix = 'storageV2'
@@ -282,7 +282,7 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
     localStorage.setItem(lsBudgetsKey(), JSON.stringify(budgets))
   },
 
- storeSpendingsFromRemote(bid: number, remoteSps: ApiSpending[]): ConflictVersion[] {
+ storeSpendingsFromRemote(bid: number, remoteSps: ApiSpending[]): ConflictSpendingVersion[] {
     assertBudget(bid)
 
     const localSps: SpendingVersioned[] = JSON.parse(localStorage.getItem(lsSpendingsKey(bid)) ?? '[]')
@@ -297,7 +297,7 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
     const both = [...remoteIds].filter(id => localIds.has(id))
 
     const result: SpendingVersioned[] = []
-    const revoked: ConflictVersion[] = []
+    const revoked: ConflictSpendingVersion[] = []
 
     // --- Remote only ---
     for (const id of onlyRemote) {
@@ -382,7 +382,7 @@ export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
     localStorage.setItem(lsSpendingsKey(bid), JSON.stringify(fromStore))
   },
 
-  revokeConflictVersion(bid: number, spId: string, version: string): ConflictVersion[] {
+  revokeConflictVersion(bid: number, spId: string, version: string): ConflictSpendingVersion[] {
     let fromStore: SpendingVersioned[] = JSON.parse(localStorage.getItem(lsSpendingsKey(bid)) ?? '[]')
 
     const spVersionedIdx = fromStore.findIndex(s => s.id == spId)
@@ -442,13 +442,13 @@ export function makeConflictVersions(
   spVersions: SpendingVersion[],
   fromIdx: (spVer: SpendingVersion) => boolean,
   reason: string | null,
-): ConflictVersion[] {
+): ConflictSpendingVersion[] {
   const idx = spVersions.findIndex(fromIdx)
   if (idx == -1) {
     return []
   }
 
-  const revoked: ConflictVersion[] = []
+  const revoked: ConflictSpendingVersion[] = []
 
   for (let i = idx; i < spVersions.length; i++) {
     const curr = spVersions[i]!

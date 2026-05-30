@@ -7,24 +7,24 @@ import { v7 as uuidv7 } from 'uuid'
 
 export const genSpendingID = (): string => uuidv7()
 
-const hexSymbols5 = customAlphabet('0123456789abcdef', 5)
+const versionSuffix = customAlphabet(alphanumeric, 7)
 
 // null    -> v1-xxxxx
 // xxxxx   -> yyyyy
 // v1-3829f -> v2-xxxxx
 export const genVersion = (prevVer: string | null): string => {
   if (prevVer === null) {
-    return `v1-${hexSymbols5()}`
+    return `v1-${versionSuffix()}`
   }
 
   const match = prevVer.match(/^v(\d+)-([0-9a-f]{5})$/i)
   if (!match) {
-    return customAlphabet(alphanumeric, 5)()
+    return versionSuffix()
   }
 
   const nextNum = parseInt(match[1]!, 10) + 1
 
-  return `v${nextNum}-${hexSymbols5()}`
+  return `v${nextNum}-${versionSuffix()}`
 }
 
 export type ApiBudget = components['schemas']['Budget']
@@ -84,16 +84,6 @@ export interface Budget {
 
 export type DelSpending = Pick<Spending, 'id' | 'version' | 'prev' | 'updatedAt'>
 
-export interface ConflictVersion {
-  version: string
-  budgetId: number
-  spendingId: string
-  versionDt: Date
-  conflictedAt: Date
-  from: string | null // null - created
-  to: string | null // null - deleted
-  reason: string | null
-}
 
 
 export interface spendingEditForm {

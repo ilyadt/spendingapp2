@@ -40,7 +40,7 @@ export function updateSpending(old: SpendingRow, data: Partial<SpendingData>, up
   const description = data.description ? data.description : old.description
   const receiptId = (data.receiptId != null) ? data.receiptId : old.receiptGroupId
 
-  const sp = {
+  const sp: Spending = {
     id: old.id,
     version: genVersion(old.version),
     amount: amount,

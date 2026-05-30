@@ -1,19 +1,18 @@
 import {describe, expect, it, vi} from 'vitest'
 
-import {conflictVersionStateCreator} from './conflictVersions'
-import type { ConflictVersion } from '@src/models/models'
+import {type ConflictSpendingVersion, conflictVersionStateCreator} from './conflictVersions'
 import {create} from "zustand";
 
 describe('useConflictVersionStore', () => {
 
   it('adds versions', () => {
-    const ver1: ConflictVersion = {
+    const ver1: ConflictSpendingVersion = {
       version: 'v1-23989dfi2j3lkdss',
-    } as ConflictVersion
+    } as ConflictSpendingVersion
 
-    const ver2: ConflictVersion = {
+    const ver2: ConflictSpendingVersion = {
       version: 'v2-2398cselstuigkpcs',
-    } as ConflictVersion
+    } as ConflictSpendingVersion
 
     const conflictVersionState = create(conflictVersionStateCreator).getState()
     conflictVersionState.add(ver1, ver2)
@@ -31,13 +30,13 @@ describe('useConflictVersionStore', () => {
   })
 
   it('persists to localStorage', () => {
-    const ver1: ConflictVersion = {
+    const ver1: ConflictSpendingVersion = {
       version: 'v1-2393fzS3lkdss',
-    } as ConflictVersion
+    } as ConflictSpendingVersion
 
-    const ver2: ConflictVersion = {
+    const ver2: ConflictSpendingVersion = {
       version: 'v2-DKKsllkf',
-    } as ConflictVersion
+    } as ConflictSpendingVersion
 
     const conflictVersionState = create(conflictVersionStateCreator).getState()
 
@@ -52,13 +51,13 @@ describe('useConflictVersionStore', () => {
   })
 
   it('subscribers notify', () => {
-    const ver1: ConflictVersion = {
+    const ver1: ConflictSpendingVersion = {
       version: 'v1-239asdef03l0309fdidss',
-    } as ConflictVersion
+    } as ConflictSpendingVersion
 
-    const ver2: ConflictVersion = {
+    const ver2: ConflictSpendingVersion = {
       version: 'v2-l2j3rkl89v672dfjadstwqpbi',
-    } as ConflictVersion
+    } as ConflictSpendingVersion
 
     const useConflictVersionStore = create(conflictVersionStateCreator)
 
