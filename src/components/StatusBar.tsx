@@ -9,7 +9,9 @@ export default function StatusBar() {
     const statusUpdateSpendings = useStatusStore(s => s.statusUpdateSpendings)
     const pendingEvents = useStatusStore(s => s.pendingEvents)
 
-    const conflictVersions = useConflictVersionStore().conflictVersionsArr()
+    const conflictVersions = Object.values(
+      useConflictVersionStore(s => s.conflictVersions)
+    )
 
     function reload() {
         window.location.reload()
