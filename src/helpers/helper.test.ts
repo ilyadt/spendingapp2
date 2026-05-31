@@ -1,6 +1,12 @@
 import {expect, test} from 'vitest'
-import {colorFromReceiptId, genReceiptId, randomSoftRGB, receiptTotals} from "@src/helpers/helper.ts";
-import type {SpendingRow} from "@src/models/models.ts";
+import {
+  budgetsSortFn,
+  colorFromReceiptId,
+  genReceiptId,
+  randomSoftRGB,
+  receiptTotals
+} from "@src/helpers/helper.ts";
+import type {Budget, SpendingRow} from "@src/models/models.ts";
 
 test('randomSoftRGB', () => {
   const res = randomSoftRGB()
@@ -72,4 +78,22 @@ test('receiptTotals', () => {
     300: 30,
     400: 20,
   })
+})
+
+test('budgetsSortFn', () => {
+  const a: Budget = { id: 1, sort: 1 } as Budget
+  const b: Budget = { id: 2, sort: 2 } as Budget
+  const c: Budget = { id: 3, sort: 1 } as Budget
+  const d: Budget = { id: 4, sort: 3 } as Budget
+  const e: Budget = { id: 5, sort: 1 } as Budget
+
+  const arr1 = [a,b,c]
+
+  expect(arr1.sort(budgetsSortFn)).toEqual([a,c,b])
+
+  const arr2 = [c,b,a]
+  expect(arr2.sort(budgetsSortFn)).toEqual([a,c,b])
+
+  const arr3 = [a,b,c,d,e]
+  expect(arr3.sort(budgetsSortFn)).toEqual([a,c,e,b,d])
 })

@@ -7,9 +7,11 @@ import {type BudgetWithSpent, useBudgetsWithSpent} from "@src/stores/budgets.ts"
 import {budgetsSortFn} from "@src/helpers/helper.ts";
 
 export default function HomeView() {
-  const budgetsById = useBudgetsWithSpent(s => s.budgets)
-
-  const budgets = Object.values(budgetsById).sort(budgetsSortFn)
+  const budgets = Object
+    .values(
+      useBudgetsWithSpent(s => s.budgets)
+    )
+    .sort(budgetsSortFn)
 
   function percentAmount(b: BudgetWithSpent) {
     return Math.floor(b.amountSpent/b.amount * 100)

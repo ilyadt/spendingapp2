@@ -1,8 +1,9 @@
 import {beforeEach, describe, expect, test, vi} from 'vitest'
 import {
   type BudgetsWithSpentById,
+  initBudgetsWithSpendings,
   useBudgetsWithSpent,
-  useBudgetsWithSpentCreator
+  createBudgetsWithSpentCreator
 } from "@src/stores/budgets.ts";
 import type {ApiSpending, Spending, SpendingPrev} from "@src/models/models.ts";
 import {BudgetSpendingsStore} from "@src/stores/budgetSpendings.ts";
@@ -57,7 +58,7 @@ describe('dynamic_budgets', () => {
       makeApiSpending({id: 'sp2', money: {amount: 1000_00, fraction: 2, currency: "RUB"}}),
     ])
 
-    const dynamicBudgetsStore = create(useBudgetsWithSpentCreator)
+    const dynamicBudgetsStore = create(createBudgetsWithSpentCreator(initBudgetsWithSpendings()))
 
     const listener = vi.fn()
 

@@ -16,42 +16,57 @@ type BudgetsStore = CudSpending & {
   budgets: BudgetsWithSpentById
 }
 
-export const useBudgetsWithSpentCreator= immer<BudgetsStore>(
-  (set) => {
-    const initBudgets: BudgetsWithSpentById = {}
+type BudgetsWithSpendings = Budget & {
+  spendings: Spending[]
+}
 
-    const budgets = BudgetSpendingsStore.getBudgets()
+export const createBudgetsWithSpentCreator= (budgets: BudgetsWithSpendings[]) => (
+  immer<BudgetsStore>(
+    (set) => {
+      const initBudgets: BudgetsWithSpentById = {}
 
-    for (const b of budgets) {
-      const sps = BudgetSpendingsStore.spendingsByBudgetId(b.id)
+      for (const b of budgets) {
+        const { spendings, ...budget } = b
 
-      const amountSpent = sps.reduce((sum, sp) => sum + sp.amount, 0)
+        const amountSpent = spendings.reduce(
+          (sum, sp) => sum + sp.amount,
+          0,
+        )
 
-      initBudgets[b.id] = {
-        ...b,
-        amountSpent: amountSpent,
+        initBudgets[b.id] = {
+          ...budget,
+          amountSpent: amountSpent,
+        }
+      }
+
+      return {
+        budgets: initBudgets,
+        createSpending(bid: number, newSp: Spending) {
+          set(state => {
+            state.budgets[bid].amountSpent += newSp.amount
+          })
+        },
+        updateSpending(bid: number, upd: Spending) {
+          set(state => {
+            state.budgets[bid].amountSpent += (upd.amount - upd.prev!.amount)
+          })
+        },
+        deleteSpending(bid: number, del: DelSpending) {
+          set(state => {
+            state.budgets[bid].amountSpent -= del.prev!.amount
+          })
+        },
       }
     }
-
-    return {
-      budgets: initBudgets,
-      createSpending(bid: number, newSp: Spending) {
-        set(state => {
-          state.budgets[bid].amountSpent += newSp.amount
-        })
-      },
-      updateSpending(bid: number, upd: Spending) {
-        set(state => {
-          state.budgets[bid].amountSpent += (upd.amount - upd.prev!.amount)
-        })
-      },
-      deleteSpending(bid: number, del: DelSpending) {
-        set(state => {
-          state.budgets[bid].amountSpent -= del.prev!.amount
-        })
-      },
-    }
-  }
+  )
 )
 
-export const useBudgetsWithSpent = create<BudgetsStore>()(useBudgetsWithSpentCreator)
+export const initBudgetsWithSpendings = () =>
+  BudgetSpendingsStore.getBudgets()
+  .map(b => ({
+    ...b,
+    spendings: BudgetSpendingsStore.spendingsByBudgetId(b.id),
+  }))
+
+export const useBudgetsWithSpent = create<BudgetsStore>()(createBudgetsWithSpentCreator(initBudgetsWithSpendings()))
+
