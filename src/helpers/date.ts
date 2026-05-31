@@ -13,18 +13,6 @@ export function dateISO(d: Date): string {
   return d.toISOString().split('T')[0]!
 }
 
-export function dateRange(dateFrom: Date, dateTo: Date): Date[] {
-  const dates: Date[] = []
-  const current = new Date(dateFrom)
-
-  while (current <= dateTo) {
-    dates.push(new Date(current))
-    current.setDate(current.getDate() + 1) // Increment by 1 day
-  }
-
-  return dates
-}
-
 export function dateRangePlusItemSet(dateFrom: Date, dateTo: Date, items: Set<string>): string[] {
   const dateSet = new Set<string>()
   const current = new Date(dateFrom)

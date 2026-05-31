@@ -28,9 +28,7 @@ type Props = {
 export default function SpendingTable({date, budget, initSpendings}: Props) {
   const [spendings, spRowsActions] = useSpendingRows(initSpendings)
 
-  const budgets = useBudgetsWithSpent(
-    s => Object.values(s.budgets).sort(budgetsSortFn)
-  )
+  const budgets = useBudgetsWithSpent(s => s.budgets)
 
   const tblMode = useTableMode()
 
@@ -167,6 +165,7 @@ export default function SpendingTable({date, budget, initSpendings}: Props) {
     setPendingRow(spRow)
   }
 
+  const budgetsSorted = Object.values(budgets).sort(budgetsSortFn)
   const spendingsSorted = [...spendings].sort((a, b) => a.sort - b.sort)
   const receiptTotal = receiptTotals(spendingsSorted)
   const crossBudget = !budget
@@ -328,7 +327,7 @@ export default function SpendingTable({date, budget, initSpendings}: Props) {
                                   <select name="budgetId" className="form-select cell-input" defaultValue={pendingRow.budgetId}>
                                       <option disabled key="0" value="0">бюджет</option>
                                     {
-                                      budgets.map(b =>
+                                      budgetsSorted.map(b =>
                                         <option key={b.id} value={b.id}>
                                           {b.alias}: {formatAmount(b.amount - b.amountSpent, b.currency)}
                                         </option>

@@ -2,7 +2,7 @@ import {
   formatAmount,
   toMajorUnits
 } from '@src/helpers/money'
-import {dateFormat, daysLeft, percentPassed} from '@src//helpers/date'
+import {dateFormat, dateISO, daysLeft, percentPassed} from '@src//helpers/date'
 import {type BudgetWithSpent, useBudgetsWithSpent} from "@src/stores/budgets.ts";
 import {budgetsSortFn} from "@src/helpers/helper.ts";
 
@@ -17,7 +17,7 @@ export default function HomeView() {
     return Math.floor(b.amountSpent/b.amount * 100)
   }
 
-  const todayDate = new Date()
+  const todayDate = new Date(dateISO(new Date()))
   const buildCommit = import.meta.env.VITE_BUILD_COMMIT
 
   return (
