@@ -9,6 +9,7 @@ test('genVersion', () => {
   expect(genVersion('randomString')).toMatch( /^[0-9a-zA-Z]{7}$/)
 
   expect(genVersion('v1-3829f')).toMatch(/^v2-[0-9a-zA-Z]{7}$/i)
+  expect(genVersion('v1-3829f89')).toMatch(/^v2-[0-9a-zA-Z]{7}$/i)
 
   expect(genVersion('notaversion')).not.toEqual(genVersion('notaversion'))
 })

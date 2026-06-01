@@ -17,7 +17,7 @@ export const genVersion = (prevVer: string | null): string => {
     return `v1-${versionSuffix()}`
   }
 
-  const match = prevVer.match(/^v(\d+)-([0-9a-f]{5})$/i)
+  const match = prevVer.match(/^v(\d+)-/i)
   if (!match) {
     return versionSuffix()
   }
