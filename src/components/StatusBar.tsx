@@ -9,16 +9,16 @@ export default function StatusBar() {
     const statusUpdateSpendings = useStatusStore(s => s.statusUpdateSpendings)
     const pendingEvents = useStatusStore(s => s.pendingEvents)
 
-    const conflictVersions = Object.values(
+    const conflictVersionsNum = Object.values(
       useConflictVersionStore(s => s.conflictVersions)
-    )
+    ).length
 
     function reload() {
         window.location.reload()
     }
 
     const bg =
-        conflictVersions.length > 0
+        conflictVersionsNum > 0
             ? '#ea4747'
             : pendingEvents > 0
                 ? '#fae5bb'
@@ -30,24 +30,24 @@ export default function StatusBar() {
             : 'rgb(248 249 250)'
 
     return (
-        <div className={`row ${styles.fixedRow}`} style={{backgroundColor: bg, position: 'sticky', top: 0, zIndex: 1000}}>
-            <div className={`col-3 ${styles.textTruncate}`} style={{backgroundColor: bgGet}}>
+        <div className={`row ${styles.statusBar}`} style={{backgroundColor: bg}}>
+            <div className={`col-3`} style={{backgroundColor: bgGet}}>
                 G: {statusGetSpendings}
             </div>
 
-            <div className={`col-3 ${styles.textTruncate}`}>
+            <div className={`col-3`}>
                 U: {statusUpdateSpendings}
             </div>
 
-            <div className={`col-2 ${styles.textTruncate}`}>
+            <div className={`col-2`}>
                 P: {pendingEvents}
             </div>
 
-            <div className={`col-2 ${styles.textTruncate}`}>
-                E: {conflictVersions.length}
+            <div className={`col-2`}>
+                E: {conflictVersionsNum}
             </div>
 
-            <div className={`col-2 ${styles.textTruncate}`}>
+            <div className={`col-2`}>
                 <button onClick={reload} className="btn btn-small btn-info p-0">
                     <FontAwesomeIcon
                         icon={faSync}

@@ -7,12 +7,12 @@ import { v7 as uuidv7 } from 'uuid'
 
 export const genSpendingID = (): string => uuidv7()
 
-const versionSuffix = customAlphabet(alphanumeric, 7)
-
 // null    -> v1-xxxxx
 // xxxxx   -> yyyyy
 // v1-3829f -> v2-xxxxx
 export const genVersion = (prevVer: string | null): string => {
+  const versionSuffix = customAlphabet(alphanumeric, 7)
+
   if (prevVer === null) {
     return `v1-${versionSuffix()}`
   }

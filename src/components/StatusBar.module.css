@@ -1,11 +1,15 @@
-.fixed-row {
+.status-bar {
+    top: 0;
     height: 30px;
     min-height: 30px;
     max-height: 30px;
     overflow: hidden;
+    position: sticky;
+    z-index: 1000;
 }
 
-.text-truncate {
+/* text-truncate */
+.status-bar > div {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
