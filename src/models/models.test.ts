@@ -35,7 +35,7 @@ describe('createSpendingEditForm', () => {
       {1: budget},
     )
 
-    expect(form.data()).toEqual({budget, amount: 12345, description: 'coffee'})
+    expect(form.data).toEqual({budget, amount: 12345, description: 'coffee'})
   })
 
   test('is empty when all fields are empty', () => {

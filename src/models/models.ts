@@ -87,11 +87,10 @@ export type DelSpending = Pick<Spending, 'id' | 'version' | 'prev' | 'updatedAt'
 
 
 export interface spendingEditForm {
-  budget: Budget|undefined,
   isEmpty():boolean
   isEqual(sp: SpendingRow): boolean
   validate(): string|null
-  data(): {
+  data: {
     amount: number,
     description: string,
     budget: Budget,
@@ -106,8 +105,7 @@ export function createSpendingEditForm(fd: FormData, bs: Record<number, Budget>)
   const description = fd.get('description')?.toString() ?? ''
 
   return {
-    budget,
-    data: () => ({amount, description, budget}),
+    data: ({amount, description, budget}),
     isEmpty: (): boolean => !amountFull && !description, // TODO: split form for cross-budget / not
     validate: function () {
       if (!budget) {

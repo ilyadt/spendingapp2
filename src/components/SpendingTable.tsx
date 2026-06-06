@@ -87,9 +87,9 @@ export default function SpendingTable({date, budget, initSpendings}: Props) {
       return
     }
 
-    const newSp = saveSpendingChanges(date, sp, f.data(), new Date())
+    const newSp = saveSpendingChanges(date, sp, f.data, new Date())
 
-    spRowsActions.patchSpendingRow(sp.rowId, {...newSp, budgetId: f.budget!.id})
+    spRowsActions.patchSpendingRow(sp.rowId, {...newSp, budgetId: f.data.budget!.id})
     setPendingRow(null)
   }
 
@@ -108,7 +108,7 @@ export default function SpendingTable({date, budget, initSpendings}: Props) {
       return
     }
 
-    const fd = f.data()
+    const fd = f.data
 
     if (!window.confirm(`Отменить изменение "${fd.description}" ?`)) {
       return
@@ -142,9 +142,9 @@ export default function SpendingTable({date, budget, initSpendings}: Props) {
       return
     }
 
-    const newSp = saveSpendingChanges(date, sp, f.data(), new Date())
+    const newSp = saveSpendingChanges(date, sp, f.data, new Date())
 
-    spRowsActions.patchSpendingRow(sp.rowId, {...newSp, budgetId: f.budget!.id})
+    spRowsActions.patchSpendingRow(sp.rowId, {...newSp, budgetId: f.data.budget!.id})
     setPendingRow(null)
   }
 
