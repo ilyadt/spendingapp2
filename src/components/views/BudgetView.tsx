@@ -11,7 +11,7 @@ import {Facade} from "@src/facade.ts";
 import {spendingFormValidator} from "@src/models/models.ts";
 
 export function BudgetView({budget}: {budget: BudgetWithSpent}) {
-  const [spendingsByDate, addSpendingRow] = useSpendingRowsByDate({
+  const [initSpendingsByDate, addSpendingRow, tableRefs] = useSpendingRowsByDate({
     [budget.id]: Facade.spendingsByBudgetId(budget.id),
   })
 
@@ -43,7 +43,7 @@ export function BudgetView({budget}: {budget: BudgetWithSpent}) {
   const dates = dateRangePlusItemSet(
     budget.dateFrom,
     budget.dateTo,
-    new Set(Object.keys(spendingsByDate)),
+    new Set(Object.keys(initSpendingsByDate)),
   )
 
   return (
@@ -87,10 +87,11 @@ export function BudgetView({budget}: {budget: BudgetWithSpent}) {
       </form>
       {dates.map((date) => (
         <SpendingTable
-          key={spendingsByDate[date]?.key ?? date}
+          key={date}
           date={new Date(date)}
-          initSpendings={spendingsByDate[date]?.values ?? []}
+          initSpendings={initSpendingsByDate[date] ?? []}
           budget={budget}
+          ref={r => {tableRefs.current[date] = r}}
         />
       ))}
     </>

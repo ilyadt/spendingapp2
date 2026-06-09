@@ -5,13 +5,19 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCheck, faReceipt, faXmark} from '@fortawesome/free-solid-svg-icons'
 import {faGripDotsVertical} from '@src/helpers/icons'
 import {useImmer} from "use-immer";
-import {type Budget, type SpendingRow, spendingFormValidator, isNew} from "@src/models/models.ts";
+import {
+  type Budget,
+  type SpendingRow,
+  spendingFormValidator,
+  isNew,
+  type Spending
+} from "@src/models/models.ts";
 import {
   deleteSpending,
   saveSpendingChanges,
   updateSpending
 } from "@src/models/facadewrapper.ts";
-import {useRef, useState} from "react";
+import {type Ref, useImperativeHandle, useRef, useState} from "react";
 import {budgetsSortFn, colorFromReceiptId, genReceiptId, receiptTotals} from "@src/helpers/helper.ts";
 import styles from './SpendingTable.module.css'
 import {createPortal} from "react-dom";
@@ -23,9 +29,14 @@ type Props = {
   date: Date
   budget?: Budget,
   initSpendings: SpendingRow[]
+  ref?: Ref<SpendingTableHandle>
 }
 
-export default function SpendingTable({date, budget, initSpendings}: Props) {
+export type SpendingTableHandle = {
+  createSpendingRow(bid: number, sp: Spending): void
+}
+
+export default function SpendingTable({date, budget, initSpendings, ref}: Props) {
   const [spendings, spRowsActions] = useSpendingRows(initSpendings)
 
   const budgets = useBudgetsWithSpent(s => s.budgets)
@@ -34,6 +45,10 @@ export default function SpendingTable({date, budget, initSpendings}: Props) {
 
   const [pendingRow, setPendingRow] = useImmer<SpendingRow | null>(null)
   const pendingSpForm = useRef<HTMLFormElement>(null)
+
+  useImperativeHandle(ref, () => ({
+    createSpendingRow: spRowsActions.createSpendingRow,
+  }))
 
   function delSpending(s: SpendingRow) {
     if (!window.confirm(`Удалить запись "${s.description}" ?`)) {

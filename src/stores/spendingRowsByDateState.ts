@@ -2,25 +2,25 @@ import {useImmer} from "use-immer";
 import {dateISO} from "@src/helpers/date.ts";
 import type {Spending, SpendingRow} from "@src/models/models.ts";
 import {genRandInt} from "@src/helpers/helper.ts";
+import type {SpendingTableHandle} from "@src/components/SpendingTable.tsx";
+import {useRef} from "react";
 
-type SpendingsByDate = Record<
-  string,
-  {
-    key: number
-    values: SpendingRow[]
-  }
->
+type DateISO = string
+
+type SpendingsByDate = Record<DateISO,SpendingRow[]>
 
 export function useSpendingRowsByDate(initSps: Record<number, Spending[]>) {
-  const [spendings, updateSpendings] = useImmer<SpendingsByDate>(() => {
+  const tableRefs = useRef<Record<DateISO, SpendingTableHandle | null>>({})
+
+  const [initSpendings, updateSpendings] = useImmer<SpendingsByDate>(() => {
     const grouped: SpendingsByDate = {}
 
     for (const [bid, sps] of Object.entries(initSps)) {
       for (const s of sps) {
         const key = dateISO(s.date)
 
-        grouped[key] ??= {key: s.date.getTime(), values: []}
-        grouped[key].values.push({
+        grouped[key] ??= []
+        grouped[key].push({
           rowId: genRandInt(),
           budgetId: Number(bid),
           ...s,
@@ -31,24 +31,28 @@ export function useSpendingRowsByDate(initSps: Record<number, Spending[]>) {
     return grouped
   })
 
-  function addSpendingRow(bid: number, sp: Spending): SpendingRow {
-    const spRow: SpendingRow = {
-      rowId: genRandInt(),
-      budgetId: bid,
-      ...sp,
+  function addSpendingRow(bid: number, sp: Spending) {
+    const dateStr = dateISO(sp.date)
+
+    const tbl = tableRefs.current[dateStr]
+
+    if (tbl) {
+      tbl.createSpendingRow(bid, sp)
+      return
     }
 
-    const dateStr = dateISO(spRow.date)
-
     updateSpendings(draft => {
-      draft[dateStr] ??= { key: spRow.date.getTime(), values: [] }
+      if (!draft[dateStr]) {
+        const spRow: SpendingRow = {
+          rowId: genRandInt(),
+          budgetId: bid,
+          ...sp,
+        }
 
-      draft[dateStr].key++;
-      draft[dateStr].values.push(spRow)
+        draft[dateStr] = [spRow]
+      }
     })
-
-    return spRow
   }
 
-  return [spendings, addSpendingRow] as const
+  return [initSpendings, addSpendingRow, tableRefs] as const
 }

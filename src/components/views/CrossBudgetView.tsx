@@ -16,12 +16,12 @@ export function CrossBudgetView() {
     spendingsByBudgetId[b.id] = Facade.spendingsByBudgetId(b.id)
   }
 
-  const [spendingsByDate] = useSpendingRowsByDate(spendingsByBudgetId)
+  const [initSpendingsByDate] = useSpendingRowsByDate(spendingsByBudgetId)
 
   const dates = dateRangePlusItemSet(
     budgets.map(b => b.dateFrom).sort().at(0)!,
     budgets.map(b => b.dateTo).sort().at(-1)!,
-    new Set(Object.keys(spendingsByDate)),
+    new Set(Object.keys(initSpendingsByDate)),
   )
 
   const todayRef = useRef<HTMLDivElement>(null)
@@ -35,9 +35,9 @@ export function CrossBudgetView() {
       {dates.map(date => (
         <div key={date} ref={date == today ? todayRef : undefined}>
           <SpendingTable
-            key={spendingsByDate[date]?.key ?? date}
+            key={date}
             date={new Date(date)}
-            initSpendings={spendingsByDate[date]?.values ?? []}
+            initSpendings={initSpendingsByDate[date] ?? []}
           />
         </div>
       ))}
