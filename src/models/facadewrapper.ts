@@ -10,13 +10,14 @@ import {Facade} from "@src/facade.ts";
 
 export interface SpendingData {
   budget: Budget,
+  date: Date,
   amount: number,
   description: string,
   receiptId?: number,
   sort?: number,
 }
 
-export function createSpending(date: Date, data: SpendingData, createdAt: Date): Spending {
+export function createSpending(data: SpendingData, createdAt: Date): Spending {
   const sp: Spending = {
     id: genSpendingID(),
     version: genVersion(null),
@@ -25,7 +26,7 @@ export function createSpending(date: Date, data: SpendingData, createdAt: Date):
     description: data.description,
     updatedAt: createdAt,
     createdAt: createdAt,
-    date: date,
+    date: data.date,
     sort: data.sort ?? createdAt.getTime(),
     receiptGroupId: data.receiptId  ?? 0,
   }
@@ -64,7 +65,7 @@ export function updateSpending(old: SpendingRow, data: Partial<SpendingData>, up
   return sp
 }
 
-export function saveSpendingChanges(date: Date, oldRow: SpendingRow, data: SpendingData, now: Date): Spending {
+export function saveSpendingChanges(oldRow: SpendingRow, data: SpendingData, now: Date): Spending {
   const isNewSp = isNew(oldRow)
   const budgetChanged = (oldRow.budgetId !== data.budget.id)
 
@@ -79,7 +80,7 @@ export function saveSpendingChanges(date: Date, oldRow: SpendingRow, data: Spend
   }
 
   return budgetChanged
-    ? createSpending(date, spData, now)
+    ? createSpending(spData, now)
     : updateSpending(oldRow, spData, now)
 }
 

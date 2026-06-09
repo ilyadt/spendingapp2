@@ -1,5 +1,5 @@
 import {dateFormat, dateRangePlusItemSet} from '@src/helpers/date'
-import {toMajorUnits, fromMajorUnits} from '@src/helpers/money'
+import {toMajorUnits} from '@src/helpers/money'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
 import SpendingTable from '@src/components/SpendingTable'
@@ -8,6 +8,7 @@ import {createSpending} from "@src/models/facadewrapper.ts";
 import type {BudgetWithSpent} from "@src/stores/budgets.ts";
 import {useSpendingRowsByDate} from "@src/stores/spendingRowsByDateState.ts";
 import {Facade} from "@src/facade.ts";
+import {spendingFormValidator} from "@src/models/models.ts";
 
 export function BudgetView({budget}: {budget: BudgetWithSpent}) {
   const [spendingsByDate, addSpendingRow] = useSpendingRowsByDate({
@@ -18,22 +19,19 @@ export function BudgetView({budget}: {budget: BudgetWithSpent}) {
     e.preventDefault()
 
     const form = e.currentTarget
-    const formData = new FormData(form)
+    const f = spendingFormValidator(
+      new FormData(form),
+      {[budget.id]: budget},
+      {chooseBudget: false, chooseDate: true},
+  )
 
-    const date = formData.get('date')?.toString();
-    const amount = Number(formData.get('amount'));
-    const description = formData.get('description')?.toString();
-
-    if (!date || !amount || !description) {
-      alert('Заполните все поля')
+    const err = f.validate()
+    if (err) {
+      alert(err)
       return
     }
 
-    const newSpending = createSpending(new Date(date), {
-      budget: budget,
-      amount: fromMajorUnits(amount, budget.currency),
-      description: description,
-    }, new Date())
+    const newSpending = createSpending(f.data, new Date())
 
     addSpendingRow(budget.id, newSpending)
 
@@ -59,9 +57,10 @@ export function BudgetView({budget}: {budget: BudgetWithSpent}) {
           &nbsp; из &nbsp;
           <b>{ toMajorUnits(budget.amount, budget.currency) } { budget.currency }</b>
         </p>
-        <p style={{whiteSpace: 'pre'}}>{budget.description }</p>
+        <p style={{whiteSpace: 'pre'}}>{ budget.description }</p>
       </div>
       <form className="d-flex align-items-center gap-1 mb-5" onSubmit={onSubmitTopForm}>
+        <input type="hidden" name="budgetId" value={budget.id}/>
         <input
           type="date"
           name="date"

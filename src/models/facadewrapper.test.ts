@@ -25,12 +25,12 @@ it('newSpending', () => {
   const createdAt = '2026-05-26T12:32:00'
 
   const result = saveSpendingChanges(
-    date,
     {rowId: 666} as SpendingRow, // empty old spending
     {
       budget: { id: 1, currency: 'RUB' } as Budget,
       amount: 100_00,
       description: 'moi',
+      date,
     },
     new Date(createdAt),
   )
@@ -63,7 +63,6 @@ it('updateSpending', () => {
   const updatedAt = new Date('2026-05-26T12:34:00')
 
   const result = saveSpendingChanges(
-    date,
     {
       rowId: 999,
       budgetId: 1,
@@ -82,6 +81,7 @@ it('updateSpending', () => {
       budget: { id: 1, currency: 'RUB' } as Budget,
       amount: 130_00,
       description: 'tee',
+      date,
     },
     updatedAt,
   )
@@ -128,7 +128,6 @@ it('updateSpendingWithBudget', () => {
   const updatedAt = new Date('2026-05-26T12:36:00')
 
   const result = saveSpendingChanges(
-    date,
     {
       rowId: 777,
       budgetId: 1,
@@ -147,6 +146,7 @@ it('updateSpendingWithBudget', () => {
       budget: { id: 2, currency: 'RUB' } as Budget,
       amount: 130_00,
       description: 'ice cream',
+      date,
     },
     updatedAt,
   )

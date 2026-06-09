@@ -1,6 +1,6 @@
 
 import { describe, expect, test } from 'vitest'
-import {type Budget, type SpendingRow, createSpendingEditForm, genVersion} from '@src/models/models'
+import {type Budget, type SpendingRow, spendingFormValidator, genVersion} from '@src/models/models'
 import {fromMajorUnits} from "@src/helpers/money.ts";
 
 test('genVersion', () => {
@@ -14,7 +14,7 @@ test('genVersion', () => {
   expect(genVersion('notaversion')).not.toEqual(genVersion('notaversion'))
 })
 
-describe('createSpendingEditForm', () => {
+describe('spendingFormValidator', () => {
   const makeBudget = () => ({ id: 1, currency: "RUB"} as Budget)
 
   function makeFormData(data: Record<string, string>): FormData {
@@ -27,43 +27,57 @@ describe('createSpendingEditForm', () => {
     return fd
   }
 
-  test('returns parsed form data', () => {
-    const budget = makeBudget()
+  test.each([
+    [
+      {}, {}, { chooseBudget: true, chooseDate: false },
+      true,
+    ],
+    [ // wrong budget
+      {budgetId: '2'}, { 1: makeBudget() }, { chooseBudget: true, chooseDate: false },
+      true,
+    ],
+    [
+      { budgetId: '1' }, { 1: makeBudget() }, { chooseBudget: true, chooseDate: false },
+      false,
+    ],
+    [
+      { budgetId: '1', date: '2026-04-29' }, { 1: makeBudget() }, { chooseBudget: false, chooseDate: false },
+      true,
+    ],
+    [
+      { budgetId: '1' }, { 1: makeBudget() }, { chooseBudget: false, chooseDate: true },
+      true,
+    ],
+    [
+      { description: 'some val' }, { 1: makeBudget() }, { chooseBudget: false, chooseDate: true },
+      false,
+    ],
+  ])(
+    'isEmpty',
+    (fd, budgets, cfg, isEmpty) => {
+      const validator = spendingFormValidator(
+        makeFormData(fd),
+        budgets,
+        cfg,
+      )
 
-    const form = createSpendingEditForm(
-      makeFormData({amount: '123.45', description: 'coffee', budgetId: '1'}),
-      {1: budget},
-    )
-
-    expect(form.data).toEqual({budget, amount: 12345, description: 'coffee'})
-  })
-
-  test('is empty when all fields are empty', () => {
-    const form = createSpendingEditForm(makeFormData({}), {})
-
-    expect(form.isEmpty()).toBe(true)
-  })
-
-  test('is not empty when description exists', () => {
-    const form = createSpendingEditForm(
-      makeFormData({amount: '', description: 'coffee', budgetId: ''}),
-      {},
-    )
-
-    expect(form.isEmpty()).toBe(false)
-  })
+      expect(validator.isEmpty()).toBe(isEmpty)
+    },
+  )
 
   test('validates missing budget', () => {
-    const form1 = createSpendingEditForm(
+    const form1 = spendingFormValidator(
       makeFormData({amount: '10', description: 'coffee', budgetId: ''}),
       {},
+      {chooseBudget: true, chooseDate: false},
     )
 
     expect(form1.validate()).toBe('не выбран бюджет')
 
-    const form2 = createSpendingEditForm(
+    const form2 = spendingFormValidator(
       makeFormData({amount: '10', description: 'coffee', budgetId: '2'}),
       {},
+      {chooseBudget: true, chooseDate: false},
     )
 
     expect(form2.validate()).toBe('не выбран бюджет')
@@ -72,9 +86,10 @@ describe('createSpendingEditForm', () => {
   test('validates empty amount', () => {
     const budget = makeBudget()
 
-    const form = createSpendingEditForm(
-      makeFormData({amount: '', description: 'coffee', budgetId: '1'}),
+    const form = spendingFormValidator(
+      makeFormData({amount: '', description: 'coffee', budgetId: '1', date: '2026-04-29'}),
       {1: budget},
+      {chooseBudget: false, chooseDate: false},
     )
 
     expect(form.validate()).toBe('пустая сумма')
@@ -83,20 +98,34 @@ describe('createSpendingEditForm', () => {
   test('validates empty description', () => {
     const budget = makeBudget()
 
-    const form = createSpendingEditForm(
-      makeFormData({amount: '10', description: '', budgetId: '1'}),
+    const form = spendingFormValidator(
+      makeFormData({amount: '10', description: '', budgetId: '1', date: '2026-04-29'}),
       {1: budget},
+      {chooseBudget: false, chooseDate: false},
     )
 
     expect(form.validate()).toBe('пустое описание')
   })
 
+  test('validates empty date', () => {
+    const budget = makeBudget()
+
+    const form = spendingFormValidator(
+      makeFormData({amount: '10', description: 'som', budgetId: '1'}),
+      {1: budget},
+      {chooseBudget: false, chooseDate: false},
+    )
+
+    expect(form.validate()).toBe('не выбрана дата')
+  })
+
   test('returns null validation for valid form', () => {
     const budget = makeBudget()
 
-    const form = createSpendingEditForm(
-      makeFormData({amount: '123.45', description: 'coffee', budgetId: '1'}),
+    const form = spendingFormValidator(
+      makeFormData({amount: '123.45', description: 'coffee', budgetId: '1', date: '2026-04-29'}),
       {1: budget},
+      {chooseBudget: false, chooseDate: false},
     )
 
     expect(form.validate()).toBe(null)
@@ -107,14 +136,16 @@ describe('createSpendingEditForm', () => {
 
     const amount = fromMajorUnits(123.45, budget.currency)
 
-    const form = createSpendingEditForm(
-      makeFormData({amount: '123.45', description: 'coffee', budgetId: '1'}),
+    const form = spendingFormValidator(
+      makeFormData({amount: '123.45', description: 'coffee', budgetId: '1', date: '2026-04-29'}),
       {1: budget},
+      {chooseBudget: false, chooseDate: false},
     )
 
-    expect(form.isEqual({amount, description: 'coffee', budgetId: 1} as SpendingRow)).toBe(true)
-    expect(form.isEqual({amount: 123, description: 'coffee', budgetId: 1} as SpendingRow)).toBe(false)
-    expect(form.isEqual({amount, description: 'coffee', budgetId: 2} as SpendingRow)).toBe(false)
-    expect(form.isEqual({amount, description: 'tea',    budgetId: 1} as SpendingRow)).toBe(false)
+    expect(form.isEqual({amount, description: 'coffee', budgetId: 1, date: new Date('2026-04-29')} as SpendingRow)).toBe(true)
+    expect(form.isEqual({amount, description: 'coffee', budgetId: 1, date: new Date('2026-04-30')} as SpendingRow)).toBe(false)
+    expect(form.isEqual({amount: 123, description: 'coffee', budgetId: 1, date: new Date('2026-04-29')} as SpendingRow)).toBe(false)
+    expect(form.isEqual({amount, description: 'coffee', budgetId: 2, date: new Date('2026-04-29')} as SpendingRow)).toBe(false)
+    expect(form.isEqual({amount, description: 'tea',    budgetId: 1, date: new Date('2026-04-29')} as SpendingRow)).toBe(false)
   })
 })

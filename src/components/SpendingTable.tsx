@@ -5,7 +5,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCheck, faReceipt, faXmark} from '@fortawesome/free-solid-svg-icons'
 import {faGripDotsVertical} from '@src/helpers/icons'
 import {useImmer} from "use-immer";
-import {type Budget, type SpendingRow, createSpendingEditForm, isNew} from "@src/models/models.ts";
+import {type Budget, type SpendingRow, spendingFormValidator, isNew} from "@src/models/models.ts";
 import {
   deleteSpending,
   saveSpendingChanges,
@@ -71,7 +71,12 @@ export default function SpendingTable({date, budget, initSpendings}: Props) {
   function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
 
-    const f = createSpendingEditForm(new FormData(e.currentTarget!), budgets)
+    const f = spendingFormValidator(
+      new FormData(e.currentTarget!),
+      budgets,
+      {chooseBudget: !budget, chooseDate: false},
+    )
+
     const sp = pendingRow!
 
     // Do nothing
@@ -87,14 +92,19 @@ export default function SpendingTable({date, budget, initSpendings}: Props) {
       return
     }
 
-    const newSp = saveSpendingChanges(date, sp, f.data, new Date())
+    const newSp = saveSpendingChanges(sp, f.data, new Date())
 
     spRowsActions.patchSpendingRow(sp.rowId, {...newSp, budgetId: f.data.budget!.id})
     setPendingRow(null)
   }
 
   function onCancel(e: React.KeyboardEvent<HTMLInputElement>|React.MouseEvent<HTMLButtonElement>) {
-    const f = createSpendingEditForm(new FormData(e.currentTarget.form!), budgets)
+    const f = spendingFormValidator(
+      new FormData(e.currentTarget.form!),
+      budgets,
+      {chooseBudget: !budget, chooseDate: false},
+    )
+
     const sp = pendingRow!
 
     if (f.isEmpty() && isNew(sp)) {
@@ -122,7 +132,11 @@ export default function SpendingTable({date, budget, initSpendings}: Props) {
   }
 
   function onOverlayClick() {
-    const f = createSpendingEditForm(new FormData(pendingSpForm.current!), budgets)
+    const f = spendingFormValidator(
+      new FormData(pendingSpForm.current!),
+      budgets,
+      {chooseBudget: !budget, chooseDate: false},
+    )
     const sp = pendingRow!
 
     if (f.isEmpty() && isNew(sp)) {
@@ -142,7 +156,7 @@ export default function SpendingTable({date, budget, initSpendings}: Props) {
       return
     }
 
-    const newSp = saveSpendingChanges(date, sp, f.data, new Date())
+    const newSp = saveSpendingChanges(sp, f.data, new Date())
 
     spRowsActions.patchSpendingRow(sp.rowId, {...newSp, budgetId: f.data.budget!.id})
     setPendingRow(null)
@@ -278,6 +292,7 @@ export default function SpendingTable({date, budget, initSpendings}: Props) {
         {pendingRow &&
           <>
             <form ref={pendingSpForm} onSubmit={onSubmit}>
+              <input name="date" defaultValue={dateISO(date)} style={{visibility: 'hidden'}} />
               { budget &&
                 <input name="budgetId" defaultValue={budget.id} style={{visibility: 'hidden'}} />
               }

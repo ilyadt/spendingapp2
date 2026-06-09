@@ -84,32 +84,42 @@ export interface Budget {
 
 export type DelSpending = Pick<Spending, 'id' | 'version' | 'prev' | 'updatedAt'>
 
-
-
-export interface spendingEditForm {
-  isEmpty():boolean
-  isEqual(sp: SpendingRow): boolean
-  validate(): string|null
-  data: {
-    amount: number,
-    description: string,
-    budget: Budget,
-  },
-}
-
-export function createSpendingEditForm(fd: FormData, bs: Record<number, Budget>): spendingEditForm {
+export function spendingFormValidator(
+  fd: FormData,
+  bs: Record<number, Budget>,
+  cfg: {
+    chooseBudget: boolean
+    chooseDate: boolean
+  }) {
   const budget: Budget|undefined = bs[Number(fd.get('budgetId'))]
 
-  const amountFull = Number(fd.get('amount'))
-  const amount = budget ? fromMajorUnits(amountFull, budget.currency) : 0
+  const amount = budget ? fromMajorUnits(Number(fd.get('amount')), budget.currency) : 0
   const description = fd.get('description')?.toString() ?? ''
+  const d = new Date(fd.get('date')?.toString() ?? '')
+  const date = d.getTime() ? d : null
 
   return {
-    data: ({amount, description, budget}),
-    isEmpty: (): boolean => !amountFull && !description, // TODO: split form for cross-budget / not
+    data: {amount, description, budget, date: date!},
+    isEmpty: (): boolean => {
+      let userFilled = Boolean(amount) || Boolean(description)
+
+      if (cfg.chooseBudget) {
+        userFilled ||= Boolean(budget)
+      }
+
+      if (cfg.chooseDate) {
+        userFilled ||= Boolean(date)
+      }
+
+      return !userFilled
+    },
     validate: function () {
       if (!budget) {
         return 'не выбран бюджет'
+      }
+
+      if (!date) {
+        return  'не выбрана дата'
       }
 
       if (!amount) {
@@ -124,6 +134,7 @@ export function createSpendingEditForm(fd: FormData, bs: Record<number, Budget>)
     },
     isEqual: (s: SpendingRow) =>
       budget?.id === s.budgetId
+      && date?.getTime() === s.date?.getTime()
       && amount === s.amount
       && description === s.description,
   }
