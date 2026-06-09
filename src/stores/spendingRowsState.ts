@@ -8,7 +8,7 @@ export interface SpendingRowsActions {
   deleteSpendingRow: (internalRowId: number) => void
 }
 
-export function useSpendingRows(initSps: SpendingRow[]) {
+export function useSpendingRows(initSps: SpendingRow[], onEmpty?: () => void) {
   const [spendings, updateSpendings] = useImmer<SpendingRow[]>(() => initSps)
 
   function createSpendingRow(bid: number, sp: Spending): SpendingRow {
@@ -33,7 +33,19 @@ export function useSpendingRows(initSps: SpendingRow[]) {
   }
 
   function deleteSpendingRow(rowId: number) {
-    updateSpendings(sps => sps.filter(s => s.rowId != rowId))
+    updateSpendings(sps => {
+      const idx = sps.findIndex(s => s.rowId === rowId)
+
+      if (idx < 0) {
+        return
+      }
+
+      sps.splice(idx, 1)
+
+      if (sps.length === 0) {
+        onEmpty?.()
+      }
+    })
   }
 
   const actions = {

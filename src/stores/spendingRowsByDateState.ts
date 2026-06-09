@@ -54,5 +54,9 @@ export function useSpendingRowsByDate(initSps: Record<number, Spending[]>) {
     })
   }
 
-  return [initSpendings, addSpendingRow, tableRefs] as const
+  function emptyDate(date: DateISO) {
+    updateSpendings(draft => { delete draft[date] })
+  }
+
+  return [initSpendings, addSpendingRow, emptyDate, tableRefs] as const
 }

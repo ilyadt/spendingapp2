@@ -29,6 +29,7 @@ type Props = {
   date: Date
   budget?: Budget,
   initSpendings: SpendingRow[]
+  onEmpty?: () => void
   ref?: Ref<SpendingTableHandle>
 }
 
@@ -36,8 +37,8 @@ export type SpendingTableHandle = {
   createSpendingRow(bid: number, sp: Spending): void
 }
 
-export default function SpendingTable({date, budget, initSpendings, ref}: Props) {
-  const [spendings, spRowsActions] = useSpendingRows(initSpendings)
+export default function SpendingTable({date, budget, initSpendings, onEmpty, ref}: Props) {
+  const [spendings, spRowsActions] = useSpendingRows(initSpendings, onEmpty)
 
   const budgets = useBudgetsWithSpent(s => s.budgets)
 

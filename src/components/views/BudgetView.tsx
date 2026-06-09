@@ -11,7 +11,7 @@ import {Facade} from "@src/facade.ts";
 import {spendingFormValidator} from "@src/models/models.ts";
 
 export function BudgetView({budget}: {budget: BudgetWithSpent}) {
-  const [initSpendingsByDate, addSpendingRow, tableRefs] = useSpendingRowsByDate({
+  const [initSpendingsByDate, addSpendingRow, emptyDate, tableRefs] = useSpendingRowsByDate({
     [budget.id]: Facade.spendingsByBudgetId(budget.id),
   })
 
@@ -92,6 +92,7 @@ export function BudgetView({budget}: {budget: BudgetWithSpent}) {
           initSpendings={initSpendingsByDate[date] ?? []}
           budget={budget}
           ref={r => {tableRefs.current[date] = r}}
+          onEmpty={() => emptyDate(date)}
         />
       ))}
     </>
