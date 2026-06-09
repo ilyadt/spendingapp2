@@ -93,7 +93,8 @@ export function spendingFormValidator(
   }) {
   const budget: Budget|undefined = bs[Number(fd.get('budgetId'))]
 
-  const amount = budget ? fromMajorUnits(Number(fd.get('amount')), budget.currency) : 0
+  const amountFull = Number(fd.get('amount')?.toString() ?? '')
+  const amount = budget ? fromMajorUnits(amountFull, budget.currency) : 0
   const description = fd.get('description')?.toString() ?? ''
   const d = new Date(fd.get('date')?.toString() ?? '')
   const date = d.getTime() ? d : null
@@ -101,7 +102,7 @@ export function spendingFormValidator(
   return {
     data: {amount, description, budget, date: date!},
     isEmpty: (): boolean => {
-      let userFilled = Boolean(amount) || Boolean(description)
+      let userFilled = Boolean(amountFull) || Boolean(description)
 
       if (cfg.chooseBudget) {
         userFilled ||= Boolean(budget)

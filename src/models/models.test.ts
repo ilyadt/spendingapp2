@@ -52,6 +52,10 @@ describe('spendingFormValidator', () => {
       { description: 'some val' }, { 1: makeBudget() }, { chooseBudget: false, chooseDate: true },
       false,
     ],
+    [
+      { amount: '33' }, {}, { chooseBudget: true, chooseDate: false },
+      false,
+    ]
   ])(
     'isEmpty',
     (fd, budgets, cfg, isEmpty) => {
