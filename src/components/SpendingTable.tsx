@@ -444,13 +444,14 @@ function useTableMode() {
 function Overlay({onClick}: {onClick: () => void}) {
   return createPortal(
     <div
-     onClick={onClick}
-     style={{
+      id="overlay"
+      onClick={onClick}
+      style={{
         position: 'fixed',
         inset: 0,
         background: 'aqua',
         opacity: 0.5,
         zIndex: 2000,
-     }}
+      }}
     />, document.body)
 }

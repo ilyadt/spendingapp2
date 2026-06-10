@@ -19,6 +19,10 @@ if (nodeVersion >= 25) {
 
 export default defineConfig({
     test: {
+        setupFiles: [
+          // For .toBeInTheDocument() assertions to work
+          '@testing-library/jest-dom/vitest',
+        ],
         env: {
             VITE_SERVER_URL: 'http://localhost:3000',
         },
