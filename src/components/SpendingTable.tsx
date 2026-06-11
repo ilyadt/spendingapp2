@@ -17,13 +17,13 @@ import {
   saveSpendingChanges,
   updateSpending
 } from "@src/models/facadewrapper.ts";
-import {type Ref, useImperativeHandle, useRef, useState} from "react";
+import {type Ref, useContext, useImperativeHandle, useRef, useState} from "react";
 import {budgetsSortFn, colorFromReceiptId, genReceiptId, receiptTotals} from "@src/helpers/helper.ts";
 import styles from './SpendingTable.module.css'
 import {createPortal} from "react-dom";
 import type {KeyboardEvent} from "react"
-import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
 import {useSpendingRows} from "@src/stores/spendingRowsState.ts";
+import {BudgetsContext} from "@src/models/contexts.ts";
 
 type Props = {
   date: Date
@@ -40,7 +40,7 @@ export type SpendingTableHandle = {
 export default function SpendingTable({date, budget, initSpendings, onEmpty, ref}: Props) {
   const [spendings, spRowsActions] = useSpendingRows(initSpendings, onEmpty)
 
-  const budgets = useBudgetsWithSpent(s => s.budgets)
+  const budgets = useContext(BudgetsContext)
 
   const tblMode = useTableMode()
 

@@ -2,27 +2,30 @@ import {render, screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import SpendingTable from './SpendingTable'
 import {vi, describe, test, expect} from 'vitest'
+import {BudgetsContext} from "@src/models/contexts.ts";
+import type {BudgetsWithSpentById, BudgetWithSpent} from "@src/stores/budgets.ts";
 
 vi.spyOn(window, 'confirm').mockReturnValue(true)
-
-// mocks
-vi.mock('@src/stores/budgets.ts', () => ({
-  useBudgetsWithSpent: () => ({
-    1: {
-      id: 1,
-      alias: 'Food',
-      currency: 'RUB',
-      amount: 100000,
-      amountSpent: 0,
-    },
-  }),
-}))
 
 describe('SpendingTable', () => {
   test('empty-table/cancel', async () => {
     const user = userEvent.setup()
 
-    render(<SpendingTable date={new Date('2026-06-10')} initSpendings={[]}/>)
+    const budgetsById: BudgetsWithSpentById = {
+      1: {
+        id: 1,
+        alias: 'Food',
+        currency: 'RUB',
+        amount: 100000,
+        amountSpent: 0,
+      } as BudgetWithSpent,
+    }
+
+    render(
+      <BudgetsContext value={budgetsById}>
+        <SpendingTable date={new Date('2026-06-10')} initSpendings={[]}/>
+      </BudgetsContext>
+    )
 
     // open
     await user.click(screen.getByRole('button', {name: '+'}))

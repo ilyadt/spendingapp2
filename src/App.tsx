@@ -10,20 +10,19 @@ import styles from './App.module.css'
 import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
 import {BudgetViewRoute} from "@src/components/views/BudgetViewRoute.tsx";
 import {budgetsSortFn} from "@src/helpers/helper.ts";
+import {BudgetsContext} from "@src/models/contexts.ts";
 
 export default function App() {
-  const budgets = Object
-    .values(
-      useBudgetsWithSpent(s => s.budgets)
-    )
-    .sort(budgetsSortFn)
+  const budgets = useBudgetsWithSpent(s => s.budgets)
 
   function navLinkClass({ isActive }: NavLinkRenderProps): string {
     return clsx(styles.navLink, isActive && styles.active)
   }
 
+  const budgetsSorted = Object.values(budgets).sort(budgetsSortFn)
+
   return (
-    <>
+    <BudgetsContext value={budgets}>
       <div className="container">
         <StatusBar/>
         <Routes>
@@ -51,7 +50,7 @@ export default function App() {
             </NavLink>
           </li>
 
-          {budgets.map((b) => (
+          {budgetsSorted.map((b) => (
             <li key={b.id} className={ styles.btnStyle }>
               <NavLink to={`/budget/${b.id}`} className={navLinkClass}>
                 {b.alias}
@@ -66,6 +65,6 @@ export default function App() {
           </li>
         </ul>
       </nav>
-    </>
+    </BudgetsContext>
   )
 }
