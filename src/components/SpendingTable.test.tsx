@@ -37,7 +37,7 @@ describe('SpendingTable', () => {
 
     // cancel
     await user.click(
-      screen.getAllByRole('button')[1]
+      screen.getByTestId('cancel-pending')
     )
 
     expect(

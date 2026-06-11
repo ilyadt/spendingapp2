@@ -368,6 +368,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
 
                   <td style={{padding: '2px'}}>
                     <button
+                        data-testid="cancel-pending"
                         type="button"
                         className="btn btn-danger btn-sm p-1 m-1"
                         style={{minWidth: '20px', lineHeight: 1}}
