@@ -4,7 +4,6 @@ import {type Currency, formatAmount, toMajorUnits} from '@src/helpers/money'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCheck, faReceipt, faXmark} from '@fortawesome/free-solid-svg-icons'
 import {faGripDotsVertical} from '@src/helpers/icons'
-import {useImmer} from "use-immer";
 import {
   type Budget,
   type SpendingRow,
@@ -12,18 +11,13 @@ import {
   isNew,
   type Spending
 } from "@src/models/models.ts";
-import {
-  deleteSpending,
-  saveSpendingChanges,
-  updateSpending
-} from "@src/models/facadewrapper.ts";
 import {type Ref, useContext, useImperativeHandle, useRef, useState} from "react";
 import {budgetsSortFn, colorFromReceiptId, genReceiptId, receiptTotals} from "@src/helpers/helper.ts";
 import styles from './SpendingTable.module.css'
 import {createPortal} from "react-dom";
 import type {KeyboardEvent} from "react"
 import {useSpendingRows} from "@src/stores/spendingRowsState.ts";
-import {BudgetsContext} from "@src/models/contexts.ts";
+import {BudgetsContext, SpendingsStoreActionsContext} from "@src/models/contexts.ts";
 
 type Props = {
   date: Date
@@ -38,25 +32,24 @@ export type SpendingTableHandle = {
 }
 
 export default function SpendingTable({date, budget, initSpendings, onEmpty, ref}: Props) {
-  const [spendings, spRowsActions] = useSpendingRows(initSpendings, onEmpty)
-
   const budgets = useContext(BudgetsContext)
+  const spStoreActions = useContext(SpendingsStoreActionsContext)
+
+  const [spendings, spRowsActions] = useSpendingRows(initSpendings, onEmpty)
 
   const tblMode = useTableMode()
 
-  const [pendingRow, setPendingRow] = useImmer<SpendingRow | null>(null)
+  const [pendingRow, setPendingRow] = useState<SpendingRow | null>(null)
   const pendingSpForm = useRef<HTMLFormElement>(null)
 
-  useImperativeHandle(ref, () => ({
-    createSpendingRow: spRowsActions.createSpendingRow,
-  }))
+  useImperativeHandle(ref, () => ({createSpendingRow: spRowsActions.createSpendingRow}))
 
   function delSpending(s: SpendingRow) {
     if (!window.confirm(`Удалить запись "${s.description}" ?`)) {
       return
     }
 
-    deleteSpending(s, new Date())
+    spStoreActions.deleteSpending(s, new Date())
     spRowsActions.deleteSpendingRow(s.rowId)
   }
 
@@ -80,7 +73,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
 
   function _updateReceiptId(spId: string, receiptId: number, updatedAt: Date) {
     const spRow = spendings.find(s => (s.id == spId) && (dateISO(s.date) == dateISO(date)))!
-    const newSp = updateSpending(spRow, {receiptId: receiptId}, updatedAt)
+    const newSp = spStoreActions.updateSpending(spRow, {receiptId: receiptId}, updatedAt)
     spRowsActions.patchSpendingRow(spRow.rowId, {...newSp})
   }
 
@@ -108,7 +101,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
       return
     }
 
-    const newSp = saveSpendingChanges(sp, f.data, new Date())
+    const newSp = spStoreActions.saveSpendingChanges(sp, f.data, new Date())
 
     spRowsActions.patchSpendingRow(sp.rowId, {...newSp, budgetId: f.data.budget!.id})
     setPendingRow(null)
@@ -172,7 +165,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
       return
     }
 
-    const newSp = saveSpendingChanges(sp, f.data, new Date())
+    const newSp = spStoreActions.saveSpendingChanges(sp, f.data, new Date())
 
     spRowsActions.patchSpendingRow(sp.rowId, {...newSp, budgetId: f.data.budget!.id})
     setPendingRow(null)

@@ -1,11 +1,13 @@
 import {render, screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import SpendingTable from './SpendingTable'
-import {vi, describe, test, expect} from 'vitest'
+import {vi, describe, test, expect, afterEach} from 'vitest'
 import {BudgetsContext} from "@src/models/contexts.ts";
 import type {BudgetsWithSpentById, BudgetWithSpent} from "@src/stores/budgets.ts";
 
-vi.spyOn(window, 'confirm').mockReturnValue(true)
+afterEach(() => {
+  vi.restoreAllMocks()
+})
 
 describe('SpendingTable', () => {
   test('empty-table/cancel', async () => {
