@@ -90,7 +90,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
     const f = spendingFormValidator(
       new FormData(e.currentTarget!),
       budgets,
-      {chooseBudget: !budget, chooseDate: false},
+      {selectBudget: !budget, selectDate: false},
     )
 
     const sp = pendingRow!
@@ -118,7 +118,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
     const f = spendingFormValidator(
       new FormData(e.currentTarget.form!),
       budgets,
-      {chooseBudget: !budget, chooseDate: false},
+      {selectBudget: !budget, selectDate: false},
     )
 
     const sp = pendingRow!
@@ -151,7 +151,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
     const f = spendingFormValidator(
       new FormData(pendingSpForm.current!),
       budgets,
-      {chooseBudget: !budget, chooseDate: false},
+      {selectBudget: !budget, selectDate: false},
     )
     const sp = pendingRow!
 

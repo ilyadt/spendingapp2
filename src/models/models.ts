@@ -88,8 +88,8 @@ export function spendingFormValidator(
   fd: FormData,
   bs: Record<number, Budget>,
   cfg: {
-    chooseBudget: boolean
-    chooseDate: boolean
+    selectBudget: boolean
+    selectDate: boolean
   }) {
   const budget: Budget|undefined = bs[Number(fd.get('budgetId'))]
 
@@ -104,11 +104,11 @@ export function spendingFormValidator(
     isEmpty: (): boolean => {
       let userFilled = Boolean(amountFull) || Boolean(description)
 
-      if (cfg.chooseBudget) {
+      if (cfg.selectBudget) {
         userFilled ||= Boolean(budget)
       }
 
-      if (cfg.chooseDate) {
+      if (cfg.selectDate) {
         userFilled ||= Boolean(date)
       }
 

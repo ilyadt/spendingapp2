@@ -29,31 +29,31 @@ describe('spendingFormValidator', () => {
 
   test.each([
     [
-      {}, {}, { chooseBudget: true, chooseDate: false },
+      {}, {}, { selectBudget: true, selectDate: false },
       true,
     ],
     [ // wrong budget
-      {budgetId: '2'}, { 1: makeBudget() }, { chooseBudget: true, chooseDate: false },
+      {budgetId: '2'}, { 1: makeBudget() }, { selectBudget: true, selectDate: false },
       true,
     ],
     [
-      { budgetId: '1' }, { 1: makeBudget() }, { chooseBudget: true, chooseDate: false },
+      { budgetId: '1' }, { 1: makeBudget() }, { selectBudget: true, selectDate: false },
       false,
     ],
     [
-      { budgetId: '1', date: '2026-04-29' }, { 1: makeBudget() }, { chooseBudget: false, chooseDate: false },
+      { budgetId: '1', date: '2026-04-29' }, { 1: makeBudget() }, { selectBudget: false, selectDate: false },
       true,
     ],
     [
-      { budgetId: '1' }, { 1: makeBudget() }, { chooseBudget: false, chooseDate: true },
+      { budgetId: '1' }, { 1: makeBudget() }, { selectBudget: false, selectDate: true },
       true,
     ],
     [
-      { description: 'some val' }, { 1: makeBudget() }, { chooseBudget: false, chooseDate: true },
+      { description: 'some val' }, { 1: makeBudget() }, { selectBudget: false, selectDate: true },
       false,
     ],
     [
-      { amount: '33' }, {}, { chooseBudget: true, chooseDate: false },
+      { amount: '33' }, {}, { selectBudget: true, selectDate: false },
       false,
     ]
   ])(
@@ -73,7 +73,7 @@ describe('spendingFormValidator', () => {
     const form1 = spendingFormValidator(
       makeFormData({amount: '10', description: 'coffee', budgetId: ''}),
       {},
-      {chooseBudget: true, chooseDate: false},
+      {selectBudget: true, selectDate: false},
     )
 
     expect(form1.validate()).toBe('не выбран бюджет')
@@ -81,7 +81,7 @@ describe('spendingFormValidator', () => {
     const form2 = spendingFormValidator(
       makeFormData({amount: '10', description: 'coffee', budgetId: '2'}),
       {},
-      {chooseBudget: true, chooseDate: false},
+      {selectBudget: true, selectDate: false},
     )
 
     expect(form2.validate()).toBe('не выбран бюджет')
@@ -93,7 +93,7 @@ describe('spendingFormValidator', () => {
     const form = spendingFormValidator(
       makeFormData({amount: '', description: 'coffee', budgetId: '1', date: '2026-04-29'}),
       {1: budget},
-      {chooseBudget: false, chooseDate: false},
+      {selectBudget: false, selectDate: false},
     )
 
     expect(form.validate()).toBe('пустая сумма')
@@ -105,7 +105,7 @@ describe('spendingFormValidator', () => {
     const form = spendingFormValidator(
       makeFormData({amount: '10', description: '', budgetId: '1', date: '2026-04-29'}),
       {1: budget},
-      {chooseBudget: false, chooseDate: false},
+      {selectBudget: false, selectDate: false},
     )
 
     expect(form.validate()).toBe('пустое описание')
@@ -117,7 +117,7 @@ describe('spendingFormValidator', () => {
     const form = spendingFormValidator(
       makeFormData({amount: '10', description: 'som', budgetId: '1'}),
       {1: budget},
-      {chooseBudget: false, chooseDate: false},
+      {selectBudget: false, selectDate: false},
     )
 
     expect(form.validate()).toBe('не выбрана дата')
@@ -129,7 +129,7 @@ describe('spendingFormValidator', () => {
     const form = spendingFormValidator(
       makeFormData({amount: '123.45', description: 'coffee', budgetId: '1', date: '2026-04-29'}),
       {1: budget},
-      {chooseBudget: false, chooseDate: false},
+      {selectBudget: false, selectDate: false},
     )
 
     expect(form.validate()).toBe(null)
@@ -143,7 +143,7 @@ describe('spendingFormValidator', () => {
     const form = spendingFormValidator(
       makeFormData({amount: '123.45', description: 'coffee', budgetId: '1', date: '2026-04-29'}),
       {1: budget},
-      {chooseBudget: false, chooseDate: false},
+      {selectBudget: false, selectDate: false},
     )
 
     expect(form.isEqual({amount, description: 'coffee', budgetId: 1, date: new Date('2026-04-29')} as SpendingRow)).toBe(true)

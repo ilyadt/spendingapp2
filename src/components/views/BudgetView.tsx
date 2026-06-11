@@ -22,7 +22,7 @@ export function BudgetView({budget}: {budget: BudgetWithSpent}) {
     const f = spendingFormValidator(
       new FormData(form),
       {[budget.id]: budget},
-      {chooseBudget: false, chooseDate: true},
+      {selectBudget: false, selectDate: true},
   )
 
     const err = f.validate()
