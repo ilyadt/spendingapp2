@@ -9,10 +9,15 @@ import {
   type SpendingRow,
   spendingFormValidator,
   isNew,
-  type Spending
 } from "@src/models/models.ts";
 import {type Ref, useContext, useImperativeHandle, useRef, useState} from "react";
-import {budgetsSortFn, colorFromReceiptId, genReceiptId, receiptTotals} from "@src/helpers/helper.ts";
+import {
+  budgetsSortFn,
+  colorFromReceiptId,
+  genRandInt,
+  genReceiptId,
+  receiptTotals
+} from "@src/helpers/helper.ts";
 import styles from './SpendingTable.module.css'
 import {createPortal} from "react-dom";
 import type {KeyboardEvent} from "react"
@@ -28,7 +33,7 @@ type Props = {
 }
 
 export type SpendingTableHandle = {
-  createSpendingRow(bid: number, sp: Spending): void
+  addSpendingRow(sp: SpendingRow): void
 }
 
 export default function SpendingTable({date, budget, initSpendings, onEmpty, ref}: Props) {
@@ -42,7 +47,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
   const [pendingRow, setPendingRow] = useState<SpendingRow | null>(null)
   const pendingSpForm = useRef<HTMLFormElement>(null)
 
-  useImperativeHandle(ref, () => ({createSpendingRow: spRowsActions.createSpendingRow}))
+  useImperativeHandle(ref, () => ({addSpendingRow: spRowsActions.addSpendingRow}))
 
   function delSpending(s: SpendingRow) {
     if (!window.confirm(`Удалить запись "${s.description}" ?`)) {
@@ -172,18 +177,22 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
   }
 
   function addNewSpending() {
-    const spRow = spRowsActions.createSpendingRow(0, {
+    const spRow: SpendingRow = {
       id: '',
       version: '',
-      date: date, // TODO: сделать State по дням ?
+      rowId: genRandInt(),
+      date: date,
       amount: 0,
       currency: '' as Currency,
       description: '',
       sort: Date.now(),
+      budgetId: budget?.id ?? 0,
+      receiptGroupId: 0,
       createdAt: new Date(0),
       updatedAt: new Date(0),
-      receiptGroupId: 0,
-    })
+    }
+
+    spRowsActions.addSpendingRow(spRow)
 
     setPendingRow(spRow)
   }
@@ -288,7 +297,12 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
 
           <tr key="sp-add">
             <td>
-              <button type="button" onClick={addNewSpending} className="btn btn-success btn-small"> +</button>
+              <button
+                type="button"
+                onClick={addNewSpending}
+                className="btn btn-success btn-small"
+                data-testid='add-new-button'
+              >+</button>
             </td>
             <td/>
             {crossBudget && <td/>}
@@ -300,7 +314,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
 
         {pendingRow &&
           <>
-            <form ref={pendingSpForm} onSubmit={onSubmit}>
+            <form ref={pendingSpForm} onSubmit={onSubmit} data-testid='edit-form'>
               <input name="date" defaultValue={dateISO(date)} style={{visibility: 'hidden'}} />
               { budget &&
                 <input name="budgetId" defaultValue={budget.id} style={{visibility: 'hidden'}} />
@@ -370,6 +384,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
                       <FontAwesomeIcon icon={faXmark}/>
                     </button>
                     <button
+                        data-testid="submit-pending"
                         type="submit"
                         className="btn btn-success btn-sm p-1 m-1"
                         style={{minWidth: '20px', lineHeight: 1}}

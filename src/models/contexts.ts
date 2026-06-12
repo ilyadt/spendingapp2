@@ -9,7 +9,7 @@ import {
 
 export const BudgetsContext = createContext<BudgetsWithSpentById>({});
 
-interface spendingsStoreActions {
+export interface spendingsStoreActions {
   createSpending: typeof createSpending,
   updateSpending: typeof updateSpending,
   deleteSpending: typeof deleteSpending,

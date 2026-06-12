@@ -37,7 +37,11 @@ export function useSpendingRowsByDate(initSps: Record<number, Spending[]>) {
     const tbl = tableRefs.current[dateStr]
 
     if (tbl) {
-      tbl.createSpendingRow(bid, sp)
+      tbl.addSpendingRow({
+        ...sp,
+        rowId: genRandInt(),
+        budgetId: bid,
+      })
       return
     }
 

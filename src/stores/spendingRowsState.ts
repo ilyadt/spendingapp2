@@ -1,26 +1,10 @@
-import type {Spending, SpendingRow} from "@src/models/models.ts";
-import {genRandInt} from "@src/helpers/helper.ts";
+import type {SpendingRow} from "@src/models/models.ts";
 import {useImmer} from "use-immer";
-
-export interface SpendingRowsActions {
-  createSpendingRow: (bid: number, sp: Spending) => SpendingRow
-  patchSpendingRow: (internalRowId: number, patch: Partial<SpendingRow>) => void
-  deleteSpendingRow: (internalRowId: number) => void
-}
-
 export function useSpendingRows(initSps: SpendingRow[], onEmpty?: () => void) {
   const [spendings, updateSpendings] = useImmer<SpendingRow[]>(() => initSps)
 
-  function createSpendingRow(bid: number, sp: Spending): SpendingRow {
-    const spRow: SpendingRow = {
-      rowId: genRandInt(),
-      budgetId: bid,
-      ...sp,
-    }
-
+  function addSpendingRow(spRow: SpendingRow) {
     updateSpendings(prev => { prev.push(spRow) })
-
-    return spRow
   }
 
   function patchSpendingRow(rowId: number, patch: Partial<SpendingRow>) {
@@ -49,7 +33,7 @@ export function useSpendingRows(initSps: SpendingRow[], onEmpty?: () => void) {
   }
 
   const actions = {
-    createSpendingRow,
+    addSpendingRow,
     patchSpendingRow,
     deleteSpendingRow,
   }
