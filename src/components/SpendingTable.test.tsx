@@ -10,6 +10,7 @@ import {
 import type {BudgetsWithSpentById, BudgetWithSpent} from "@src/stores/budgets.ts";
 import type {Budget, SpendingRow} from "@src/models/models.ts";
 import type {SpendingData} from "@src/models/facadewrapper.ts";
+import * as random from "@src/helpers/helper"
 
 const NOW_TIME = new Date('2026-06-12T10:30:00Z')
 
@@ -71,6 +72,8 @@ describe('SpendingTable', () => {
   test('empty-table/create-new-spending', async () => {
     const user = userEvent.setup()
 
+    vi.spyOn(random, 'genRandInt').mockReturnValue(777)
+
     const budgetsById: BudgetsWithSpentById = {
       1: {
         id: 1,
@@ -121,14 +124,12 @@ describe('SpendingTable', () => {
     budgetSelect!.focus()
     await user.selectOptions(budgetSelect!, '1')
 
-    await user.click(
-      screen.getByTestId('submit-pending')
-    )
+    await user.click(screen.getByTestId('submit-pending'))
 
     expect(mockSaveStore).toHaveBeenCalledOnce()
     expect(mockSaveStore).toHaveBeenCalledWith(
       expect.objectContaining({
-        rowId: expect.toSatisfy(rowId => typeof rowId === 'number' && rowId > 0),
+        rowId: 777,
         id: expect.toSatisfy(id => !id),
         date: new Date('2026-06-10'),
         sort: NOW_TIME.getTime()
