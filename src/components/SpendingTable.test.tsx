@@ -1,6 +1,6 @@
 import {render, screen, cleanup} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import SpendingTable from './SpendingTable'
+import SpendingTable, {type SpendingTableHandle} from './SpendingTable'
 import {vi, describe, test, expect, beforeEach, afterEach} from 'vitest'
 import {
   BudgetsContext,
@@ -11,6 +11,7 @@ import type {BudgetsWithSpentById, BudgetWithSpent} from "@src/stores/budgets.ts
 import type {Budget, SpendingRow} from "@src/models/models.ts";
 import type {SpendingData} from "@src/models/facadewrapper.ts";
 import * as random from "@src/helpers/helper"
+import {createRef} from "react";
 
 const NOW_TIME = new Date('2026-06-12T10:30:00Z')
 
@@ -24,7 +25,7 @@ beforeEach(() => {
   vi.setSystemTime(NOW_TIME)
 })
 
-describe('SpendingTable', () => {
+describe('SpendingTable', async () => {
   test('empty-table/cancel', async () => {
     const user = userEvent.setup()
 
@@ -142,5 +143,61 @@ describe('SpendingTable', () => {
       } satisfies SpendingData,
       NOW_TIME,
     )
+  })
+
+  test('ref/add-spending-row', async () => {
+    const budgetsById: BudgetsWithSpentById = {
+      3: {
+        id: 3,
+        description: 'очарование',
+        alias: 'charm',
+        currency: 'EUR',
+        amount: 2500_00,
+        amountSpent: 0,
+      } as BudgetWithSpent,
+    }
+
+    const ref = createRef<SpendingTableHandle>()
+
+    render(
+      <BudgetsContext value={budgetsById}>
+        <SpendingTable
+          ref={ref}
+          date={new Date('2026-06-10')}
+          initSpendings={[
+            {
+              rowId: 933,
+              budgetId: 3,
+              id: 'id-1',
+              version: '1',
+              date: new Date('2026-06-10'),
+              amount: 100,
+              currency: 'EUR',
+              description: 'something',
+              sort: 1,
+            } as SpendingRow
+          ]}
+        />
+      </BudgetsContext>
+    )
+
+    ref.current!.addSpendingRow({
+      rowId: 9192,
+      budgetId: 3,
+      date: new Date(''),
+      id: "id-11",
+      version: "v1-233",
+      amount: 99_99,
+      currency: 'EUR',
+      description: "ресторанчик",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      receiptGroupId: 0,
+      sort: 99,
+    })
+
+    await screen.findByText('something')
+    await screen.findByText('ресторанчик')
+    await screen.findAllByText('charm')
   })
 })
