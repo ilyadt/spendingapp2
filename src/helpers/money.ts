@@ -1,10 +1,11 @@
-export type Currency = 'RUB' | 'EUR' | 'BTC'
+export type Currency = 'RUB' | 'EUR' | 'USD' | 'BTC'
 
-const currencies: Currency[] = ['RUB', 'EUR', 'BTC']
+export const currencies: Currency[] = ['RUB', 'EUR', 'USD', 'BTC']
 
 const fractions: Record<Currency, number> = {
   RUB: 2,
   EUR: 2,
+  USD: 2,
   BTC: 8,
 }
 
@@ -41,3 +42,23 @@ export function formatAmount(amount: number, cur: Currency): string {
   return String(toMajorUnits(amount, cur))  + ' ' + cur
 }
 
+export function totals(items: Array<{ amount: number; currency: Currency }>): string[] {
+  const basket: Partial<Record<Currency, number>> = {}
+
+  for (const {currency, amount} of items) {
+    basket[currency] = (basket[currency] ?? 0) + amount
+  }
+
+  // 100 RUB, 12 EUR
+  const res: string[] = []
+  for (const cur of currencies) {
+    const amount = basket[cur]
+    if (!amount) {
+      continue
+    }
+
+    res.push(formatAmount(amount, cur))
+  }
+
+  return res
+}

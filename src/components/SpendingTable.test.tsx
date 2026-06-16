@@ -171,7 +171,7 @@ describe('SpendingTable', async () => {
               id: 'id-1',
               version: '1',
               date: new Date('2026-06-10'),
-              amount: 100,
+              amount: 100_00,
               currency: 'EUR',
               description: 'something',
               sort: 1,
@@ -199,5 +199,7 @@ describe('SpendingTable', async () => {
     await screen.findByText('something')
     await screen.findByText('ресторанчик')
     await screen.findAllByText('charm')
+
+    expect(screen.getByTestId('totals').textContent).toBe('199.99 EUR')
   })
 })

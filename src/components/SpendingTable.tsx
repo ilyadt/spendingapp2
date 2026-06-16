@@ -1,6 +1,6 @@
 import {isToday} from 'date-fns'
 import {dateFormat, dateISO, dayName} from '@src/helpers/date'
-import {type Currency, formatAmount, toMajorUnits} from '@src/helpers/money'
+import {type Currency, formatAmount, toMajorUnits, totals} from '@src/helpers/money'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCheck, faReceipt, faXmark} from '@fortawesome/free-solid-svg-icons'
 import {faGripDotsVertical} from '@src/helpers/icons'
@@ -202,16 +202,6 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
   const receiptTotal = receiptTotals(spendingsSorted)
   const crossBudget = !budget
 
-  function dayTotal(cur: Currency): number {
-    const res: Partial<Record<Currency, number>> = {}
-
-    for (const {currency, amount} of spendings) {
-      res[currency] = (res[currency] ?? 0) + amount
-    }
-
-    return res[cur] ?? 0
-  }
-
   function onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     switch (e.key) {
       case 'Enter':
@@ -306,7 +296,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
             </td>
             <td/>
             {crossBudget && <td/>}
-            <td>{toMajorUnits(dayTotal("RUB"), 'RUB')} ₽</td>
+            <td data-testid="totals">{ totals(spendings).join(', ') }</td>
           </tr>
 
           </tbody>
