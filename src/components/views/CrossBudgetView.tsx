@@ -16,7 +16,7 @@ export function CrossBudgetView() {
     spendingsByBudgetId[b.id] = Facade.spendingsByBudgetId(b.id)
   }
 
-  const [initSpendingsByDate, , emptyDate] = useSpendingRowsByDate(spendingsByBudgetId)
+  const [initSpendingsByDate, , clearSpendings] = useSpendingRowsByDate(spendingsByBudgetId)
 
   const dates = dateRangePlusItemSet(
     budgets.map(b => b.dateFrom).sort().at(0)!,
@@ -38,7 +38,7 @@ export function CrossBudgetView() {
             key={date}
             date={new Date(date)}
             initSpendings={initSpendingsByDate[date] ?? []}
-            onEmpty={() => emptyDate(date)}
+            onEmpty={() => clearSpendings(date)}
           />
         </div>
       ))}

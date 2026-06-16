@@ -3,15 +3,13 @@ import {dateISO} from "@src/helpers/date.ts";
 import type {Spending, SpendingRow} from "@src/models/models.ts";
 import {genRandInt} from "@src/helpers/helper.ts";
 import type {SpendingTableHandle} from "@src/components/SpendingTable.tsx";
-import {useRef} from "react";
+import {type RefObject} from "react";
 
 type DateISO = string
 
 type SpendingsByDate = Record<DateISO,SpendingRow[]>
 
-export function useSpendingRowsByDate(initSps: Record<number, Spending[]>) {
-  const tableRefs = useRef<Record<DateISO, SpendingTableHandle | null>>({})
-
+export function useSpendingRowsByDate(initSps: Record<number, Spending[]>, tableRefs?: RefObject<Record<DateISO, SpendingTableHandle|null>>) {
   const [initSpendings, updateSpendings] = useImmer<SpendingsByDate>(() => {
     const grouped: SpendingsByDate = {}
 
@@ -34,7 +32,7 @@ export function useSpendingRowsByDate(initSps: Record<number, Spending[]>) {
   function addSpendingRow(bid: number, sp: Spending) {
     const dateStr = dateISO(sp.date)
 
-    const tbl = tableRefs.current[dateStr]
+    const tbl = tableRefs?.current[dateStr]
 
     if (tbl) {
       tbl.addSpendingRow({
@@ -45,22 +43,22 @@ export function useSpendingRowsByDate(initSps: Record<number, Spending[]>) {
       return
     }
 
-    updateSpendings(draft => {
-      if (!draft[dateStr]) {
+    updateSpendings(initSpendings => {
+      if (!initSpendings[dateStr]) {
         const spRow: SpendingRow = {
           rowId: genRandInt(),
           budgetId: bid,
           ...sp,
         }
 
-        draft[dateStr] = [spRow]
+        initSpendings[dateStr] = [spRow]
       }
     })
   }
 
-  function emptyDate(date: DateISO) {
-    updateSpendings(draft => { delete draft[date] })
+  function clearSpendings(date: DateISO) {
+    updateSpendings(initSpendings => { delete initSpendings[date] })
   }
 
-  return [initSpendings, addSpendingRow, emptyDate, tableRefs] as const
+  return [initSpendings, addSpendingRow, clearSpendings] as const
 }

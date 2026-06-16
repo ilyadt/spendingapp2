@@ -2,18 +2,22 @@ import {dateFormat, dateRangePlusItemSet} from '@src/helpers/date'
 import {toMajorUnits} from '@src/helpers/money'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
-import SpendingTable from '@src/components/SpendingTable'
+import SpendingTable, {type SpendingTableHandle} from '@src/components/SpendingTable'
 import styles from './BudgetView.module.css'
 import {createSpending} from "@src/models/facadewrapper.ts";
 import type {BudgetWithSpent} from "@src/stores/budgets.ts";
 import {useSpendingRowsByDate} from "@src/stores/spendingRowsByDateState.ts";
 import {Facade} from "@src/facade.ts";
 import {spendingFormValidator} from "@src/models/models.ts";
+import {useRef} from "react";
 
 export function BudgetView({budget}: {budget: BudgetWithSpent}) {
-  const [initSpendingsByDate, addSpendingRow, emptyDate, tableRefs] = useSpendingRowsByDate({
-    [budget.id]: Facade.spendingsByBudgetId(budget.id),
-  })
+  const tableRefs = useRef<Record<string, SpendingTableHandle|null>>({})
+
+  const [initSpendingsByDate, addSpendingRow, clearSpendings] = useSpendingRowsByDate(
+    {[budget.id]: Facade.spendingsByBudgetId(budget.id)},
+    tableRefs,
+  )
 
   function onSubmitTopForm(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -92,7 +96,7 @@ export function BudgetView({budget}: {budget: BudgetWithSpent}) {
           initSpendings={initSpendingsByDate[date] ?? []}
           budget={budget}
           ref={r => {tableRefs.current[date] = r}}
-          onEmpty={() => emptyDate(date)}
+          onEmpty={() => clearSpendings(date)}
         />
       ))}
     </>
