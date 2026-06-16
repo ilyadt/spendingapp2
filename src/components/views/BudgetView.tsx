@@ -1,4 +1,4 @@
-import {dateFormat, dateRangePlusItemSet} from '@src/helpers/date'
+import {dateFormat, dateISO, dateRangePlusItemSet} from '@src/helpers/date'
 import {toMajorUnits} from '@src/helpers/money'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
@@ -8,16 +8,16 @@ import {createSpending} from "@src/models/facadewrapper.ts";
 import type {BudgetWithSpent} from "@src/stores/budgets.ts";
 import {useSpendingRowsByDate} from "@src/stores/spendingRowsByDateState.ts";
 import {Facade} from "@src/facade.ts";
-import {spendingFormValidator} from "@src/models/models.ts";
+import {spendingFormValidator, type SpendingRow} from "@src/models/models.ts";
 import {useRef} from "react";
+import {genRandInt} from "@src/helpers/helper.ts";
 
 export function BudgetView({budget}: {budget: BudgetWithSpent}) {
   const tableRefs = useRef<Record<string, SpendingTableHandle|null>>({})
 
-  const [initSpendingsByDate, addSpendingRow, clearSpendings] = useSpendingRowsByDate(
-    {[budget.id]: Facade.spendingsByBudgetId(budget.id)},
-    tableRefs,
-  )
+  const [initSpendingsByDate, addSpendingRow, clearSpendings] = useSpendingRowsByDate({
+      [budget.id]: Facade.spendingsByBudgetId(budget.id)
+  })
 
   function onSubmitTopForm(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -35,9 +35,18 @@ export function BudgetView({budget}: {budget: BudgetWithSpent}) {
       return
     }
 
-    const newSpending = createSpending(f.data, new Date())
+    const dateStr = dateISO(f.data.date)
 
-    addSpendingRow(budget.id, newSpending)
+    const tbl = tableRefs?.current[dateStr]
+
+    const newSpRow: SpendingRow = {
+      ...createSpending(f.data, new Date()),
+      rowId: genRandInt(),
+      budgetId: budget.id,
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    tbl ? tbl.addSpendingRow(newSpRow) : addSpendingRow(newSpRow)
 
     // clear form
     form.reset()
