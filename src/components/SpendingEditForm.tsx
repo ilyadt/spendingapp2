@@ -64,26 +64,28 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
           <input name="budgetId" defaultValue={budget.id} style={{visibility: 'hidden'}} />
         }
         <table
-          className={`table table-bordered table-sm align-middle`}
+          className="table table-bordered table-sm align-middle"
           style={{
+            tableLayout: 'fixed',
             position: 'absolute',
-            top: sp.rowIdx * 37.25 + 'px',
+            top: sp.rowIdx * 45 + 'px',
             background: 'white',
             zIndex: 2001,
+            lineHeight: '20px',
           }}
         >
-            {crossBudget ? (
+          {crossBudget ? (
             <colgroup>
-              <col style={{width: '50px'}}/>
-              <col style={{width: '160px'}}/>
-              <col style={{width: '50px'}}/>
-              <col style={{width: '55px'}}/>
+              <col style={{width: '15%'}}/>
+              <col style={{width: '48%'}}/>
+              <col style={{width: '20%'}}/>
+              <col style={{width: '17%'}}/>
             </colgroup>
           ) : (
             <colgroup>
-              <col style={{width: '70px'}}/>
-              <col style={{width: '190px'}}/>
-              <col style={{width: '65px'}}/>
+              <col style={{width: '21%'}}/>
+              <col style={{width: '58%'}}/>
+              <col style={{width: '21%'}}/>
             </colgroup>
           )}
           <tbody>

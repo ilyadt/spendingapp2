@@ -172,8 +172,28 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
       <div style={{position: 'relative', padding: 0}}>
         <table
           className="table table-bordered table-sm align-middle"
-          style={{tableLayout: 'fixed', minWidth: 350, opacity: isToday(date) ? 1 : 0.5, marginBottom: 20}}
+          style={{
+            tableLayout: 'fixed',
+            minWidth: 350,
+            opacity: isToday(date) ? 1 : 0.5,
+            marginBottom: 20,
+            lineHeight: '20px',
+          }}
         >
+          {crossBudget ? (
+            <colgroup>
+              <col style={{width: '15%'}}/>
+              <col style={{width: '48%'}}/>
+              <col style={{width: '20%'}}/>
+              <col style={{width: '17%'}}/>
+            </colgroup>
+          ) : (
+            <colgroup>
+              <col style={{width: '21%'}}/>
+              <col style={{width: '58%'}}/>
+              <col style={{width: '21%'}}/>
+            </colgroup>
+          )}
           <tbody>
 
           {spendingsSorted.map((sp, idx) => (
@@ -181,10 +201,11 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
               key={sp.rowId}
               className={sp.receiptGroupId ? styles.bgRow : ''}
               style={{
+                height: '45px',
                 ['--row-bg-color' as string]: '#' + colorFromReceiptId(sp.receiptGroupId).toString(16),
               }}
             >
-              <td style={{position: 'relative', textAlign: 'right'}}>
+              <td style={{textAlign: 'right'}}>
 
                 <span onClick={() => setPendingRow({...sp, rowIdx: idx})}>
                   {receiptTotal[sp.rowId] && `${toMajorUnits(receiptTotal[sp.rowId], sp.currency)} \\ `}
@@ -201,7 +222,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
                 )}
               </td>
 
-              <td>
+              <td style={{overflow: "hidden", whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>
                 <span onClick={() => setPendingRow({...sp, rowIdx: idx})}>{sp.description}</span>
               </td>
 
@@ -214,10 +235,10 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
               }
 
               <td>
-                <button className="btn btn-warning btn-sm p-1 m-1" onClick={() => delSpending(sp)}>
+                <button className="btn btn-warning btn-sm" onClick={() => delSpending(sp)}>
                   <FontAwesomeIcon icon={faXmark}/>
                 </button>
-                <button className="btn btn-sm p-1 m-1">
+                <button className="btn btn-sm">
                   <FontAwesomeIcon icon={faGripDotsVertical}/>
                 </button>
               </td>
