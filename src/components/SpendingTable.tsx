@@ -188,7 +188,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
                 ['--row-bg-color' as string]: '#' + colorFromReceiptId(sp.receiptGroupId).toString(16),
               }}
             >
-              <td style={{textAlign: 'right'}}>
+              <td style={{textAlign: 'right', position: "relative"}}>
 
                 <span onClick={() => setPendingRow({...sp, rowIdx: idx})}>
                   {receiptTotal[sp.rowId] && `${toMajorUnits(receiptTotal[sp.rowId], sp.currency)} \\ `}
