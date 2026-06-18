@@ -110,7 +110,9 @@ describe('SpendingTable', async () => {
     const amountInput = editForm.querySelector<HTMLInputElement>('input[name="amount"]')
     expect(amountInput).toBeInTheDocument()
 
-    amountInput!.focus()
+    // Autofocus on amount after adding new spending
+    expect(amountInput).toHaveFocus()
+
     await user.keyboard('100')
 
     const descriptionInput = editForm.querySelector<HTMLInputElement>('input[name="description"]')

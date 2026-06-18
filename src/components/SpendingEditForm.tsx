@@ -74,6 +74,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
           <tr>
             <td className="text-end">
               <input
+                autoFocus={isNew(sp)}
                 name="amount"
                 step="0.01"
                 className="form-control cell-input"
