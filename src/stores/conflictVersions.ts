@@ -1,8 +1,6 @@
 import {create, type StateCreator} from 'zustand'
 import { persist } from 'zustand/middleware'
 
-import {immer} from "zustand/middleware/immer";
-
 // Spending version id
 type SpVersionId = string
 
@@ -31,33 +29,40 @@ type StateWithPersist = StateCreator<
   [],
   [
     ['zustand/persist', unknown],
-    ["zustand/immer", never],
   ]>
 
 export const conflictVersionStateCreator: StateWithPersist =
   persist(
-    immer(
       (set, get) => ({
         conflictVersions: {},
 
         add: (...vers) =>
           set((state) => {
+            const newVersions = {...state.conflictVersions}
+
             for (const v of vers) {
               if (state.conflictVersions[v.version]) {
                 throw new Error(`Conflict version ${v.version} already exists`)
               }
 
-              state.conflictVersions[v.version] = v
+              newVersions[v.version] = v
             }
+
+            return {conflictVersions: newVersions}
           }),
 
         remove: (ver) =>
           set((state) => {
-            delete state.conflictVersions[ver]
+            if (!state.conflictVersions[ver]) {
+              return state
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { [ver]: _, ...remaining } = state.conflictVersions
+            return { conflictVersions: remaining }
           }),
         conflictVersionsArr: () => Object.values(get().conflictVersions)
       }),
-    ),
     {
         name: 'conflictVersionsV2',
     }
