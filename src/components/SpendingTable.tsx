@@ -171,14 +171,8 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
 
       <div style={{position: 'relative', padding: 0}}>
         <table
-          className="table table-bordered table-sm align-middle"
-          style={{
-            tableLayout: 'fixed',
-            minWidth: 350,
-            opacity: isToday(date) ? 1 : 0.5,
-            marginBottom: 20,
-            lineHeight: '20px',
-          }}
+          className={`table table-bordered table-sm align-middle ${styles.spDayTable}`}
+          style={{opacity: isToday(date) ? 1 : 0.5}}
         >
           {crossBudget ? (
             <colgroup>
@@ -201,7 +195,6 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
               key={sp.rowId}
               className={sp.receiptGroupId ? styles.bgRow : ''}
               style={{
-                height: '45px',
                 ['--row-bg-color' as string]: '#' + colorFromReceiptId(sp.receiptGroupId).toString(16),
               }}
             >
@@ -222,7 +215,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
                 )}
               </td>
 
-              <td style={{overflow: "hidden", whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>
+              <td>
                 <span onClick={() => setPendingRow({...sp, rowIdx: idx})}>{sp.description}</span>
               </td>
 
@@ -235,10 +228,10 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
               }
 
               <td>
-                <button className="btn btn-warning btn-sm" onClick={() => delSpending(sp)}>
+                <button className={`btn btn-warning btn-sm ${styles.actionButton}`} onClick={() => delSpending(sp)}>
                   <FontAwesomeIcon icon={faXmark}/>
                 </button>
-                <button className="btn btn-sm">
+                <button className={`btn btn-sm ${styles.actionButton}`}>
                   <FontAwesomeIcon icon={faGripDotsVertical}/>
                 </button>
               </td>

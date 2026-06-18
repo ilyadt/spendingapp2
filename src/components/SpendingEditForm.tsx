@@ -7,6 +7,7 @@ import {createPortal} from "react-dom";
 import {type KeyboardEvent, useContext, useRef} from "react";
 import {BudgetsContext} from "@src/models/contexts.ts";
 import {budgetsSortFn} from "@src/helpers/helper.ts";
+import styles from "@src/components/SpendingTable.module.css"
 
 type Props = {
   sp: SpendingRow & {rowIdx: number};
@@ -64,15 +65,8 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
           <input name="budgetId" defaultValue={budget.id} style={{visibility: 'hidden'}} />
         }
         <table
-          className="table table-bordered table-sm align-middle"
-          style={{
-            tableLayout: 'fixed',
-            position: 'absolute',
-            top: sp.rowIdx * 45 + 'px',
-            background: 'white',
-            zIndex: 2001,
-            lineHeight: '20px',
-          }}
+          className={`table table-bordered table-sm align-middle ${styles.spDayTable} ${styles.modalTable}`}
+          style={{top: sp.rowIdx * 40 + 'px'}}
         >
           {crossBudget ? (
             <colgroup>
