@@ -21,6 +21,7 @@ import styles from './SpendingTable.module.css'
 import {useSpendingRows} from "@src/stores/spendingRowsState.ts";
 import {BudgetsContext, SpendingsStoreActionsContext} from "@src/models/contexts.ts";
 import SpendingEditForm from "@src/components/SpendingEditForm.tsx";
+import SpTableColgroup from "@src/components/anemic/SpTableColgroup.tsx";
 
 type Props = {
   date: Date
@@ -174,20 +175,9 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
           className={`table table-bordered table-sm align-middle ${styles.spDayTable}`}
           style={{opacity: isToday(date) ? 1 : 0.5}}
         >
-          {crossBudget ? (
-            <colgroup>
-              <col style={{width: '15%'}}/>
-              <col style={{width: '48%'}}/>
-              <col style={{width: '20%'}}/>
-              <col style={{width: '17%'}}/>
-            </colgroup>
-          ) : (
-            <colgroup>
-              <col style={{width: '21%'}}/>
-              <col style={{width: '58%'}}/>
-              <col style={{width: '21%'}}/>
-            </colgroup>
-          )}
+
+          <SpTableColgroup crossBudget={crossBudget} />
+
           <tbody>
 
           {spendingsSorted.map((sp, idx) => (

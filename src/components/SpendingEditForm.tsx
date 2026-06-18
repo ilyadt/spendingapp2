@@ -8,6 +8,7 @@ import {type KeyboardEvent, useContext, useRef} from "react";
 import {BudgetsContext} from "@src/models/contexts.ts";
 import {budgetsSortFn} from "@src/helpers/helper.ts";
 import styles from "@src/components/SpendingTable.module.css"
+import SpTableColgroup from "@src/components/anemic/SpTableColgroup.tsx";
 
 type Props = {
   sp: SpendingRow & {rowIdx: number};
@@ -68,20 +69,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
           className={`table table-bordered table-sm align-middle ${styles.spDayTable} ${styles.modalTable}`}
           style={{top: sp.rowIdx * 40 + 'px'}}
         >
-          {crossBudget ? (
-            <colgroup>
-              <col style={{width: '15%'}}/>
-              <col style={{width: '48%'}}/>
-              <col style={{width: '20%'}}/>
-              <col style={{width: '17%'}}/>
-            </colgroup>
-          ) : (
-            <colgroup>
-              <col style={{width: '21%'}}/>
-              <col style={{width: '58%'}}/>
-              <col style={{width: '21%'}}/>
-            </colgroup>
-          )}
+          <SpTableColgroup crossBudget={crossBudget} />
           <tbody>
           <tr>
             <td className="text-end">
