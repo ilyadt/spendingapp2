@@ -1,4 +1,4 @@
-import {render, screen, cleanup} from '@testing-library/react'
+import {render, screen, cleanup, within} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import SpendingTable, {type SpendingTableHandle} from './SpendingTable'
 import {vi, describe, test, expect, beforeEach, afterEach} from 'vitest'
@@ -9,8 +9,8 @@ import {
 } from "@src/models/contexts.ts";
 import type {BudgetsWithSpentById, BudgetWithSpent} from "@src/stores/budgets.ts";
 import type {Budget, SpendingRow} from "@src/models/models.ts";
-import type {SpendingData} from "@src/models/facadewrapper.ts";
-import * as random from "@src/helpers/helper"
+import type {saveSpendingChanges, SpendingData, updateSpending} from "@src/models/facadewrapper.ts";
+import * as helper from "@src/helpers/helper"
 import {createRef} from "react";
 
 const NOW_TIME = new Date('2026-06-12T10:30:00Z')
@@ -18,6 +18,7 @@ const NOW_TIME = new Date('2026-06-12T10:30:00Z')
 afterEach(() => {
   cleanup()
   vi.restoreAllMocks()
+  vi.clearAllMocks()
   vi.useRealTimers()
 })
 
@@ -26,6 +27,11 @@ beforeEach(() => {
 })
 
 describe('SpendingTable', async () => {
+  const storeActions = {
+    saveSpendingChanges: vi.fn() as typeof saveSpendingChanges,
+    updateSpending: vi.fn() as typeof updateSpending,
+  } as spendingsStoreActions
+
   test('empty-table/cancel', async () => {
     const user = userEvent.setup()
 
@@ -73,7 +79,7 @@ describe('SpendingTable', async () => {
   test('empty-table/create-new-spending', async () => {
     const user = userEvent.setup()
 
-    vi.spyOn(random, 'genRandInt').mockReturnValue(777)
+    vi.spyOn(helper, 'genRandInt').mockReturnValue(777)
 
     const budgetsById: BudgetsWithSpentById = {
       1: {
@@ -86,14 +92,8 @@ describe('SpendingTable', async () => {
       } as BudgetWithSpent,
     }
 
-    const mockSaveStore = vi.fn()
-
-    const spStoreActionsMock = {
-      saveSpendingChanges: mockSaveStore,
-    } as unknown as spendingsStoreActions
-
     render(
-      <SpendingsStoreActionsContext value={spStoreActionsMock}>
+      <SpendingsStoreActionsContext value={storeActions}>
         <BudgetsContext value={budgetsById}>
           <SpendingTable date={new Date('2026-06-10')} initSpendings={[]}/>
         </BudgetsContext>
@@ -129,8 +129,8 @@ describe('SpendingTable', async () => {
 
     await user.click(screen.getByTestId('submit-pending'))
 
-    expect(mockSaveStore).toHaveBeenCalledOnce()
-    expect(mockSaveStore).toHaveBeenCalledWith(
+    expect(storeActions.saveSpendingChanges).toHaveBeenCalledOnce()
+    expect(storeActions.saveSpendingChanges).toHaveBeenCalledWith(
       expect.objectContaining({
         rowId: 777,
         id: expect.toSatisfy(id => !id),
@@ -145,6 +145,160 @@ describe('SpendingTable', async () => {
       } satisfies SpendingData,
       NOW_TIME,
     )
+  })
+
+  test('group/unite-receipt', async () => {
+    const budgetsById: BudgetsWithSpentById = {
+      1: {id: 1, alias: 'drinks', currency: 'RUB', amount: 0, amountSpent: 0} as BudgetWithSpent,
+      2: {id: 2, alias: 'food', currency: 'RUB', amount: 0, amountSpent: 0} as BudgetWithSpent,
+    }
+
+    const sp1 = {
+      rowId: 1,
+      budgetId: 1,
+      id: 'id-1',
+      version: '1',
+      date: new Date('2026-06-10'),
+      amount: 100_00,
+      currency: 'RUB',
+      description: 'кофе',
+      sort: 1,
+    } as SpendingRow
+
+    const sp2 = {
+      rowId: 2,
+      budgetId: 2,
+      id: 'id-2',
+      version: '1',
+      date: new Date('2026-06-10'),
+      amount: 500_00,
+      currency: 'RUB',
+      description: 'продукты',
+      sort: 2,
+    } as SpendingRow
+
+    render(
+      <SpendingsStoreActionsContext value={storeActions}>
+        <BudgetsContext value={budgetsById}>
+          <SpendingTable
+            date={new Date('2026-06-10')}
+            initSpendings={[
+              sp1,
+              sp2,
+              {
+                rowId: 3,
+                budgetId: 2,
+                id: 'id-3',
+                version: '1',
+                date: new Date('2026-06-10'),
+                amount: 300_00,
+                currency: 'RUB',
+                description: 'помидоры',
+                sort: 3,
+              } as SpendingRow,
+            ]}
+          />
+        </BudgetsContext>
+      </SpendingsStoreActionsContext>
+    )
+
+    const user = userEvent.setup()
+
+    const gpModeBtn = screen.getByRole('button', {name: 'Enable group mode'})
+    await user.click(gpModeBtn)
+
+    assertGroupOperations(true)
+
+    const tbl = screen.getByRole('table')
+
+    const row1 = within(within(tbl).getByTestId('row-1')).getByRole('checkbox', {name: "select item"})
+    const row2 = within(within(tbl).getByTestId('row-2')).getByRole('checkbox', {name: "select item"})
+    const row3 = within(within(tbl).getByTestId('row-3')).getByRole('checkbox', {name: "select item"})
+
+    await user.click(row1)
+    await user.click(row2)
+    await user.click(row3)
+    await user.click(row3) // toggle
+
+    expect(row1).toBeChecked()
+    expect(row2).toBeChecked()
+    expect(row3).not.toBeChecked()
+
+    const receiptIdMock = 0xb3a3d8_112233
+    vi.spyOn(helper, 'genReceiptId').mockReturnValue(receiptIdMock)
+
+    const uniteReceiptBtn = screen.getByRole('button', {name: 'Объединить в чек'})
+    await user.click(uniteReceiptBtn)
+    assertGroupOperations(false)
+
+    // Test store savings
+    expect(storeActions.updateSpending).toHaveBeenCalledTimes(2)
+    expect(storeActions.updateSpending).toHaveBeenNthCalledWith(1,
+      sp1,
+      {receiptId: receiptIdMock} satisfies Partial<SpendingData>,
+      NOW_TIME,
+    )
+    expect(storeActions.updateSpending).toHaveBeenNthCalledWith(2,
+      sp2,
+      {receiptId: receiptIdMock} satisfies Partial<SpendingData>,
+      NOW_TIME,
+    )
+
+    // TODO: check color change and total appeared in the last element
+    // const row = screen.getByTestId('row-1')
+    // const tds = within(row).getAllByRole('cell')
+    //
+    // const tblx = screen.getByRole('table')
+    // screen.debug(tblx)
+    //
+    // tds.forEach((td) => {
+    //   screen.debug(td)
+    //   expect(getComputedStyle(td).backgroundColor).toBe('#ff0000')
+    // })
+  })
+
+  test('group/cancel-group', async () => {
+    const budgetsById: BudgetsWithSpentById = {
+      1: { id: 1, alias: 'drinks', currency: 'RUB', amount: 0, amountSpent: 0} as BudgetWithSpent,
+      2: { id: 2, alias: 'food', currency: 'RUB', amount: 0, amountSpent: 0} as BudgetWithSpent,
+    }
+
+    render(
+      <SpendingsStoreActionsContext value={storeActions}>
+        <BudgetsContext value={budgetsById}>
+          <SpendingTable
+            date={new Date('2026-06-10')}
+            initSpendings={[
+              {
+                rowId: 1,
+                budgetId: 1,
+                id: 'id-1',
+                version: '1',
+                date: new Date('2026-06-10'),
+                amount: 100_00,
+                currency: 'RUB',
+                description: 'кофе',
+                sort: 1,
+              } as SpendingRow,
+            ]}
+          />
+        </BudgetsContext>
+      </SpendingsStoreActionsContext>
+    )
+
+    const gpModeBtn = screen.getByRole('button', {name: 'Enable group mode'})
+
+    const user = userEvent.setup()
+
+    await user.click(gpModeBtn)
+    assertGroupOperations(true)
+
+    const cancelGrModeBtn = screen.getByRole('button', {name: 'Отменить'})
+    await user.click(cancelGrModeBtn)
+
+    assertGroupOperations(false)
+    expect(storeActions.updateSpending).not.toHaveBeenCalled()
+    expect(storeActions.saveSpendingChanges).not.toHaveBeenCalled()
   })
 
   test('ref/add-spending-row', async () => {
@@ -205,3 +359,27 @@ describe('SpendingTable', async () => {
     expect(screen.getByTestId('totals').textContent).toBe('199.99 EUR')
   })
 })
+
+function assertGroupOperations(enabled: boolean) {
+  within(screen.getByRole('table'))
+    .getAllByRole('row')
+    .slice(0, -1) // TODO: fix last row is "+" button
+    .forEach(row => {
+      const checkbox = within(row).queryByRole('checkbox', {name: 'select item'})
+      if (enabled) {
+        expect(checkbox).toBeVisible()
+        expect(checkbox).not.toBeChecked()
+      } else {
+        expect(checkbox).not.toBeInTheDocument()
+      }
+    })
+
+  const groupActions = screen.queryByRole('group', {
+    name: 'group-actions',
+  })
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+  enabled
+    ? expect(groupActions).toBeInTheDocument()
+    : expect(groupActions).not.toBeInTheDocument()
+}

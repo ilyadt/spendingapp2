@@ -41,7 +41,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
 
   const [spendings, spRowsActions] = useSpendingRows(initSpendings, onEmpty)
 
-  const tblMode = useTableMode()
+  const groupMode = useTableGroupMode()
 
   const [pendingRow, setPendingRow] = useState<SpendingRow & {rowIdx: number} | null>(null)
 
@@ -67,11 +67,11 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
   function _setReceiptIdForSelectedItems(receiptId: number) {
     const now = new Date()
 
-    for (const spId of tblMode.selectedItems) {
+    for (const spId of groupMode.selectedItems) {
       _updateReceiptId(spId, receiptId, now)
     }
 
-    tblMode.setViewMode()
+    groupMode.disable()
   }
 
   function _updateReceiptId(spId: string, receiptId: number, updatedAt: Date) {
@@ -161,9 +161,9 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
   return (
     <div className="row">
       <p style={{position: 'relative', marginBottom: 0}}>
-        <span style={{padding: 5, marginLeft: 6, cursor: 'pointer'}} onClick={tblMode.setGroupSelectMode}>
+        <button className="btn btn-link text-black p-0" onClick={groupMode.enable} aria-label="Enable group mode">
           <FontAwesomeIcon icon={faReceipt}/>
-        </span>
+        </button>
 
         <span style={{position: 'absolute', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap'}}>
           <b><i>{dateFormat(date)} ({dayName(date)})</i></b>
@@ -182,6 +182,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
 
           {spendingsSorted.map((sp, idx) => (
             <tr
+              data-testid={`row-${sp.rowId}`}
               key={sp.rowId}
               className={sp.receiptGroupId ? styles.bgRow : ''}
               style={{
@@ -195,12 +196,13 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
                   {toMajorUnits(sp.amount, sp.currency)}
                 </span>
 
-                {tblMode.isGroupSelectMode && (
+                {groupMode.enabled && (
                   <input
-                    onChange={() => tblMode.toggleSelected(sp.id)}
+                    aria-label="select item"
+                    onChange={() => groupMode.toggleItem(sp.id)}
                     style={{position: 'absolute', top: '10px', left: '10px'}}
                     type="checkbox"
-                    checked={tblMode.selectedItems.has(sp.id)}
+                    checked={groupMode.selectedItems.has(sp.id)}
                   />
                 )}
               </td>
@@ -249,11 +251,11 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
           <SpendingEditForm sp={pendingRow} save={onSubmit} cancel={onCancel} budget={budget}/>
         }
 
-        {tblMode.isGroupSelectMode &&
-          <div>
+        {groupMode.enabled &&
+          <div role="group" aria-label="group-actions">
             <button onClick={uniteReceipt} className="btn btn-success btn-small">Объединить в чек</button>
             <button onClick={separateReceipt} className="btn btn-success btn-small">Разъединить чек</button>
-            <button onClick={tblMode.setViewMode} className="btn btn-warning btn-small">Отменить</button>
+            <button onClick={groupMode.disable} className="btn btn-warning btn-small">Отменить</button>
           </div>
         }
       </div>
@@ -261,27 +263,27 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
   )
 }
 
-function useTableMode() {
-  type Mode = 'view' | 'groupSelect'
-
-  const [mode, setMode] = useState<Mode>('view')
-
+function useTableGroupMode() {
+  const [enabled, setEnabled] = useState<boolean>(false)
   const [selectedItems, setSelectedItems] = useState<Set<string>>(() => new Set())
 
   return {
-    isViewMode: mode === 'view',
-    isGroupSelectMode: mode === 'groupSelect',
+    enabled: enabled,
 
-    setViewMode() {
-      setMode('view')
+    disable() {
+      setEnabled(false)
     },
 
-    setGroupSelectMode() {
+    enable() {
+      if (enabled) {
+        return
+      }
+
       setSelectedItems(new Set())
-      setMode('groupSelect')
+      setEnabled(true)
     },
 
-    toggleSelected(item: string) {
+    toggleItem(item: string) {
       setSelectedItems(prev => {
         const next = new Set(prev)
 
