@@ -6,7 +6,7 @@ import SpendingTable, {type SpendingTableHandle} from '@src/components/SpendingT
 import styles from './BudgetView.module.css'
 import {createSpending} from "@src/models/facadewrapper.ts";
 import type {BudgetWithSpent} from "@src/stores/budgets.ts";
-import {useSpendingRowsByDate} from "@src/stores/spendingRowsByDateState.ts";
+import useSpendingRowsByDate from "@src/state/spendingRowsByDate.ts";
 import {Facade} from "@src/facade.ts";
 import {spendingFormValidator, type SpendingRow} from "@src/models/models.ts";
 import {useRef} from "react";

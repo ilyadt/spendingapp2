@@ -7,7 +7,7 @@ type DateISO = string
 
 type SpendingsByDate = Record<DateISO,SpendingRow[]>
 
-export function useSpendingRowsByDate(initSps: Record<number, Spending[]>) {
+export default function useSpendingRowsByDate(initSps: Record<number, Spending[]>) {
   const [initSpendings, updateSpendings] = useImmer<SpendingsByDate>(() => {
     const grouped: SpendingsByDate = {}
 

@@ -1,6 +1,7 @@
 import type {SpendingRow} from "@src/models/models.ts";
 import {useImmer} from "use-immer";
-export function useSpendingRows(initSps: SpendingRow[], onEmpty?: () => void) {
+
+export default function useSpendingRows(initSps: SpendingRow[], onEmpty?: () => void) {
   const [spendings, updateSpendings] = useImmer<SpendingRow[]>(() => initSps)
 
   function addSpendingRow(spRow: SpendingRow) {

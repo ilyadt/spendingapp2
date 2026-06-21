@@ -18,10 +18,11 @@ import {
   receiptTotals
 } from "@src/helpers/helper.ts";
 import styles from './SpendingTable.module.css'
-import {useSpendingRows} from "@src/stores/spendingRowsState.ts";
+import useSpendingRows from "@src/state/spendingRows.ts";
 import {BudgetsContext, SpendingsStoreActionsContext} from "@src/models/contexts.ts";
 import SpendingEditForm from "@src/components/SpendingEditForm.tsx";
 import SpTableColgroup from "@src/components/anemic/SpTableColgroup.tsx";
+import useTableGroupMode from "@src/state/tableGroupMode.ts";
 
 type Props = {
   date: Date
@@ -261,42 +262,4 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
       </div>
     </div>
   )
-}
-
-function useTableGroupMode() {
-  const [enabled, setEnabled] = useState<boolean>(false)
-  const [selectedItems, setSelectedItems] = useState<Set<string>>(() => new Set())
-
-  return {
-    enabled: enabled,
-
-    disable() {
-      setEnabled(false)
-    },
-
-    enable() {
-      if (enabled) {
-        return
-      }
-
-      setSelectedItems(new Set())
-      setEnabled(true)
-    },
-
-    toggleItem(item: string) {
-      setSelectedItems(prev => {
-        const next = new Set(prev)
-
-        if (next.has(item)) {
-          next.delete(item)
-        } else {
-          next.add(item)
-        }
-
-        return next
-      })
-    },
-
-    selectedItems,
-  }
 }

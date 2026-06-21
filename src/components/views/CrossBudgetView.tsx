@@ -3,7 +3,7 @@ import {dateISO, dateRangePlusItemSet} from '@src/helpers/date'
 import {useEffect, useRef} from "react";
 import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
 import {Facade} from "@src/facade.ts";
-import {useSpendingRowsByDate} from "@src/stores/spendingRowsByDateState.ts";
+import useSpendingRowsByDate from "@src/state/spendingRowsByDate.ts";
 import type {Spending} from "@src/models/models.ts";
 
 export function CrossBudgetView() {
