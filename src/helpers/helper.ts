@@ -51,7 +51,7 @@ export function receiptTotals(rows: SpendingRow[]): Record<RowId, Total> {
   const rId2total: Record<ReceiptId, [RowId, Total] > = {}
 
   for (const spRow of rows) {
-    if (spRow.receiptGroupId == 0) {
+    if (!spRow.receiptGroupId) {
       continue
     }
 

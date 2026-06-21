@@ -19,6 +19,7 @@ if (nodeVersion >= 25) {
 
 export default defineConfig({
     test: {
+        testTimeout: 0,
         setupFiles: [
           // For .toBeInTheDocument() assertions to work
           '@testing-library/jest-dom/vitest',

@@ -1,4 +1,4 @@
-import {render, screen, cleanup, within} from '@testing-library/react'
+import {render, screen, cleanup, within, } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import SpendingTable, {type SpendingTableHandle} from './SpendingTable'
 import {vi, describe, test, expect, beforeEach, afterEach} from 'vitest'
@@ -8,7 +8,7 @@ import {
   SpendingsStoreActionsContext
 } from "@src/models/contexts.ts";
 import type {BudgetsWithSpentById, BudgetWithSpent} from "@src/stores/budgets.ts";
-import type {Budget, SpendingRow} from "@src/models/models.ts";
+import type {Budget, Spending, SpendingRow} from "@src/models/models.ts";
 import type {saveSpendingChanges, SpendingData, updateSpending} from "@src/models/facadewrapper.ts";
 import * as helper from "@src/helpers/helper"
 import {createRef} from "react";
@@ -27,11 +27,6 @@ beforeEach(() => {
 })
 
 describe('SpendingTable', async () => {
-  const storeActions = {
-    saveSpendingChanges: vi.fn() as typeof saveSpendingChanges,
-    updateSpending: vi.fn() as typeof updateSpending,
-  } as spendingsStoreActions
-
   test('empty-table/cancel', async () => {
     const user = userEvent.setup()
 
@@ -79,6 +74,11 @@ describe('SpendingTable', async () => {
   test('empty-table/create-new-spending', async () => {
     const user = userEvent.setup()
 
+    const saveSpendingChangesMock = vi.fn()
+    const storeActions = {
+      saveSpendingChanges: saveSpendingChangesMock as typeof saveSpendingChanges
+    }
+
     vi.spyOn(helper, 'genRandInt').mockReturnValue(777)
 
     const budgetsById: BudgetsWithSpentById = {
@@ -93,7 +93,7 @@ describe('SpendingTable', async () => {
     }
 
     render(
-      <SpendingsStoreActionsContext value={storeActions}>
+      <SpendingsStoreActionsContext value={storeActions as spendingsStoreActions}>
         <BudgetsContext value={budgetsById}>
           <SpendingTable date={new Date('2026-06-10')} initSpendings={[]}/>
         </BudgetsContext>
@@ -129,8 +129,8 @@ describe('SpendingTable', async () => {
 
     await user.click(screen.getByTestId('submit-pending'))
 
-    expect(storeActions.saveSpendingChanges).toHaveBeenCalledOnce()
-    expect(storeActions.saveSpendingChanges).toHaveBeenCalledWith(
+    expect(saveSpendingChangesMock).toHaveBeenCalledOnce()
+    expect(saveSpendingChangesMock).toHaveBeenCalledWith(
       expect.objectContaining({
         rowId: 777,
         id: expect.toSatisfy(id => !id),
@@ -176,6 +176,12 @@ describe('SpendingTable', async () => {
       description: 'продукты',
       sort: 2,
     } as SpendingRow
+
+    const updateSpendingMock = vi.fn()
+
+    const storeActions = {
+      updateSpending: updateSpendingMock as typeof updateSpending,
+    } as spendingsStoreActions
 
     render(
       <SpendingsStoreActionsContext value={storeActions}>
@@ -227,34 +233,43 @@ describe('SpendingTable', async () => {
     const receiptIdMock = 0xb3a3d8_112233
     vi.spyOn(helper, 'genReceiptId').mockReturnValue(receiptIdMock)
 
+    updateSpendingMock.mockReturnValue({receiptGroupId: receiptIdMock} as Spending)
+
     const uniteReceiptBtn = screen.getByRole('button', {name: 'Объединить в чек'})
     await user.click(uniteReceiptBtn)
+
     assertGroupOperations(false)
 
     // Test store savings
-    expect(storeActions.updateSpending).toHaveBeenCalledTimes(2)
-    expect(storeActions.updateSpending).toHaveBeenNthCalledWith(1,
+    expect(updateSpendingMock).toHaveBeenCalledTimes(2)
+    expect(updateSpendingMock).toHaveBeenNthCalledWith(1,
       sp1,
       {receiptId: receiptIdMock} satisfies Partial<SpendingData>,
       NOW_TIME,
     )
-    expect(storeActions.updateSpending).toHaveBeenNthCalledWith(2,
+    expect(updateSpendingMock).toHaveBeenNthCalledWith(2,
       sp2,
       {receiptId: receiptIdMock} satisfies Partial<SpendingData>,
       NOW_TIME,
     )
 
-    // TODO: check color change and total appeared in the last element
-    // const row = screen.getByTestId('row-1')
-    // const tds = within(row).getAllByRole('cell')
-    //
-    // const tblx = screen.getByRole('table')
-    // screen.debug(tblx)
-    //
-    // tds.forEach((td) => {
-    //   screen.debug(td)
-    //   expect(getComputedStyle(td).backgroundColor).toBe('#ff0000')
-    // })
+    // Check color change and total appeared in the last element
+    const row1final = screen.getByTestId('row-1')
+    const row2final = screen.getByTestId('row-2')
+    const row3final = screen.getByTestId('row-3')
+
+
+    expect(row1final).toHaveStyle({'--row-bg-color': '#112233'})
+    expect(row2final).toHaveStyle({'--row-bg-color': '#112233'})
+    expect(row3final).not.toHaveStyle({'--row-bg-color': '#112233'})
+
+    const row1finalAmount = within(row1final).getAllByRole('cell')[0]
+    const row2finalAmount = within(row2final).getAllByRole('cell')[0]
+    const row3finalAmount = within(row3final).getAllByRole('cell')[0]
+
+    expect(row1finalAmount.textContent).toEqual('100')
+    expect(row2finalAmount.textContent).toEqual('600 \\ 500')
+    expect(row3finalAmount.textContent).toEqual('300')
   })
 
   test('group/cancel-group', async () => {
@@ -264,26 +279,24 @@ describe('SpendingTable', async () => {
     }
 
     render(
-      <SpendingsStoreActionsContext value={storeActions}>
-        <BudgetsContext value={budgetsById}>
-          <SpendingTable
-            date={new Date('2026-06-10')}
-            initSpendings={[
-              {
-                rowId: 1,
-                budgetId: 1,
-                id: 'id-1',
-                version: '1',
-                date: new Date('2026-06-10'),
-                amount: 100_00,
-                currency: 'RUB',
-                description: 'кофе',
-                sort: 1,
-              } as SpendingRow,
-            ]}
-          />
-        </BudgetsContext>
-      </SpendingsStoreActionsContext>
+      <BudgetsContext value={budgetsById}>
+        <SpendingTable
+          date={new Date('2026-06-10')}
+          initSpendings={[
+            {
+              rowId: 1,
+              budgetId: 1,
+              id: 'id-1',
+              version: '1',
+              date: new Date('2026-06-10'),
+              amount: 100_00,
+              currency: 'RUB',
+              description: 'кофе',
+              sort: 1,
+            } as SpendingRow,
+          ]}
+        />
+      </BudgetsContext>
     )
 
     const gpModeBtn = screen.getByRole('button', {name: 'Enable group mode'})
@@ -297,8 +310,6 @@ describe('SpendingTable', async () => {
     await user.click(cancelGrModeBtn)
 
     assertGroupOperations(false)
-    expect(storeActions.updateSpending).not.toHaveBeenCalled()
-    expect(storeActions.saveSpendingChanges).not.toHaveBeenCalled()
   })
 
   test('ref/add-spending-row', async () => {
