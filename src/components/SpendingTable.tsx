@@ -233,12 +233,11 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
                 type="button"
                 onClick={addNewSpending}
                 className="btn btn-success btn-small"
-                data-testid='add-new-button'
               >+</button>
             </td>
             <td/>
             {crossBudget && <td/>}
-            <td data-testid="totals">{ totals(spendings).join(', ') }</td>
+            <td>{ totals(spendings).join(', ') }</td>
           </tr>
 
           </tbody>

@@ -104,7 +104,7 @@ describe('SpendingTable', async () => {
       </SpendingsStoreActionsContext>
     )
 
-    await user.click(screen.getByTestId('add-new-button'))
+    await user.click(screen.getByRole('button', {name: '+'}))
 
     const editForm = screen.getByTestId('edit-form')
 
@@ -514,7 +514,12 @@ describe('SpendingTable', async () => {
     await screen.findByText('ресторанчик')
     await screen.findAllByText('charm')
 
-    expect(screen.getByTestId('totals').textContent).toBe('199.99 EUR')
+    const lastRow = within(screen.getByRole('table'))
+      .getAllByRole('row')
+      .at(-1)!
+
+    const totalsCell = within(lastRow).getAllByRole('cell').at(-1)!
+    expect(totalsCell.textContent).toBe('199.99 EUR')
   })
 })
 
