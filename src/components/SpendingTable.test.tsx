@@ -4,14 +4,18 @@ import SpendingTable, {type SpendingTableHandle} from './SpendingTable'
 import {vi, describe, test, expect, beforeEach, afterEach} from 'vitest'
 import {
   BudgetsContext,
-  type spendingsStoreActions,
   SpendingsStoreActionsContext
 } from "@src/models/contexts.ts";
 import type {BudgetsWithSpentById, BudgetWithSpent} from "@src/stores/budgets.ts";
 import type {Budget, Spending, SpendingRow} from "@src/models/models.ts";
-import type {saveSpendingChanges, SpendingData, updateSpending} from "@src/models/facadewrapper.ts";
 import * as helper from "@src/helpers/helper"
 import {createRef} from "react";
+import {
+  createCudSpendingWrapper,
+  type SpendingData,
+  type SpendingsStoreActions
+} from "@src/models/cudSpendingWrapper.ts";
+import type {CudSpending} from "@src/facade.ts";
 
 const NOW_TIME = new Date('2026-06-12T10:30:00Z')
 
@@ -76,7 +80,7 @@ describe('SpendingTable', async () => {
 
     const saveSpendingChangesMock = vi.fn()
     const storeActions = {
-      saveSpendingChanges: saveSpendingChangesMock as typeof saveSpendingChanges
+      saveSpendingChanges: saveSpendingChangesMock as unknown,
     }
 
     vi.spyOn(helper, 'genRandInt').mockReturnValue(777)
@@ -93,7 +97,7 @@ describe('SpendingTable', async () => {
     }
 
     render(
-      <SpendingsStoreActionsContext value={storeActions as spendingsStoreActions}>
+      <SpendingsStoreActionsContext value={storeActions as SpendingsStoreActions}>
         <BudgetsContext value={budgetsById}>
           <SpendingTable date={new Date('2026-06-10')} initSpendings={[]}/>
         </BudgetsContext>
@@ -180,8 +184,8 @@ describe('SpendingTable', async () => {
     const updateSpendingMock = vi.fn()
 
     const storeActions = {
-      updateSpending: updateSpendingMock as typeof updateSpending,
-    } as spendingsStoreActions
+      updateSpending: updateSpendingMock as unknown,
+    } as SpendingsStoreActions
 
     render(
       <SpendingsStoreActionsContext value={storeActions}>
@@ -270,6 +274,149 @@ describe('SpendingTable', async () => {
     expect(row1finalAmount.textContent).toEqual('100')
     expect(row2finalAmount.textContent).toEqual('600 \\ 500')
     expect(row3finalAmount.textContent).toEqual('300')
+  })
+
+  test('group/separate-receipt', async () => {
+    const budgetsById: BudgetsWithSpentById = {
+      1: {id: 1, alias: 'drinks', currency: 'RUB', amount: 0, amountSpent: 0} as BudgetWithSpent,
+      2: {id: 2, alias: 'food', currency: 'RUB', amount: 0, amountSpent: 0} as BudgetWithSpent,
+    }
+
+    const sp1: SpendingRow = {
+      rowId: 1,
+      budgetId: 1,
+      id: 'id-1',
+      version: '1',
+      date: new Date('2026-06-10'),
+      amount: 100_00,
+      currency: 'RUB',
+      description: 'кофе',
+      sort: 1,
+      receiptGroupId: 0xb3a3d8_112233,
+      createdAt: new Date('2026-06-10T09:30:22Z'),
+      updatedAt: new Date('2026-06-10T09:30:22Z'),
+    }
+
+    const sp2 = {
+      rowId: 2,
+      budgetId: 2,
+      id: 'id-2',
+      version: '1',
+      date: new Date('2026-06-10'),
+      amount: 500_00,
+      currency: 'RUB',
+      description: 'продукты',
+      sort: 2,
+    } as SpendingRow
+
+    const sp3: SpendingRow = {
+        rowId: 3,
+        budgetId: 2,
+        id: 'id-3',
+        version: '1',
+        date: new Date('2026-06-10'),
+        amount: 300_00,
+        currency: 'RUB',
+        description: 'помидоры',
+        sort: 3,
+        receiptGroupId: 0xb3a3d8_112233,
+        createdAt: new Date('2026-06-10T09:30:22Z'),
+        updatedAt: new Date('2026-06-10T09:30:22Z'),
+      }
+
+    const updateSpendingStore = vi.fn()
+    const cudMock = {updateSpending: updateSpendingStore as unknown} as CudSpending
+    const wrapper = createCudSpendingWrapper(cudMock)
+
+    render(
+      <SpendingsStoreActionsContext value={wrapper}>
+        <BudgetsContext value={budgetsById}>
+          <SpendingTable date={new Date('2026-06-10')} initSpendings={[sp1, sp2, sp3]} />
+        </BudgetsContext>
+      </SpendingsStoreActionsContext>
+    )
+    let row1 = screen.getByTestId('row-1')
+    let row2 = screen.getByTestId('row-2')
+    let row3 = screen.getByTestId('row-3')
+
+    expect(row1.style.getPropertyValue('--row-bg-color')).toBe('#112233')
+    expect(row2.style.getPropertyValue('--row-bg-color')).toBeFalsy()
+    expect(row3.style.getPropertyValue('--row-bg-color')).toBe('#112233')
+
+    const user = userEvent.setup()
+
+    const gpModeBtn = screen.getByRole('button', {name: 'Enable group mode'})
+    await user.click(gpModeBtn)
+
+    assertGroupOperations(true)
+
+    row1 = screen.getByTestId('row-1')
+    row3 = screen.getByTestId('row-3')
+
+    const row1EL = within(row1).queryByRole('checkbox', {name: 'select item'})!
+    const row3EL = within(row3).queryByRole('checkbox', {name: 'select item'})!
+
+    await user.click(row1EL)
+    await user.click(row3EL)
+
+    vi.spyOn(helper, 'genVersion').mockImplementation(
+      (prevVer: string | null): string => String(Number(prevVer) + 1)
+    )
+
+    await user.click(
+      screen.getByRole('button', {name: 'Разъединить чек'})
+    )
+
+    assertGroupOperations(false)
+
+    row1 = screen.getByTestId('row-1')
+    row2 = screen.getByTestId('row-2')
+    row3 = screen.getByTestId('row-3')
+
+    expect(row1.style.getPropertyValue('--row-bg-color')).toBeFalsy()
+    expect(row2.style.getPropertyValue('--row-bg-color')).toBeFalsy()
+    expect(row3.style.getPropertyValue('--row-bg-color')).toBeFalsy()
+
+    // Check store save
+    expect(updateSpendingStore).toHaveBeenCalledTimes(2)
+
+    expect(updateSpendingStore).toHaveBeenNthCalledWith(1,  1, {
+      id: "id-1",
+      version: "2",
+      date: new Date('2026-06-10'),
+      sort: 1,
+      amount: 100_00,
+      currency: "RUB",
+      description: "кофе",
+      createdAt: new Date('2026-06-10T09:30:22Z'),
+      updatedAt: new Date('2026-06-12T10:30:00Z'),
+      receiptGroupId: 0,
+      prev: {
+        version: "1",
+        amount: 100_00,
+        currency: "RUB",
+        description: "кофе"
+      },
+    } satisfies Spending)
+
+    expect(updateSpendingStore).toHaveBeenNthCalledWith(2, 2, {
+      id: "id-3",
+      version: "2",
+      date: new Date('2026-06-10'),
+      sort: 3,
+      amount: 300_00,
+      currency: "RUB",
+      description: "помидоры",
+      createdAt: new Date('2026-06-10T09:30:22Z'),
+      updatedAt: new Date('2026-06-12T10:30:00Z'),
+      receiptGroupId: 0,
+      prev: {
+        version: "1",
+        amount: 300_00,
+        currency: "RUB",
+        description: 'помидоры',
+      },
+    } satisfies Spending)
   })
 
   test('group/cancel-group', async () => {

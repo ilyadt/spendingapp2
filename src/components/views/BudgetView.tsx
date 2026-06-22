@@ -4,15 +4,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
 import SpendingTable, {type SpendingTableHandle} from '@src/components/SpendingTable'
 import styles from './BudgetView.module.css'
-import {createSpending} from "@src/models/facadewrapper.ts";
 import type {BudgetWithSpent} from "@src/stores/budgets.ts";
 import useSpendingRowsByDate from "@src/state/spendingRowsByDate.ts";
 import {Facade} from "@src/facade.ts";
 import {spendingFormValidator, type SpendingRow} from "@src/models/models.ts";
-import {useRef} from "react";
+import {useContext, useRef} from "react";
 import {genRandInt} from "@src/helpers/helper.ts";
+import {SpendingsStoreActionsContext} from "@src/models/contexts.ts";
 
 export function BudgetView({budget}: {budget: BudgetWithSpent}) {
+  const spStoreActions = useContext(SpendingsStoreActionsContext)
   const tableRefs = useRef<Record<string, SpendingTableHandle|null>>({})
 
   const [initSpendingsByDate, addSpendingRow, clearSpendings] = useSpendingRowsByDate({
@@ -40,7 +41,7 @@ export function BudgetView({budget}: {budget: BudgetWithSpent}) {
     const tbl = tableRefs?.current[dateStr]
 
     const newSpRow: SpendingRow = {
-      ...createSpending(f.data, new Date()),
+      ...spStoreActions.createSpending(f.data, new Date()),
       rowId: genRandInt(),
       budgetId: budget.id,
     }

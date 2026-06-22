@@ -66,19 +66,18 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
   }
 
   function _setReceiptIdForSelectedItems(receiptId: number) {
-    const now = new Date()
+    const updatedAt = new Date()
 
-    for (const spId of groupMode.selectedItems) {
-      _updateReceiptId(spId, receiptId, now)
+    const spRows = spendings.filter(
+      s => groupMode.selectedItems.has(s.id) && dateISO(s.date) === dateISO(date)
+    )!
+
+    for (const sp of spRows) {
+      const newSp = spStoreActions.updateSpending(sp, {receiptId}, updatedAt)
+      spRowsActions.patchSpendingRow(sp.rowId, newSp)
     }
 
     groupMode.disable()
-  }
-
-  function _updateReceiptId(spId: string, receiptId: number, updatedAt: Date) {
-    const spRow = spendings.find(s => (s.id == spId) && (dateISO(s.date) == dateISO(date)))!
-    const newSp = spStoreActions.updateSpending(spRow, {receiptId: receiptId}, updatedAt)
-    spRowsActions.patchSpendingRow(spRow.rowId, {...newSp})
   }
 
   function onSubmit(fd: FormData) {
@@ -151,7 +150,6 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
     }
 
     spRowsActions.addSpendingRow(spRow)
-
     setPendingRow({...spRow, rowIdx: spendings.length})
   }
 
@@ -186,9 +184,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
               data-testid={`row-${sp.rowId}`}
               key={sp.rowId}
               className={sp.receiptGroupId ? styles.bgRow : ''}
-              style={{
-                ['--row-bg-color' as string]: '#' + colorFromReceiptId(sp.receiptGroupId).toString(16),
-              }}
+              style={{['--row-bg-color' as string]: colorFromReceiptId(sp.receiptGroupId)}}
             >
               <td style={{textAlign: 'right', position: "relative"}}>
 

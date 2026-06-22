@@ -1,5 +1,30 @@
 import type {Budget, SpendingRow} from "@src/models/models.ts";
 import {daysFrom2000UTC} from "@src/helpers/date.ts";
+import {v7 as uuidv7} from "uuid";
+import {customAlphabet} from "nanoid/non-secure";
+import {alphanumeric} from "nanoid-dictionary";
+
+export const genSpendingID = (): string => uuidv7()
+
+// null    -> v1-xxxxx
+// xxxxx   -> yyyyy
+// v1-3829f -> v2-xxxxx
+export const genVersion = (prevVer: string | null): string => {
+  const versionSuffix = customAlphabet(alphanumeric, 7)
+
+  if (prevVer === null) {
+    return `v1-${versionSuffix()}`
+  }
+
+  const match = prevVer.match(/^v(\d+)-/i)
+  if (!match) {
+    return versionSuffix()
+  }
+
+  const nextNum = parseInt(match[1]!, 10) + 1
+
+  return `v${nextNum}-${versionSuffix()}`
+}
 
 export function randomSoftRGB(): number {
   const rand = () => Math.floor(100 + Math.random() * 120); // 100–219
@@ -11,8 +36,12 @@ export function randomSoftRGB(): number {
   return (r << 16) | (g << 8) | b;
 }
 
-export function colorFromReceiptId(rId: number): number {
-  return rId & 0xff_ff_ff
+export function colorFromReceiptId(rId: number|undefined): string|null {
+  if (!rId) {
+    return null
+  }
+
+  return '#' + (rId & 0xff_ff_ff).toString(16)
 }
 
 export function genReceiptId(dt: Date): number {

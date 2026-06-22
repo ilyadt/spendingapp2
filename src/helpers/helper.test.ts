@@ -3,10 +3,22 @@ import {
   budgetsSortFn,
   colorFromReceiptId,
   genReceiptId,
+  genVersion,
   randomSoftRGB,
   receiptTotals
 } from "@src/helpers/helper.ts";
 import type {Budget, SpendingRow} from "@src/models/models.ts";
+
+test('genVersion', () => {
+  expect(genVersion(null)).toMatch(/^v1-[0-9a-zA-Z]{7}$/)
+
+  expect(genVersion('randomString')).toMatch( /^[0-9a-zA-Z]{7}$/)
+
+  expect(genVersion('v1-3829f')).toMatch(/^v2-[0-9a-zA-Z]{7}$/i)
+  expect(genVersion('v1-3829f89')).toMatch(/^v2-[0-9a-zA-Z]{7}$/i)
+
+  expect(genVersion('notaversion')).not.toEqual(genVersion('notaversion'))
+})
 
 test('randomSoftRGB', () => {
   const res = randomSoftRGB()
@@ -16,14 +28,16 @@ test('randomSoftRGB', () => {
 })
 
 test('colorFromReceiptId', () => {
+  expect(colorFromReceiptId(0)).toBe(null)
+  expect(colorFromReceiptId(undefined)).toBe(null)
+
   const colorX = 7543
 
-  expect(colorFromReceiptId(colorX)).toBe(colorX)
+  expect(colorFromReceiptId(colorX)).toBe('#1d77')
 
   const receiptId = 0x10_20_30_40_50_60
-  const color = 0x40_50_60
 
-  expect(colorFromReceiptId(receiptId)).toBe(color)
+  expect(colorFromReceiptId(receiptId)).toBe('#405060')
 })
 
 test('genReceiptId', () => {

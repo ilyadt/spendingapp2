@@ -1,7 +1,7 @@
 import {it, expect, vi, afterEach } from 'vitest'
 import type {Budget, DelSpending, Spending, SpendingRow} from "@src/models/models.ts"
-import {saveSpendingChanges} from "./facadewrapper.ts";
-import * as models from '@src/models/models'
+import {createCudSpendingWrapper} from "./cudSpendingWrapper.ts";
+import * as helper from '@src/helpers/helper.ts'
 import {Facade} from "@src/facade.ts";
 
 vi.mock("@src/facade.ts", () => ({
@@ -18,13 +18,15 @@ afterEach(() => {
 })
 
 it('newSpending', () => {
-  vi.spyOn(models, 'genSpendingID').mockReturnValue('sp1')
-  vi.spyOn(models, 'genVersion').mockReturnValue('v1')
+  vi.spyOn(helper, 'genSpendingID').mockReturnValue('sp1')
+  vi.spyOn(helper, 'genVersion').mockReturnValue('v1')
 
   const date = new Date('2026-05-26')
   const createdAt = '2026-05-26T12:32:00'
 
-  const result = saveSpendingChanges(
+  const wrapper = createCudSpendingWrapper(Facade)
+
+  const result = wrapper.saveSpendingChanges(
     {rowId: 666} as SpendingRow, // empty old spending
     {
       budget: { id: 1, currency: 'RUB' } as Budget,
@@ -57,12 +59,14 @@ it('newSpending', () => {
 })
 
 it('updateSpending', () => {
-  vi.spyOn(models, 'genVersion').mockReturnValue('v2')
+  vi.spyOn(helper, 'genVersion').mockReturnValue('v2')
 
   const date = new Date('2026-05-26')
   const updatedAt = new Date('2026-05-26T12:34:00')
 
-  const result = saveSpendingChanges(
+  const wrapper = createCudSpendingWrapper(Facade)
+
+  const result = wrapper.saveSpendingChanges(
     {
       rowId: 999,
       budgetId: 1,
@@ -114,8 +118,8 @@ it('updateSpending', () => {
 })
 
 it('updateSpendingWithBudget', () => {
-  vi.spyOn(models, 'genSpendingID').mockReturnValue('sp2')
-  vi.spyOn(models, 'genVersion')
+  vi.spyOn(helper, 'genSpendingID').mockReturnValue('sp2')
+  vi.spyOn(helper, 'genVersion')
     .mockImplementation((prev) => {
       switch (prev) {
         case null: return 'v1'
@@ -127,7 +131,9 @@ it('updateSpendingWithBudget', () => {
   const date = new Date('2026-05-26')
   const updatedAt = new Date('2026-05-26T12:36:00')
 
-  const result = saveSpendingChanges(
+  const wrapper = createCudSpendingWrapper(Facade)
+
+  const result = wrapper.saveSpendingChanges(
     {
       rowId: 777,
       budgetId: 1,

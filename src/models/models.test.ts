@@ -1,18 +1,7 @@
 
 import { describe, expect, test } from 'vitest'
-import {type Budget, type SpendingRow, spendingFormValidator, genVersion} from '@src/models/models'
+import {type Budget, type SpendingRow, spendingFormValidator} from '@src/models/models'
 import {fromMajorUnits} from "@src/helpers/money.ts";
-
-test('genVersion', () => {
-  expect(genVersion(null)).toMatch(/^v1-[0-9a-zA-Z]{7}$/)
-
-  expect(genVersion('randomString')).toMatch( /^[0-9a-zA-Z]{7}$/)
-
-  expect(genVersion('v1-3829f')).toMatch(/^v2-[0-9a-zA-Z]{7}$/i)
-  expect(genVersion('v1-3829f89')).toMatch(/^v2-[0-9a-zA-Z]{7}$/i)
-
-  expect(genVersion('notaversion')).not.toEqual(genVersion('notaversion'))
-})
 
 describe('spendingFormValidator', () => {
   const makeBudget = () => ({ id: 1, currency: "RUB"} as Budget)
