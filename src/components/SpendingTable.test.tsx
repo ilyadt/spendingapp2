@@ -219,11 +219,11 @@ describe('SpendingTable', async () => {
 
     assertGroupOperations(true)
 
-    const tbl = screen.getByRole('table')
+    let rows = within(screen.getByRole('table')).getAllByRole('row')
 
-    const row1 = within(within(tbl).getByTestId('row-1')).getByRole('checkbox', {name: "select item"})
-    const row2 = within(within(tbl).getByTestId('row-2')).getByRole('checkbox', {name: "select item"})
-    const row3 = within(within(tbl).getByTestId('row-3')).getByRole('checkbox', {name: "select item"})
+    const row1 = within(rows[0]).getByRole('checkbox', {name: "select item"})
+    const row2 = within(rows[1]).getByRole('checkbox', {name: "select item"})
+    const row3 = within(rows[2]).getByRole('checkbox', {name: "select item"})
 
     await user.click(row1)
     await user.click(row2)
@@ -258,9 +258,11 @@ describe('SpendingTable', async () => {
     )
 
     // Check color change and total appeared in the last element
-    const row1final = screen.getByTestId('row-1')
-    const row2final = screen.getByTestId('row-2')
-    const row3final = screen.getByTestId('row-3')
+    rows = within(screen.getByRole('table')).getAllByRole('row')
+
+    const row1final = rows[0]
+    const row2final = rows[1]
+    const row3final = rows[2]
 
 
     expect(row1final).toHaveStyle({'--row-bg-color': '#112233'})
@@ -335,9 +337,11 @@ describe('SpendingTable', async () => {
         </BudgetsContext>
       </SpendingsStoreActionsContext>
     )
-    let row1 = screen.getByTestId('row-1')
-    let row2 = screen.getByTestId('row-2')
-    let row3 = screen.getByTestId('row-3')
+    let rows = within(screen.getByRole('table')).getAllByRole('row')
+
+    let row1 = rows[0]
+    let row2 = rows[1]
+    let row3 = rows[2]
 
     expect(row1.style.getPropertyValue('--row-bg-color')).toBe('#112233')
     expect(row2.style.getPropertyValue('--row-bg-color')).toBeFalsy()
@@ -350,8 +354,10 @@ describe('SpendingTable', async () => {
 
     assertGroupOperations(true)
 
-    row1 = screen.getByTestId('row-1')
-    row3 = screen.getByTestId('row-3')
+    rows = within(screen.getByRole('table')).getAllByRole('row')
+
+    row1 = rows[0]
+    row3 = rows[2]
 
     const row1EL = within(row1).queryByRole('checkbox', {name: 'select item'})!
     const row3EL = within(row3).queryByRole('checkbox', {name: 'select item'})!
@@ -369,9 +375,11 @@ describe('SpendingTable', async () => {
 
     assertGroupOperations(false)
 
-    row1 = screen.getByTestId('row-1')
-    row2 = screen.getByTestId('row-2')
-    row3 = screen.getByTestId('row-3')
+    rows = within(screen.getByRole('table')).getAllByRole('row')
+
+    row1 = rows[0]
+    row2 = rows[1]
+    row3 = rows[2]
 
     expect(row1.style.getPropertyValue('--row-bg-color')).toBeFalsy()
     expect(row2.style.getPropertyValue('--row-bg-color')).toBeFalsy()

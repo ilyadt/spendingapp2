@@ -181,7 +181,6 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
 
           {spendingsSorted.map((sp, idx) => (
             <tr
-              data-testid={`row-${sp.rowId}`}
               key={sp.rowId}
               className={sp.receiptGroupId ? styles.bgRow : ''}
               style={{['--row-bg-color' as string]: colorFromReceiptId(sp.receiptGroupId)}}
