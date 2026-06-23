@@ -63,7 +63,7 @@ describe('SpendingTable', async () => {
 
     // cancel
     await user.click(
-      screen.getByTestId('cancel-pending')
+      screen.getByRole('button', {name: 'cancel pending spending'})
     )
 
     expect(
@@ -106,7 +106,7 @@ describe('SpendingTable', async () => {
 
     await user.click(screen.getByRole('button', {name: '+'}))
 
-    const editForm = screen.getByTestId('edit-form')
+    const editForm = screen.getByRole('form', {name: 'spending edit form'})
 
     expect(editForm).toBeInTheDocument()
     expect(editForm).toBeInstanceOf(HTMLFormElement)
@@ -131,7 +131,7 @@ describe('SpendingTable', async () => {
     budgetSelect!.focus()
     await user.selectOptions(budgetSelect!, '1')
 
-    await user.click(screen.getByTestId('submit-pending'))
+    await user.click(screen.getByRole('button', {name: 'submit pending spending'}))
 
     expect(saveSpendingChangesMock).toHaveBeenCalledOnce()
     expect(saveSpendingChangesMock).toHaveBeenCalledWith(

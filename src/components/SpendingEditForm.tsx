@@ -70,7 +70,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
 
   return (
     <>
-      <form ref={spFormElem} onSubmit={onSubmit} data-testid='edit-form' style={{height: 0}}>
+      <form ref={spFormElem} onSubmit={onSubmit} aria-label='spending edit form' style={{height: 0}}>
         <input name="date" defaultValue={dateISO(sp.date)} style={{visibility: 'hidden'}} />
         { budget &&
           <input name="budgetId" defaultValue={budget.id} style={{visibility: 'hidden'}} />
@@ -119,7 +119,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
 
             <td style={{padding: '2px'}}>
               <button
-                data-testid="cancel-pending"
+                aria-label="cancel pending spending"
                 type="button"
                 className="btn btn-danger btn-sm p-1 m-1"
                 style={{minWidth: '20px', lineHeight: 1}}
@@ -128,7 +128,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
                 <FontAwesomeIcon icon={faXmark}/>
               </button>
               <button
-                data-testid="submit-pending"
+                aria-label="submit pending spending"
                 type="submit"
                 className="btn btn-success btn-sm p-1 m-1"
                 style={{minWidth: '20px', lineHeight: 1}}
