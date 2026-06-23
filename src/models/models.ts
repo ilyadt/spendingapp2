@@ -58,7 +58,10 @@ export interface Budget {
 
 export type DelSpending = Pick<Spending, 'id' | 'version' | 'prev' | 'updatedAt'>
 
-export function spendingFormValidator(
+
+export type SpendingFormValidator = ReturnType<typeof createSpendingFormValidator>;
+
+export function createSpendingFormValidator(
   fd: FormData,
   bs: Record<number, Budget>,
   cfg: {

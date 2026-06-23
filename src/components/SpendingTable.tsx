@@ -7,7 +7,7 @@ import {faGripDotsVertical} from '@src/helpers/icons'
 import {
   type Budget,
   type SpendingRow,
-  spendingFormValidator,
+  type SpendingFormValidator,
   isNew,
 } from "@src/models/models.ts";
 import {type Ref, useContext, useImperativeHandle, useState} from "react";
@@ -80,13 +80,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
     groupMode.disable()
   }
 
-  function onSubmit(fd: FormData) {
-    const f = spendingFormValidator(
-      fd,
-      budgets,
-      {selectBudget: !budget, selectDate: false},
-    )
-
+  function savePendingSp(f: SpendingFormValidator) {
     const sp = pendingRow!
 
     // Do nothing
@@ -108,13 +102,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
     setPendingRow(null)
   }
 
-  function onCancel(fd: FormData) {
-    const f = spendingFormValidator(
-      fd,
-      budgets,
-      {selectBudget: !budget, selectDate: false},
-    )
-
+  function cancelPendingSp(f: SpendingFormValidator) {
     const sp = pendingRow!
 
     if (f.isEqual(sp)) {
@@ -207,13 +195,13 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
                 <span onClick={() => setPendingRow({...sp, rowIdx: idx})}>{sp.description}</span>
               </td>
 
-              {crossBudget &&
-                  <td>
-                      <span onClick={() => setPendingRow({...sp, rowIdx: idx})}>
-                        {!isNew(sp) && budgets[sp.budgetId].alias}
-                      </span>
-                  </td>
-              }
+              {crossBudget && (
+                <td>
+                  <span onClick={() => setPendingRow({...sp, rowIdx: idx})}>
+                    {!isNew(sp) && budgets[sp.budgetId].alias}
+                  </span>
+                </td>
+              )}
 
               <td>
                 <button className={`btn btn-warning btn-sm ${styles.actionButton}`} onClick={() => delSpending(sp)}>
@@ -243,7 +231,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
         </table>
 
         {pendingRow &&
-          <SpendingEditForm sp={pendingRow} save={onSubmit} cancel={onCancel} budget={budget}/>
+          <SpendingEditForm sp={pendingRow} save={savePendingSp} cancel={cancelPendingSp} budget={budget}/>
         }
 
         {groupMode.enabled &&

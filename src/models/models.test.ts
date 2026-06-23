@@ -1,6 +1,6 @@
 
 import { describe, expect, test } from 'vitest'
-import {type Budget, type SpendingRow, spendingFormValidator} from '@src/models/models'
+import {type Budget, type SpendingRow, createSpendingFormValidator} from '@src/models/models'
 import {fromMajorUnits} from "@src/helpers/money.ts";
 
 describe('spendingFormValidator', () => {
@@ -48,7 +48,7 @@ describe('spendingFormValidator', () => {
   ])(
     'isEmpty',
     (fd, budgets, cfg, isEmpty) => {
-      const validator = spendingFormValidator(
+      const validator = createSpendingFormValidator(
         makeFormData(fd),
         budgets,
         cfg,
@@ -59,7 +59,7 @@ describe('spendingFormValidator', () => {
   )
 
   test('validates missing budget', () => {
-    const form1 = spendingFormValidator(
+    const form1 = createSpendingFormValidator(
       makeFormData({amount: '10', description: 'coffee', budgetId: ''}),
       {},
       {selectBudget: true, selectDate: false},
@@ -67,7 +67,7 @@ describe('spendingFormValidator', () => {
 
     expect(form1.validate()).toBe('не выбран бюджет')
 
-    const form2 = spendingFormValidator(
+    const form2 = createSpendingFormValidator(
       makeFormData({amount: '10', description: 'coffee', budgetId: '2'}),
       {},
       {selectBudget: true, selectDate: false},
@@ -79,7 +79,7 @@ describe('spendingFormValidator', () => {
   test('validates empty amount', () => {
     const budget = makeBudget()
 
-    const form = spendingFormValidator(
+    const form = createSpendingFormValidator(
       makeFormData({amount: '', description: 'coffee', budgetId: '1', date: '2026-04-29'}),
       {1: budget},
       {selectBudget: false, selectDate: false},
@@ -91,7 +91,7 @@ describe('spendingFormValidator', () => {
   test('validates empty description', () => {
     const budget = makeBudget()
 
-    const form = spendingFormValidator(
+    const form = createSpendingFormValidator(
       makeFormData({amount: '10', description: '', budgetId: '1', date: '2026-04-29'}),
       {1: budget},
       {selectBudget: false, selectDate: false},
@@ -103,7 +103,7 @@ describe('spendingFormValidator', () => {
   test('validates empty date', () => {
     const budget = makeBudget()
 
-    const form = spendingFormValidator(
+    const form = createSpendingFormValidator(
       makeFormData({amount: '10', description: 'som', budgetId: '1'}),
       {1: budget},
       {selectBudget: false, selectDate: false},
@@ -115,7 +115,7 @@ describe('spendingFormValidator', () => {
   test('returns null validation for valid form', () => {
     const budget = makeBudget()
 
-    const form = spendingFormValidator(
+    const form = createSpendingFormValidator(
       makeFormData({amount: '123.45', description: 'coffee', budgetId: '1', date: '2026-04-29'}),
       {1: budget},
       {selectBudget: false, selectDate: false},
@@ -129,7 +129,7 @@ describe('spendingFormValidator', () => {
 
     const amount = fromMajorUnits(123.45, budget.currency)
 
-    const form = spendingFormValidator(
+    const form = createSpendingFormValidator(
       makeFormData({amount: '123.45', description: 'coffee', budgetId: '1', date: '2026-04-29'}),
       {1: budget},
       {selectBudget: false, selectDate: false},

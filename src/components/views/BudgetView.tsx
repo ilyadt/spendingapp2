@@ -7,7 +7,7 @@ import styles from './BudgetView.module.css'
 import type {BudgetWithSpent} from "@src/stores/budgets.ts";
 import useSpendingRowsByDate from "@src/state/spendingRowsByDate.ts";
 import {Facade} from "@src/facade.ts";
-import {spendingFormValidator, type SpendingRow} from "@src/models/models.ts";
+import {createSpendingFormValidator, type SpendingRow} from "@src/models/models.ts";
 import {useContext, useRef} from "react";
 import {genRandInt} from "@src/helpers/helper.ts";
 import {SpendingsStoreActionsContext} from "@src/models/contexts.ts";
@@ -24,7 +24,7 @@ export function BudgetView({budget}: {budget: BudgetWithSpent}) {
     e.preventDefault()
 
     const form = e.currentTarget
-    const f = spendingFormValidator(
+    const f = createSpendingFormValidator(
       new FormData(form),
       {[budget.id]: budget},
       {selectBudget: false, selectDate: true},

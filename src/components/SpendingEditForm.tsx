@@ -2,7 +2,13 @@ import {dateISO} from "@src/helpers/date.ts";
 import {formatAmount, toMajorUnits} from "@src/helpers/money.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheck, faXmark} from "@fortawesome/free-solid-svg-icons";
-import {type Budget, isNew, spendingFormValidator, type SpendingRow} from "@src/models/models.ts";
+import {
+  type Budget,
+  isNew,
+  type SpendingFormValidator,
+  createSpendingFormValidator,
+  type SpendingRow
+} from "@src/models/models.ts";
 import {createPortal} from "react-dom";
 import {type KeyboardEvent, useContext, useRef} from "react";
 import {BudgetsContext} from "@src/models/contexts.ts";
@@ -13,8 +19,8 @@ import SpTableColgroup from "@src/components/anemic/SpTableColgroup.tsx";
 type Props = {
   sp: SpendingRow & {rowIdx: number};
   budget?: Budget;
-  save(fd: FormData): void;
-  cancel(fd: FormData): void;
+  save(fd: SpendingFormValidator): void;
+  cancel(fd: SpendingFormValidator): void;
 }
 
 export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
@@ -24,38 +30,42 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
 
   function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
-    save(new FormData(e.currentTarget))
+    save(createValidator(e.currentTarget))
   }
 
   function onCancel(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault()
-    cancel(new FormData(e.currentTarget.form!))
+    cancel(createValidator(e.currentTarget.form!))
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     switch (e.key) {
       case 'Enter':
         e.preventDefault()
-        save(new FormData(e.currentTarget.form!))
+        save(createValidator(e.currentTarget.form!))
         break
 
       case 'Escape':
-        cancel(new FormData(e.currentTarget.form!))
+        cancel(createValidator(e.currentTarget.form!))
         break
     }
   }
 
   function onOverlayClick() {
-    const f = spendingFormValidator(
-      new FormData(spFormElem.current!),
-      budgets,
-      {selectBudget: !budget, selectDate: false},
-    );
+    const f = createValidator(spFormElem.current!);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     (f.isEmpty() && isNew(sp!))
-      ? cancel(new FormData(spFormElem.current!))
-      : save(new FormData(spFormElem.current!))
+      ? cancel(f)
+      : save(f)
+  }
+
+  function createValidator(formElement: HTMLFormElement): SpendingFormValidator {
+    return createSpendingFormValidator(
+      new FormData(formElement),
+      budgets,
+      {selectBudget: !budget, selectDate: false},
+    );
   }
 
   return (
