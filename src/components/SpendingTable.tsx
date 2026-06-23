@@ -175,10 +175,18 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
             >
               <td style={{textAlign: 'right', position: "relative"}}>
 
-                <span onClick={() => setPendingRow({...sp, rowIdx: idx})}>
-                  {receiptTotal[sp.rowId] && `${toMajorUnits(receiptTotal[sp.rowId], sp.currency)} \\ `}
+                <span aria-label="amount" onClick={() => setPendingRow({...sp, rowIdx: idx})}>
                   {toMajorUnits(sp.amount, sp.currency)}
                 </span>
+
+                {receiptTotal[sp.rowId] && (
+                  <span
+                    aria-label="receipt total"
+                    style={{position: 'absolute', bottom: 0, left: '4px', fontSize: 'xx-small'}}
+                  >
+                    {toMajorUnits(receiptTotal[sp.rowId], sp.currency)}
+                  </span>
+                )}
 
                 {groupMode.enabled && (
                   <input

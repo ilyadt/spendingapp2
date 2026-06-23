@@ -21,8 +21,8 @@ test('toMajorUnits', () => {
 })
 
 test('formatAmount', () => {
-  expect(formatAmount(100_99, 'EUR')).toBe('100.99 EUR')
-  expect(formatAmount(10_000_00, 'RUB')).toBe('10000 RUB')
+  expect(formatAmount(100_99, 'EUR')).toBe('100.99 €')
+  expect(formatAmount(10_000_00, 'RUB')).toBe('10000 ₽')
 })
 
 test('totals', () => {
@@ -35,17 +35,17 @@ test('totals', () => {
     { amount: 200_00, currency: 'USD'},
     { amount: 30_50, currency: 'EUR'},
     { amount: 100_00, currency: 'RUB'},
-  ])).toEqual(['100 RUB', '80.5 EUR', '300 USD']);
+  ])).toEqual(['100 ₽', '80.5 €', '300 $']);
 
   expect(totals([
     { amount: 10_00, currency: 'USD'},
     { amount: 20_00, currency: 'USD'},
     { amount: 30_00, currency: 'USD'},
     { amount: 40_00, currency: 'USD'},
-  ])).toEqual(['100 USD']);
+  ])).toEqual(['100 $']);
 
   expect(totals([
     { amount: 99_99, currency: 'EUR'},
     { amount: 100_00, currency: 'EUR'},
-  ])).toEqual(['199.99 EUR']);
+  ])).toEqual(['199.99 €']);
 });

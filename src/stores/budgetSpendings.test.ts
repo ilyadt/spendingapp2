@@ -637,7 +637,7 @@ test('formatVersionPayload', () => {
     description: 'бигмак',
   }
 
-  expect(formatVersionPayload(version2)).toEqual('23.03: 12 EUR бигмак')
+  expect(formatVersionPayload(version2)).toEqual('23.03: 12 € бигмак')
 })
 
 function makeBudget(id: number): ApiBudget {

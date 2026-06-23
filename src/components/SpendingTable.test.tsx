@@ -274,7 +274,8 @@ describe('SpendingTable', async () => {
     const row3finalAmount = within(row3final).getAllByRole('cell')[0]
 
     expect(row1finalAmount.textContent).toEqual('100')
-    expect(row2finalAmount.textContent).toEqual('600 \\ 500')
+    expect(within(row2finalAmount).getByLabelText('amount')).toHaveTextContent('500')
+    expect(within(row2finalAmount).getByLabelText('receipt total')).toHaveTextContent('600')
     expect(row3finalAmount.textContent).toEqual('300')
   })
 
@@ -527,7 +528,7 @@ describe('SpendingTable', async () => {
       .at(-1)!
 
     const totalsCell = within(lastRow).getAllByRole('cell').at(-1)!
-    expect(totalsCell.textContent).toBe('199.99 EUR')
+    expect(totalsCell.textContent).toBe('199.99 €')
   })
 })
 

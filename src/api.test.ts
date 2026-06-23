@@ -160,8 +160,8 @@ describe('fetcher', () => {
       spendingId: 'nHSPMxURHX',
       versionDt: new Date('2025-09-29T15:02:23.304Z'),
       conflictedAt: new Date(777),
-      from: '01.05: 85 RUB кофе',
-      to: '01.05: 90 RUB кофе',
+      from: '01.05: 85 ₽ кофе',
+      to: '01.05: 90 ₽ кофе',
       reason: 'local and remote diff',
     }
 

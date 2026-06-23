@@ -9,6 +9,13 @@ const fractions: Record<Currency, number> = {
   BTC: 8,
 }
 
+const currencySigns: Record<Currency, string> = {
+  RUB: '₽',
+  EUR: '€',
+  USD: '$',
+  BTC: '₿',
+}
+
 export function currencyFraction(cur: Currency): number {
   if (!currencies.includes(cur)) {
     throw new Error('invalid currency: ' + cur)
@@ -39,7 +46,7 @@ export function toMajorUnits(amount: number, cur: Currency): number {
 }
 
 export function formatAmount(amount: number, cur: Currency): string {
-  return String(toMajorUnits(amount, cur))  + ' ' + cur
+  return String(toMajorUnits(amount, cur))  + ' ' + currencySigns[cur]
 }
 
 export function totals(items: Array<{ amount: number; currency: Currency }>): string[] {
