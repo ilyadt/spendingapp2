@@ -182,7 +182,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
                 {receiptTotal[sp.rowId] && !groupMode.enabled && (
                   <span
                     aria-label="receipt total"
-                    style={{position: 'absolute', top: 0, left: '4px', fontSize: 'x-small'}}
+                    style={{position: 'absolute', bottom: 0, left: '4px', fontSize: 'small', fontFamily: 'monospace'}}
                   >
                     {toMajorUnits(receiptTotal[sp.rowId], sp.currency)}
                   </span>
