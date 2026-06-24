@@ -28,7 +28,11 @@ export default defineConfig({
             VITE_SERVER_URL: 'http://localhost:3000',
         },
         environment: 'jsdom',
-        execArgv: execArgv
+        execArgv: execArgv,
+        include: [
+          '**/*.test.ts',
+          '**/*.test.tsx'
+        ],
     },
     resolve: {
         alias: {

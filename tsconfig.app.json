@@ -26,5 +26,8 @@
       "@src/*": ["./src/*"]
     }
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "playwright",
+  ],
 }

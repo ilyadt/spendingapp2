@@ -8,7 +8,7 @@ import reactX from "typescript-eslint"
 import reactDom from "eslint-plugin-react-dom"
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'playwright']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
