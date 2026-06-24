@@ -1,8 +1,8 @@
-.bg-row > td {
+.bgRow > td {
     background: var(--row-bg-color) !important;
 }
 
-.sp-day-table {
+.spDayTable {
     table-layout: fixed;
     min-width: 350px;
     white-space: nowrap;
@@ -10,23 +10,23 @@
     line-height: 20px;
 }
 
-.sp-day-table tr {
+.spDayTable tr {
     height: 40px;
 }
 
-.sp-day-table tr > td {
+.spDayTable tr > td {
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-button.action-button {
+button.actionButton {
     height: 25px;
     width: 25px;
     padding: 0;
     margin-left: 5px;
 }
 
-.modal-table {
+.modalTable {
     position: absolute;
     z-index: 2001;
 }

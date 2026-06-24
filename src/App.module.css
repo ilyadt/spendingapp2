@@ -1,14 +1,14 @@
-.navbar-custom {
+.navbarCustom {
   height: 70px;
   align-items: start;
 }
 
 /* Fixed width items */
-.nav-item-last {
+.navItemLast {
   flex: 0 0 50px; /* Don't grow, don't shrink, fixed base width */
 }
 
-.nav-link {
+.navLink {
   display: flex;
   align-items: center;
   height: 40px; /* Fixed height */
@@ -18,18 +18,18 @@
 }
 
 /* Scroll container */
-.nav-scroll {
+.navScroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
 /* Hide scrollbar */
-.nav-scroll::-webkit-scrollbar {
+.navScroll::-webkit-scrollbar {
   display: none;
 }
 
 /* Custom button styling */
-.btn-style {
+.btnStyle {
   background: #f8f9fa;
   border: 1px solid #dee2e6;
   color: #212529;

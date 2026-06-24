@@ -1,4 +1,4 @@
-.status-bar {
+.statusBar {
     top: 0;
     height: 30px;
     min-height: 30px;
@@ -9,7 +9,7 @@
 }
 
 /* text-truncate */
-.status-bar > div {
+.statusBar > div {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
