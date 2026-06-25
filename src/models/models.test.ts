@@ -1,7 +1,7 @@
 
 import { describe, expect, test } from 'vitest'
-import {type Budget, type SpendingRow, createSpendingFormValidator} from '@src/models/models'
-import {fromMajorUnits} from "@src/helpers/money.ts";
+import {type Budget, type SpendingRow, createSpendingFormValidator} from '@/models/models'
+import {fromMajorUnits} from "@/helpers/money.ts";
 
 describe('spendingFormValidator', () => {
   const makeBudget = () => ({ id: 1, currency: "RUB"} as Budget)

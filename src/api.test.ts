@@ -1,8 +1,8 @@
 import { test, describe, beforeEach, afterEach, expect, vi } from 'vitest'
-import { Fetcher, Uploader } from '@src/api'
-import { BudgetSpendingsStore } from '@src/stores/budgetSpendings'
-import { useStatusStore } from '@src/stores/status'
-import { type ConflictSpendingVersion, useConflictVersionStore } from '@src/stores/conflictVersions'
+import { Fetcher, Uploader } from '@/api'
+import { BudgetSpendingsStore } from '@/stores/budgetSpendings'
+import { useStatusStore } from '@/stores/status'
+import { type ConflictSpendingVersion, useConflictVersionStore } from '@/stores/conflictVersions'
 import type {
   ApiBudget,
   ApiSpending,
@@ -10,7 +10,7 @@ import type {
   ApiUpdateSpendingsErrorsResponse,
   Budget,
   Spending,
-} from '@src/models/models'
+} from '@/models/models'
 import * as uuid from 'uuid'
 
 vi.mock('uuid', () => ({ v4: vi.fn(() => 'mocked-uuid') }))

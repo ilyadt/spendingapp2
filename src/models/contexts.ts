@@ -1,5 +1,5 @@
 import {createContext} from "react";
-import type {BudgetsWithSpentById} from "@src/stores/budgets.ts";
+import type {BudgetsWithSpentById} from "@/stores/budgets.ts";
 import type {SpendingsStoreActions} from "./cudSpendingWrapper.ts";
 
 export const BudgetsContext = createContext<BudgetsWithSpentById>({});

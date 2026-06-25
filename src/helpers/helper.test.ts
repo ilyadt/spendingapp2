@@ -6,8 +6,8 @@ import {
   genVersion,
   randomSoftRGB,
   receiptTotals
-} from "@src/helpers/helper.ts";
-import type {Budget, SpendingRow} from "@src/models/models.ts";
+} from "@/helpers/helper.ts";
+import type {Budget, SpendingRow} from "@/models/models.ts";
 
 test('genVersion', () => {
   expect(genVersion(null)).toMatch(/^v1-[0-9a-zA-Z]{7}$/)

@@ -1,5 +1,5 @@
-import {type Currency, fromMajorUnits} from '@src/helpers/money'
-import type { components, paths } from '@src/models/oaschema'
+import {type Currency, fromMajorUnits} from '@/helpers/money'
+import type { components, paths } from '@/models/oaschema'
 
 export type ApiBudget = components['schemas']['Budget']
 export type ApiSpending = components['schemas']['Spending']

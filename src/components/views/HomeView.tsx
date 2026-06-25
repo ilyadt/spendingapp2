@@ -1,10 +1,10 @@
 import {
   formatAmount,
   toMajorUnits
-} from '@src/helpers/money'
-import {dateFormat, dateISO, daysLeft, percentPassed} from '@src//helpers/date'
-import {type BudgetWithSpent, useBudgetsWithSpent} from "@src/stores/budgets.ts";
-import {budgetsSortFn} from "@src/helpers/helper.ts";
+} from '@/helpers/money'
+import {dateFormat, dateISO, daysLeft, percentPassed} from '@//helpers/date'
+import {type BudgetWithSpent, useBudgetsWithSpent} from "@/stores/budgets.ts";
+import {budgetsSortFn} from "@/helpers/helper.ts";
 
 export default function HomeView() {
   const budgets = Object

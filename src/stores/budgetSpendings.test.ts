@@ -1,7 +1,7 @@
 import { test, expect, describe, beforeEach, vi } from 'vitest'
 
-import type {ApiBudget, ApiMoney, ApiSpending, Budget, Spending} from '@src/models/models'
-import { BudgetSpendingsStore, VersionStatus, _test, formatVersionPayload, type SpendingVersion } from '@src/stores/budgetSpendings'
+import type {ApiBudget, ApiMoney, ApiSpending, Budget, Spending} from '@/models/models'
+import { BudgetSpendingsStore, VersionStatus, _test, formatVersionPayload, type SpendingVersion } from '@/stores/budgetSpendings'
 
 describe('storage_test', () => {
   beforeEach(() => {

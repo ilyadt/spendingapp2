@@ -1,4 +1,4 @@
-import { useConflictVersionStore } from '@src/stores/conflictVersions'
+import { useConflictVersionStore } from '@/stores/conflictVersions'
 import { format } from 'date-fns'
 
 export function ErrorsView() {

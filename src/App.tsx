@@ -1,16 +1,16 @@
-import StatusBar from "@src/components/StatusBar.tsx";
-import HomeView from "@src/components/views/HomeView.tsx";
+import StatusBar from "@/components/StatusBar.tsx";
+import HomeView from "@/components/views/HomeView.tsx";
 import {NavLink, type NavLinkRenderProps, Route, Routes} from "react-router";
-import {CrossBudgetView} from "@src/components/views/CrossBudgetView.tsx";
-import {ErrorsView} from "@src/components/views/ErrorsView.tsx";
+import {CrossBudgetView} from "@/components/views/CrossBudgetView.tsx";
+import {ErrorsView} from "@/components/views/ErrorsView.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHome} from "@fortawesome/free-solid-svg-icons/faHome";
 import clsx from "clsx/lite";
 import styles from './App.module.css'
-import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
-import {BudgetViewRoute} from "@src/components/views/BudgetViewRoute.tsx";
-import {budgetsSortFn} from "@src/helpers/helper.ts";
-import {BudgetsContext} from "@src/models/contexts.ts";
+import {useBudgetsWithSpent} from "@/stores/budgets.ts";
+import {BudgetViewRoute} from "@/components/views/BudgetViewRoute.tsx";
+import {budgetsSortFn} from "@/helpers/helper.ts";
+import {BudgetsContext} from "@/models/contexts.ts";
 
 export default function App() {
   const budgets = useBudgetsWithSpent(s => s.budgets)

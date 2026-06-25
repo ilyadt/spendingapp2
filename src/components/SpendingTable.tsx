@@ -1,28 +1,28 @@
 import {isToday} from 'date-fns'
-import {dateFormat, dateISO, dayName} from '@src/helpers/date'
-import {type Currency, toMajorUnits, totals} from '@src/helpers/money'
+import {dateFormat, dateISO, dayName} from '@/helpers/date'
+import {type Currency, toMajorUnits, totals} from '@/helpers/money'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faReceipt, faXmark} from '@fortawesome/free-solid-svg-icons'
-import {faGripDotsVertical} from '@src/helpers/icons'
+import {faGripDotsVertical} from '@/helpers/icons'
 import {
   type Budget,
   type SpendingRow,
   type SpendingFormValidator,
   isNew,
-} from "@src/models/models.ts";
+} from "@/models/models.ts";
 import {type Ref, useContext, useImperativeHandle, useState} from "react";
 import {
   colorFromReceiptId,
   genRandInt,
   genReceiptId,
   receiptTotals
-} from "@src/helpers/helper.ts";
+} from "@/helpers/helper.ts";
 import styles from './SpendingTable.module.css'
-import useSpendingRows from "@src/state/spendingRows.ts";
-import {BudgetsContext, SpendingsStoreActionsContext} from "@src/models/contexts.ts";
-import SpendingEditForm from "@src/components/SpendingEditForm.tsx";
-import SpTableColgroup from "@src/components/anemic/SpTableColgroup.tsx";
-import useTableGroupMode from "@src/state/tableGroupMode.ts";
+import useSpendingRows from "@/state/spendingRows.ts";
+import {BudgetsContext, SpendingsStoreActionsContext} from "@/models/contexts.ts";
+import SpendingEditForm from "@/components/SpendingEditForm.tsx";
+import SpTableColgroup from "@/components/anemic/SpTableColgroup.tsx";
+import useTableGroupMode from "@/state/tableGroupMode.ts";
 
 type Props = {
   date: Date

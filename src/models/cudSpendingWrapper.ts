@@ -3,9 +3,9 @@ import {
   isNew,
   type Spending,
   type SpendingRow,
-} from "@src/models/models.ts";
-import {type CudSpending} from "@src/facade.ts";
-import {genSpendingID, genVersion} from "@src/helpers/helper.ts";
+} from "@/models/models.ts";
+import {type CudSpending} from "@/facade.ts";
+import {genSpendingID, genVersion} from "@/helpers/helper.ts";
 
 export interface SpendingData {
   budget: Budget,

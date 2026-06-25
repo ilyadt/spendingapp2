@@ -1,5 +1,5 @@
-import type {Budget, SpendingRow} from "@src/models/models.ts";
-import {daysFrom2000UTC} from "@src/helpers/date.ts";
+import type {Budget, SpendingRow} from "@/models/models.ts";
+import {daysFrom2000UTC} from "@/helpers/date.ts";
 import {v7 as uuidv7} from "uuid";
 import {customAlphabet} from "nanoid/non-secure";
 import {alphanumeric} from "nanoid-dictionary";

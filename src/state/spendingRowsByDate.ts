@@ -1,7 +1,7 @@
 import {useImmer} from "use-immer";
-import {dateISO} from "@src/helpers/date.ts";
-import type {Spending, SpendingRow} from "@src/models/models.ts";
-import {genRandInt} from "@src/helpers/helper.ts";
+import {dateISO} from "@/helpers/date.ts";
+import type {Spending, SpendingRow} from "@/models/models.ts";
+import {genRandInt} from "@/helpers/helper.ts";
 
 type DateISO = string
 

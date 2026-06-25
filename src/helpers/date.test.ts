@@ -1,5 +1,5 @@
 import {describe, it, expect, test} from 'vitest'
-import {dateRangePlusItemSet, daysFrom2000UTC, daysLeft, percentPassed} from '@src/helpers/date'
+import {dateRangePlusItemSet, daysFrom2000UTC, daysLeft, percentPassed} from '@/helpers/date'
 
 describe('daysLeft', () => {
   it('returns 1 when today and deadline are on the same day', () => {

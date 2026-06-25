@@ -1,5 +1,5 @@
-import { useStatusStore } from '@src/stores/status'
-import { useConflictVersionStore } from '@src/stores/conflictVersions'
+import { useStatusStore } from '@/stores/status'
+import { useConflictVersionStore } from '@/stores/conflictVersions'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSync } from '@fortawesome/free-solid-svg-icons'
 import styles from './StatusBar.module.css'

@@ -1,5 +1,5 @@
-import {dateISO} from "@src/helpers/date.ts";
-import {formatAmount, toMajorUnits} from "@src/helpers/money.ts";
+import {dateISO} from "@/helpers/date.ts";
+import {formatAmount, toMajorUnits} from "@/helpers/money.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheck, faXmark} from "@fortawesome/free-solid-svg-icons";
 import {
@@ -8,13 +8,13 @@ import {
   type SpendingFormValidator,
   createSpendingFormValidator,
   type SpendingRow
-} from "@src/models/models.ts";
+} from "@/models/models.ts";
 import {createPortal} from "react-dom";
 import {type KeyboardEvent, useContext, useRef} from "react";
-import {BudgetsContext} from "@src/models/contexts.ts";
-import {budgetsSortFn} from "@src/helpers/helper.ts";
-import styles from "@src/components/SpendingTable.module.css"
-import SpTableColgroup from "@src/components/anemic/SpTableColgroup.tsx";
+import {BudgetsContext} from "@/models/contexts.ts";
+import {budgetsSortFn} from "@/helpers/helper.ts";
+import styles from "@/components/SpendingTable.module.css"
+import SpTableColgroup from "@/components/anemic/SpTableColgroup.tsx";
 
 type Props = {
   sp: SpendingRow & {rowIdx: number};

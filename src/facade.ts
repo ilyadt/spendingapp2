@@ -1,7 +1,7 @@
-import { Uploader } from '@src/api'
-import type { DelSpending, Spending } from '@src/models/models'
-import { BudgetSpendingsStore } from '@src/stores/budgetSpendings'
-import { useBudgetsWithSpent } from "@src/stores/budgets.ts";
+import { Uploader } from '@/api'
+import type { DelSpending, Spending } from '@/models/models'
+import { BudgetSpendingsStore } from '@/stores/budgetSpendings'
+import { useBudgetsWithSpent } from "@/stores/budgets.ts";
 
 class FacadeImpl {
   constructor(

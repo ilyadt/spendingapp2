@@ -1,5 +1,5 @@
 import { defineConfig } from 'vitest/config'
-import path from "path";
+import {fileURLToPath} from "node:url";
 
 const nodeVersion = Number(process.versions.node.split('.')[0])
 
@@ -36,7 +36,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            '@src': path.resolve(__dirname, 'src'),
+            '@': fileURLToPath(new URL('./src', import.meta.url)),
         },
     },
 })

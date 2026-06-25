@@ -5,17 +5,17 @@ import {vi, describe, test, expect, beforeEach, afterEach} from 'vitest'
 import {
   BudgetsContext,
   SpendingsStoreActionsContext
-} from "@src/models/contexts.ts";
-import type {BudgetsWithSpentById, BudgetWithSpent} from "@src/stores/budgets.ts";
-import type {Budget, Spending, SpendingRow} from "@src/models/models.ts";
-import * as helper from "@src/helpers/helper"
+} from "@/models/contexts.ts";
+import type {BudgetsWithSpentById, BudgetWithSpent} from "@/stores/budgets.ts";
+import type {Budget, Spending, SpendingRow} from "@/models/models.ts";
+import * as helper from "@/helpers/helper"
 import {createRef} from "react";
 import {
   createCudSpendingWrapper,
   type SpendingData,
   type SpendingsStoreActions
-} from "@src/models/cudSpendingWrapper.ts";
-import type {CudSpending} from "@src/facade.ts";
+} from "@/models/cudSpendingWrapper.ts";
+import type {CudSpending} from "@/facade.ts";
 
 const NOW_TIME = new Date('2026-06-12T10:30:00Z')
 

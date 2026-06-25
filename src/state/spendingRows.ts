@@ -1,4 +1,4 @@
-import type {SpendingRow} from "@src/models/models.ts";
+import type {SpendingRow} from "@/models/models.ts";
 import {useImmer} from "use-immer";
 
 export default function useSpendingRows(initSps: SpendingRow[], onEmpty?: () => void) {

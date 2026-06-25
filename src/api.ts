@@ -1,11 +1,11 @@
 import createClient from 'openapi-fetch'
-import { BudgetSpendingsStore } from '@src/stores/budgetSpendings'
-import { useStatusStore } from '@src/stores/status'
-import { useConflictVersionStore } from '@src/stores/conflictVersions'
+import { BudgetSpendingsStore } from '@/stores/budgetSpendings'
+import { useStatusStore } from '@/stores/status'
+import { useConflictVersionStore } from '@/stores/conflictVersions'
 import { v4 as uuidv4 } from 'uuid'
 import { format } from 'date-fns'
-import type { Spending, ApiSpendingEvent, DelSpending, ApiUploadError, ApiSchemaPaths } from '@src/models/models'
-import {currencyFraction} from "@src/helpers/money.ts";
+import type { Spending, ApiSpendingEvent, DelSpending, ApiUploadError, ApiSchemaPaths } from '@/models/models'
+import {currencyFraction} from "@/helpers/money.ts";
 
 function createApiClient(baseUrl: string) {
   return createClient<ApiSchemaPaths>({ baseUrl: baseUrl })

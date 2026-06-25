@@ -1,6 +1,6 @@
 import {useParams} from "react-router";
-import {useBudgetsWithSpent} from "@src/stores/budgets.ts";
-import {BudgetView} from "@src/components/views/BudgetView.tsx";
+import {useBudgetsWithSpent} from "@/stores/budgets.ts";
+import {BudgetView} from "@/components/views/BudgetView.tsx";
 
 export function BudgetViewRoute() {
   const { budgetId } = useParams()

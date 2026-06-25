@@ -1,10 +1,10 @@
 import {it, expect, vi, afterEach } from 'vitest'
-import type {Budget, DelSpending, Spending, SpendingRow} from "@src/models/models.ts"
+import type {Budget, DelSpending, Spending, SpendingRow} from "@/models/models.ts"
 import {createCudSpendingWrapper} from "./cudSpendingWrapper.ts";
-import * as helper from '@src/helpers/helper.ts'
-import {Facade} from "@src/facade.ts";
+import * as helper from '@/helpers/helper.ts'
+import {Facade} from "@/facade.ts";
 
-vi.mock("@src/facade.ts", () => ({
+vi.mock("@/facade.ts", () => ({
   Facade: {
     createSpending: vi.fn(),
     updateSpending: vi.fn(),

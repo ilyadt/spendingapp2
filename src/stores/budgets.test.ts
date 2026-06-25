@@ -4,9 +4,9 @@ import {
   initBudgetsWithSpendings,
   useBudgetsWithSpent,
   createBudgetsWithSpentCreator
-} from "@src/stores/budgets.ts";
-import type {ApiSpending, Spending, SpendingPrev} from "@src/models/models.ts";
-import {BudgetSpendingsStore} from "@src/stores/budgetSpendings.ts";
+} from "@/stores/budgets.ts";
+import type {ApiSpending, Spending, SpendingPrev} from "@/models/models.ts";
+import {BudgetSpendingsStore} from "@/stores/budgetSpendings.ts";
 import {create} from "zustand";
 
 describe('dynamic_budgets', () => {

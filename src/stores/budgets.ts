@@ -1,8 +1,8 @@
 import {create} from 'zustand'
 import { immer } from 'zustand/middleware/immer';
-import {type CudSpending} from "@src/facade.ts";
-import type {Budget, DelSpending, Spending} from "@src/models/models.ts";
-import { BudgetSpendingsStore } from '@src/stores/budgetSpendings'
+import {type CudSpending} from "@/facade.ts";
+import type {Budget, DelSpending, Spending} from "@/models/models.ts";
+import { BudgetSpendingsStore } from '@/stores/budgetSpendings'
 
 export type BudgetWithSpent = Budget & {
   amountSpent: number

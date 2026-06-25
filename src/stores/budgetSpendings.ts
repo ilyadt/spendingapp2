@@ -4,10 +4,10 @@ import type {
   Budget,
   DelSpending,
   Spending,
-} from '@src/models/models'
-import {type Currency, formatAmount} from '@src/helpers/money'
+} from '@/models/models'
+import {type Currency, formatAmount} from '@/helpers/money'
 import { format, isAfter, isBefore, subSeconds } from 'date-fns'
-import type {ConflictSpendingVersion} from "@src/stores/conflictVersions";
+import type {ConflictSpendingVersion} from "@/stores/conflictVersions";
 
 export enum VersionStatus {
   InDb = 'FROM_BACKEND', // версия, полученная с бека
