@@ -28,7 +28,7 @@ jobs:
 
       - name: Playwright Tests
         run: |
-          npx playwright install
+          npx playwright install --with-deps
           npm run playwright
 
       - name: ESlint
