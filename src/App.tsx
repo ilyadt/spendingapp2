@@ -15,7 +15,7 @@ import {BudgetsContext} from "@/models/contexts.ts";
 export default function App() {
   const budgets = useBudgetsWithSpent(s => s.budgets)
 
-  function navLinkClass({ isActive }: NavLinkRenderProps): string {
+  function navLinkClass({isActive}: NavLinkRenderProps): string {
     return clsx(styles.navLink, isActive && styles.active)
   }
 
@@ -26,9 +26,9 @@ export default function App() {
       <div className="container">
         <StatusBar/>
         <Routes>
-          <Route index element={<HomeView />}/>
-          <Route path="budget/:budgetId" element={<BudgetViewRoute />}/>
-          <Route path="cross-budget" element={<CrossBudgetView />}/>
+          <Route index element={<HomeView/>}/>
+          <Route path="budget/:budgetId" element={<BudgetViewRoute/>}/>
+          <Route path="cross-budget" element={<CrossBudgetView/>}/>
           <Route path="errors" element={<ErrorsView/>}/>
         </Routes>
       </div>
@@ -38,20 +38,20 @@ export default function App() {
       { /* Нижняя навигация */}
       <nav className={`${styles.navbarCustom} fixed-bottom navbar-light bg-light border-top ${styles.navScroll} p-0`}>
         <ul className="nav flex-nowrap">
-          <li className={ styles.btnStyle }>
+          <li className={styles.btnStyle}>
             <NavLink to="/" style={{padding: "0px 5px 0 10px"}} className={navLinkClass}>
               <FontAwesomeIcon icon={faHome}/>
             </NavLink>
           </li>
 
-          <li className={ styles.btnStyle }>
+          <li className={styles.btnStyle}>
             <NavLink to="/cross-budget" className={navLinkClass}>
               cross
             </NavLink>
           </li>
 
           {budgetsSorted.map((b) => (
-            <li key={b.id} className={ styles.btnStyle }>
+            <li key={b.id} className={styles.btnStyle}>
               <NavLink to={`/budget/${b.id}`} className={navLinkClass}>
                 {b.alias}
               </NavLink>

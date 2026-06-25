@@ -79,7 +79,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
           className={`table table-bordered table-sm align-middle ${styles.spDayTable} ${styles.modalTable}`}
           style={{top: sp.rowIdx * 40 + 'px'}}
         >
-          <SpTableColgroup crossBudget={crossBudget} />
+          <SpTableColgroup crossBudget={crossBudget}/>
           <tbody>
           <tr>
             <td className="text-end">
@@ -102,7 +102,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
               />
             </td>
 
-            {crossBudget &&
+            {crossBudget && (
               <td>
                 <select name="budgetId" className="form-select cell-input" defaultValue={sp.budgetId}>
                   <option disabled key="0" value="0">бюджет</option>
@@ -115,7 +115,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
                   }
                 </select>
               </td>
-            }
+            )}
 
             <td style={{padding: '2px'}}>
               <button
@@ -145,7 +145,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
   )
 }
 
-function Overlay({onClick}: {onClick: () => void}) {
+function Overlay({onClick}: { onClick: () => void }) {
   return createPortal(
     <div
       id="overlay"
