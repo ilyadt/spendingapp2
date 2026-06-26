@@ -1,15 +1,13 @@
 import SpendingTable from '@/components/SpendingTable'
 import {dateISO, dateRangePlusItemSet} from '@/helpers/date'
-import {useEffect, useRef} from "react";
-import {useBudgetsWithSpent} from "@/stores/budgets.ts";
+import {useContext, useEffect, useRef} from "react";
 import {Facade} from "@/facade.ts";
 import useSpendingRowsByDate from "@/state/spendingRowsByDate.ts";
 import type {Spending} from "@/models/models.ts";
+import {BudgetsContext} from "@/models/contexts.ts";
 
 export function CrossBudgetView() {
-  const budgets = Object.values(
-    useBudgetsWithSpent(s => s.budgets)
-  )
+  const budgets = Object.values(useContext(BudgetsContext))
 
   const spendingsByBudgetId: Record<number, Spending[]> = {}
   for (const b of budgets) {

@@ -17,7 +17,7 @@ import styles from "@/components/SpendingTable.module.css"
 import SpTableColgroup from "@/components/anemic/SpTableColgroup.tsx";
 
 type Props = {
-  sp: SpendingRow & {rowIdx: number};
+  sp: SpendingRow & { rowIdx: number };
   budget?: Budget;
   save(fd: SpendingFormValidator): void;
   cancel(fd: SpendingFormValidator): void;
@@ -71,10 +71,10 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
   return (
     <>
       <form ref={spFormElem} onSubmit={onSubmit} aria-label='spending edit form' style={{height: 0}}>
-        <input name="date" defaultValue={dateISO(sp.date)} style={{visibility: 'hidden'}} />
-        { budget &&
-          <input name="budgetId" defaultValue={budget.id} style={{visibility: 'hidden'}} />
-        }
+        <input name="date" defaultValue={dateISO(sp.date)} style={{visibility: 'hidden'}}/>
+        {budget && (
+          <input name="budgetId" defaultValue={budget.id} style={{visibility: 'hidden'}}/>
+        )}
         <table
           className={`table table-bordered table-sm align-middle ${styles.spDayTable} ${styles.modalTable}`}
           style={{top: sp.rowIdx * 40 + 'px'}}
@@ -105,14 +105,12 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
             {crossBudget && (
               <td>
                 <select name="budgetId" className="form-select cell-input" defaultValue={sp.budgetId}>
-                  <option disabled key="0" value="0">бюджет</option>
-                  {
-                    Object.values(budgets).sort(budgetsSortFn).map(b =>
-                      <option key={b.id} value={b.id}>
-                        {b.alias}: {formatAmount(b.amount - b.amountSpent, b.currency)}
-                      </option>
-                    )
-                  }
+                  <option key="0" value="0">бюджет</option>
+                  {Object.values(budgets).sort(budgetsSortFn).map(b => (
+                    <option key={b.id} value={b.id}>
+                      {b.alias}: {formatAmount(b.amount - b.amountSpent, b.currency)}
+                    </option>
+                  ))}
                 </select>
               </td>
             )}

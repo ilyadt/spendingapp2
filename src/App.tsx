@@ -7,19 +7,13 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHome} from "@fortawesome/free-solid-svg-icons/faHome";
 import clsx from "clsx/lite";
 import styles from './App.module.css'
-import {useBudgetsWithSpent} from "@/stores/budgets.ts";
 import {BudgetViewRoute} from "@/components/views/BudgetViewRoute.tsx";
 import {budgetsSortFn} from "@/helpers/helper.ts";
 import {BudgetsContext} from "@/models/contexts.ts";
+import {useContext} from "react";
 
 export default function App() {
-  const budgets = useBudgetsWithSpent(s => s.budgets)
-
-  function navLinkClass({isActive}: NavLinkRenderProps): string {
-    return clsx(styles.navLink, isActive && styles.active)
-  }
-
-  const budgetsSorted = Object.values(budgets).sort(budgetsSortFn)
+  const budgets = useContext(BudgetsContext)
 
   return (
     <BudgetsContext value={budgets}>
@@ -50,7 +44,7 @@ export default function App() {
             </NavLink>
           </li>
 
-          {budgetsSorted.map((b) => (
+          {Object.values(budgets).sort(budgetsSortFn).map((b) => (
             <li key={b.id} className={styles.btnStyle}>
               <NavLink to={`/budget/${b.id}`} className={navLinkClass}>
                 {b.alias}
@@ -67,4 +61,8 @@ export default function App() {
       </nav>
     </BudgetsContext>
   )
+}
+
+function navLinkClass({isActive}: NavLinkRenderProps): string {
+  return clsx(styles.navLink, isActive && styles.active)
 }

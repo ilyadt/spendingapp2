@@ -2,7 +2,7 @@ import {beforeEach, describe, expect, test, vi} from 'vitest'
 import {
   type BudgetsWithSpentById,
   initBudgetsWithSpendings,
-  useBudgetsWithSpent,
+  budgetsWithSpentStore,
   createBudgetsWithSpentCreator
 } from "@/stores/budgets.ts";
 import type {ApiSpending, Spending, SpendingPrev} from "@/models/models.ts";
@@ -15,7 +15,7 @@ describe('dynamic_budgets', () => {
   })
 
   test('empty', () => {
-    expect({}).toEqual(useBudgetsWithSpent.getState().budgets)
+    expect({}).toEqual(budgetsWithSpentStore.getState().budgets)
   })
 
   test('with budgets and spendings', () => {

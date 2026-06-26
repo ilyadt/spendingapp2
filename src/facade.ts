@@ -1,7 +1,7 @@
 import { Uploader } from '@/api'
 import type { DelSpending, Spending } from '@/models/models'
 import { BudgetSpendingsStore } from '@/stores/budgetSpendings'
-import { useBudgetsWithSpent } from "@/stores/budgets.ts";
+import { budgetsWithSpentStore } from "@/stores/budgets.ts";
 
 class FacadeImpl {
   constructor(
@@ -48,13 +48,13 @@ function createComposite(subjects: CudSpending[]): CudSpending {
 
 const budgetsWithSpentFacade: CudSpending = {
   createSpending(bid: number, newSp: Spending): void {
-    useBudgetsWithSpent.getState().createSpending(bid, newSp)
+    budgetsWithSpentStore.getState().createSpending(bid, newSp)
   },
   deleteSpending(bid: number, del: DelSpending): void {
-    useBudgetsWithSpent.getState().deleteSpending(bid, del)
+    budgetsWithSpentStore.getState().deleteSpending(bid, del)
   },
   updateSpending(bid: number, upd: Spending): void {
-    useBudgetsWithSpent.getState().updateSpending(bid, upd)
+    budgetsWithSpentStore.getState().updateSpending(bid, upd)
   },
 }
 

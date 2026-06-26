@@ -3,14 +3,14 @@ import {
   toMajorUnits
 } from '@/helpers/money'
 import {dateFormat, dateISO, daysLeft, percentPassed} from '@//helpers/date'
-import {type BudgetWithSpent, useBudgetsWithSpent} from "@/stores/budgets.ts";
+import {type BudgetWithSpent} from "@/stores/budgets.ts";
 import {budgetsSortFn} from "@/helpers/helper.ts";
+import {useContext} from "react";
+import {BudgetsContext} from "@/models/contexts.ts";
 
 export default function HomeView() {
   const budgets = Object
-    .values(
-      useBudgetsWithSpent(s => s.budgets)
-    )
+    .values(useContext(BudgetsContext))
     .sort(budgetsSortFn)
 
   function percentAmount(b: BudgetWithSpent) {
