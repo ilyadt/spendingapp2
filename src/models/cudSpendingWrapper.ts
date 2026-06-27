@@ -19,7 +19,7 @@ export interface SpendingData {
 export type SpendingsStoreActions = ReturnType<typeof createCudSpendingWrapper>
 
 export function createCudSpendingWrapper(cud: CudSpending) {
-  return {
+  const wrapper = {
     createSpending(data: SpendingData, createdAt: Date): Spending {
       const sp: Spending = {
         id: genSpendingID(),
@@ -73,7 +73,7 @@ export function createCudSpendingWrapper(cud: CudSpending) {
       const budgetChanged = (oldRow.budgetId !== data.budget.id)
 
       if (!isNewSp && budgetChanged) {
-        this.deleteSpending(oldRow, now)
+        wrapper.deleteSpending(oldRow, now)
       }
 
       const spData: SpendingData = {
@@ -83,8 +83,8 @@ export function createCudSpendingWrapper(cud: CudSpending) {
       }
 
       return budgetChanged
-        ? this.createSpending(spData, now)
-        : this.updateSpending(oldRow, spData, now)
+        ? wrapper.createSpending(spData, now)
+        : wrapper.updateSpending(oldRow, spData, now)
     },
 
     deleteSpending(oldRow: SpendingRow, deletedAt: Date) {
@@ -101,4 +101,6 @@ export function createCudSpendingWrapper(cud: CudSpending) {
       })
     },
   }
+
+  return wrapper
 }
