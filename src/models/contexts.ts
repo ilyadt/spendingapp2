@@ -4,7 +4,5 @@ import type {SpendingsStoreActions} from "./cudSpendingWrapper.ts";
 
 export const BudgetsContext = createContext<BudgetsWithSpentById>({});
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-export const SpendingsStoreActionsContext = createContext<SpendingsStoreActions>(null)
+export const SpendingsStoreActionsContext = createContext<SpendingsStoreActions>({} as SpendingsStoreActions)
 

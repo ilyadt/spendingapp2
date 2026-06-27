@@ -7,7 +7,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHome} from "@fortawesome/free-solid-svg-icons/faHome";
 import clsx from "clsx/lite";
 import styles from './App.module.css'
-import {BudgetViewRoute} from "@/components/views/BudgetViewRoute.tsx";
+import {BudgetRoute} from "./components/facilities/BudgetRoute.tsx";
 import {budgetsSortFn} from "@/helpers/helper.ts";
 import {BudgetsContext} from "@/models/contexts.ts";
 import {useContext} from "react";
@@ -21,7 +21,7 @@ export default function App() {
         <StatusBar/>
         <Routes>
           <Route index element={<HomeView/>}/>
-          <Route path="budget/:budgetId" element={<BudgetViewRoute/>}/>
+          <Route path="budget/:budgetId" element={<BudgetRoute/>}/>
           <Route path="cross-budget" element={<CrossBudgetView/>}/>
           <Route path="errors" element={<ErrorsView/>}/>
         </Routes>

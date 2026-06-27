@@ -3,7 +3,7 @@ import {BudgetView} from "@/components/views/BudgetView.tsx";
 import {useContext} from "react";
 import {BudgetsContext} from "@/models/contexts.ts";
 
-export function BudgetViewRoute() {
+export function BudgetRoute() {
   const { budgetId } = useParams()
   const budgets = useContext(BudgetsContext)
 
