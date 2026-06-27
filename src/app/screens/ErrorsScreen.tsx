@@ -1,7 +1,7 @@
 import { useConflictVersionStore } from '@/stores/conflictVersions'
 import { format } from 'date-fns'
 
-export function ErrorsView() {
+export function ErrorsScreen() {
   const store = useConflictVersionStore()
 
   return (

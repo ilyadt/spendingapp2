@@ -2,13 +2,13 @@ import {
   formatAmount,
   toMajorUnits
 } from '@/helpers/money'
-import {dateFormat, dateISO, daysLeft, percentPassed} from '@//helpers/date'
+import {dateFormat, dateISO, daysLeft, percentPassed} from '@/helpers/date'
 import {type BudgetWithSpent} from "@/stores/budgets.ts";
 import {budgetsSortFn} from "@/helpers/helper.ts";
 import {useContext} from "react";
 import {BudgetsContext} from "@/models/contexts.ts";
 
-export default function HomeView() {
+export default function HomeScreen() {
   const budgets = Object
     .values(useContext(BudgetsContext))
     .sort(budgetsSortFn)

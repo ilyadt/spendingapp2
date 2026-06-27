@@ -13,8 +13,8 @@ import {createPortal} from "react-dom";
 import {type KeyboardEvent, useContext, useRef} from "react";
 import {BudgetsContext} from "@/models/contexts.ts";
 import {budgetsSortFn} from "@/helpers/helper.ts";
-import styles from "@/components/SpendingTable.module.css"
-import SpTableColgroup from "@/components/anemic/SpTableColgroup.tsx";
+import styles from "./SpendingTable.module.css"
+import SpTableColgroup from "./SpTableColgroup.tsx";
 
 type Props = {
   sp: SpendingRow & { rowIdx: number };

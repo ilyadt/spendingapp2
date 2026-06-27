@@ -1,13 +1,13 @@
-import StatusBar from "@/components/StatusBar.tsx";
-import HomeView from "@/components/views/HomeView.tsx";
+import StatusBar from "./components/StatusBar.tsx";
+import HomeScreen from "./screens/HomeScreen.tsx";
 import {NavLink, type NavLinkRenderProps, Route, Routes} from "react-router";
-import {CrossBudgetView} from "@/components/views/CrossBudgetView.tsx";
-import {ErrorsView} from "@/components/views/ErrorsView.tsx";
+import {CrossBudgetScreen} from "./screens/CrossBudgetScreen.tsx";
+import {ErrorsScreen} from "./screens/ErrorsScreen.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHome} from "@fortawesome/free-solid-svg-icons/faHome";
 import clsx from "clsx/lite";
 import styles from './App.module.css'
-import {BudgetRoute} from "./components/facilities/BudgetRoute.tsx";
+import {BudgetRoute} from "../facilities/BudgetRoute.tsx";
 import {budgetsSortFn} from "@/helpers/helper.ts";
 import {BudgetsContext} from "@/models/contexts.ts";
 import {useContext} from "react";
@@ -20,10 +20,10 @@ export default function App() {
       <div className="container">
         <StatusBar/>
         <Routes>
-          <Route index element={<HomeView/>}/>
+          <Route index element={<HomeScreen/>}/>
           <Route path="budget/:budgetId" element={<BudgetRoute/>}/>
-          <Route path="cross-budget" element={<CrossBudgetView/>}/>
-          <Route path="errors" element={<ErrorsView/>}/>
+          <Route path="cross-budget" element={<CrossBudgetScreen/>}/>
+          <Route path="errors" element={<ErrorsScreen/>}/>
         </Routes>
       </div>
 

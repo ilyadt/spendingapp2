@@ -1,5 +1,5 @@
 import {useParams} from "react-router";
-import {BudgetView} from "@/components/views/BudgetView.tsx";
+import {BudgetScreen} from "@/app/screens/BudgetScreen.tsx";
 import {useContext} from "react";
 import {BudgetsContext} from "@/models/contexts.ts";
 
@@ -12,5 +12,5 @@ export function BudgetRoute() {
     return <div>Budget {budgetId} not found</div>
   }
 
-  return <BudgetView key={budgetId} budget={budget}/>
+  return <BudgetScreen key={budgetId} budget={budget}/>
 }

@@ -1,4 +1,4 @@
-import SpendingTable from '@/components/SpendingTable'
+import SpendingTable from '../components/SpendingTable/SpendingTable'
 import {dateISO, dateRangePlusItemSet} from '@/helpers/date'
 import {useContext, useEffect, useRef} from "react";
 import {Facade} from "@/facade.ts";
@@ -6,7 +6,7 @@ import useSpendingRowsByDate from "@/state/spendingRowsByDate.ts";
 import type {Spending} from "@/models/models.ts";
 import {BudgetsContext} from "@/models/contexts.ts";
 
-export function CrossBudgetView() {
+export function CrossBudgetScreen() {
   const budgets = Object.values(useContext(BudgetsContext))
 
   const spendingsByBudgetId: Record<number, Spending[]> = {}

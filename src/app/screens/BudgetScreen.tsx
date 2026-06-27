@@ -2,8 +2,8 @@ import {dateFormat, dateISO, dateRangePlusItemSet} from '@/helpers/date'
 import {toMajorUnits} from '@/helpers/money'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
-import SpendingTable, {type SpendingTableHandle} from '@/components/SpendingTable'
-import styles from './BudgetView.module.css'
+import SpendingTable, {type SpendingTableHandle} from '../components/SpendingTable/SpendingTable'
+import styles from './BudgetScreen.module.css'
 import type {BudgetWithSpent} from "@/stores/budgets.ts";
 import useSpendingRowsByDate from "@/state/spendingRowsByDate.ts";
 import {Facade} from "@/facade.ts";
@@ -12,7 +12,7 @@ import {useContext, useRef} from "react";
 import {genRandInt} from "@/helpers/helper.ts";
 import {SpendingsStoreActionsContext} from "@/models/contexts.ts";
 
-export function BudgetView({budget}: {budget: BudgetWithSpent}) {
+export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
   const spStoreActions = useContext(SpendingsStoreActionsContext)
   const tableRefs = useRef<Record<string, SpendingTableHandle|null>>({})
 

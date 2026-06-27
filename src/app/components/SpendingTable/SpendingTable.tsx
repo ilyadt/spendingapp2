@@ -20,8 +20,8 @@ import {
 import styles from './SpendingTable.module.css'
 import useSpendingRows from "@/state/spendingRows.ts";
 import {BudgetsContext, SpendingsStoreActionsContext} from "@/models/contexts.ts";
-import SpendingEditForm from "@/components/SpendingEditForm.tsx";
-import SpTableColgroup from "@/components/anemic/SpTableColgroup.tsx";
+import SpendingEditForm from "./SpendingEditForm.tsx";
+import SpTableColgroup from "./SpTableColgroup.tsx";
 import useTableGroupMode from "@/state/tableGroupMode.ts";
 
 type Props = {
