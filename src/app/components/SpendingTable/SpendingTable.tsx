@@ -146,7 +146,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
   const crossBudget = !budget
 
   return (
-    <div className="row">
+    <div>
       <p style={{position: 'relative', marginBottom: 0}}>
         <button className="btn btn-link text-black p-0" onClick={groupMode.enable} aria-label="Enable group mode">
           <FontAwesomeIcon icon={faReceipt}/>

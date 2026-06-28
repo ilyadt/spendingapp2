@@ -17,15 +17,14 @@ export default function App() {
 
   return (
     <BudgetsContext value={budgets}>
-      <div className="container">
-        <StatusBar/>
-        <Routes>
-          <Route index element={<HomeScreen/>}/>
-          <Route path="budget/:budgetId" element={<BudgetRoute/>}/>
-          <Route path="cross-budget" element={<CrossBudgetScreen/>}/>
-          <Route path="errors" element={<ErrorsScreen/>}/>
-        </Routes>
-      </div>
+      <StatusBar/>
+
+      <Routes>
+        <Route index element={<HomeScreen/>}/>
+        <Route path="budget/:budgetId" element={<BudgetRoute/>}/>
+        <Route path="cross-budget" element={<CrossBudgetScreen/>}/>
+        <Route path="errors" element={<ErrorsScreen/>}/>
+      </Routes>
 
       <div style={{height: '80px'}}></div>
 
