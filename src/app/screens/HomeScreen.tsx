@@ -21,7 +21,7 @@ export default function HomeScreen() {
   const buildCommit = import.meta.env.VITE_BUILD_COMMIT
 
   return (
-    <>
+    <div>
       <h1>Love you so much ♥{' '} <span style={{fontSize: 'small'}}> {buildCommit.slice(0, 7)} </span> </h1>
 
       {budgets.map(b=> (
@@ -83,6 +83,6 @@ export default function HomeScreen() {
           </div>
         </div>
       ))}
-    </>
+    </div>
   )
 }

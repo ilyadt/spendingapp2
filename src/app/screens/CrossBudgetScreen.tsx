@@ -29,7 +29,7 @@ export function CrossBudgetScreen() {
   const today = dateISO(new Date())
 
   return (
-    <>
+    <div>
       {dates.map(date => (
         <div key={date} ref={date == today ? todayRef : undefined}>
           <SpendingTable
@@ -40,6 +40,6 @@ export function CrossBudgetScreen() {
           />
         </div>
       ))}
-    </>
+    </div>
   )
 }

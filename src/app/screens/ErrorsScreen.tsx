@@ -5,7 +5,7 @@ export function ErrorsScreen() {
   const store = useConflictVersionStore()
 
   return (
-    <>
+    <div>
       <div>Errors</div>
 
       <div className="table-responsive" style={{maxWidth: '100%', overflowX: 'auto'}}>
@@ -44,6 +44,6 @@ export function ErrorsScreen() {
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   )
 }

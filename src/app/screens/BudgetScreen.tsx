@@ -61,7 +61,7 @@ export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
   )
 
   return (
-    <>
+    <div>
       <div>
         <p>
           <b>Бюджет #{ budget.id }: { budget.name }</b> <br />
@@ -109,6 +109,6 @@ export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
           onEmpty={() => clearSpendings(date)}
         />
       ))}
-    </>
+    </div>
   )
 }

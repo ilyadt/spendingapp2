@@ -19,7 +19,7 @@ export default function StatusBar() {
   const bgGet = statusState.statusGetSpendings !== 'ok' ? '#fae5bb' : 'rgb(248 249 250)'
 
   return (
-    <div className={`row ${styles.statusBar}`} style={{backgroundColor: bg}}>
+    <div className={`${styles.statusBar}`} style={{backgroundColor: bg}}>
       <div className={`col-3`} style={{backgroundColor: bgGet}}>
         G: {statusState.statusGetSpendings}
       </div>
