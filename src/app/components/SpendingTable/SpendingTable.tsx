@@ -159,6 +159,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
 
       <div style={{position: 'relative', padding: 0}}>
         <table
+          data-testid="spendings-table"
           className={`table table-bordered table-sm align-middle ${styles.spDayTable}`}
           style={{opacity: isToday(date) ? 1 : 0.5}}
         >

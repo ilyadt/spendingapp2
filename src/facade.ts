@@ -32,7 +32,7 @@ export interface CudSpending {
   deleteSpending(bid: number, del: DelSpending): void
 }
 
-function createComposite(subjects: CudSpending[]): CudSpending {
+export function createComposite(subjects: CudSpending[]): CudSpending {
   return {
     createSpending(bid, newSp) {
       subjects.forEach(s => s.createSpending(bid, newSp))
