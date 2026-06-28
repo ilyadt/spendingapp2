@@ -10,6 +10,7 @@ import {BudgetsContextProvider} from "@/facilities/BudgetsContextProvider.tsx";
 import {budgetsWithSpentStore} from "@/stores/budgets.ts";
 
 import 'bootstrap/dist/css/bootstrap.min.css'
+import '@/app/global.css'
 
 await Fetcher.initAndStart()
 Uploader.init()

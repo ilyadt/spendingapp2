@@ -1,4 +1,4 @@
-import {test, expect, devices} from '@playwright/experimental-ct-react';
+import {test, expect} from '@playwright/experimental-ct-react';
 import {SpendingTableForTest} from "./SpendingTable.story.tsx";
 import type {SpendingRow} from "@/models/models.ts";
 import type {BudgetsWithSpentById, BudgetWithSpent} from "@/stores/budgets.ts";
@@ -6,8 +6,6 @@ import type {BudgetsWithSpentById, BudgetWithSpent} from "@/stores/budgets.ts";
 
 test('SpendingTable', async ({ mount, page }) => {
   page.on('dialog', () => null); // prevents auto-dismissing dialog
-
-  await page.setViewportSize(devices['iPhone 15 Plus'].viewport)
 
   const initBudgets: BudgetsWithSpentById = {
     1: {id: 1, description: 'еда', alias: 'food', currency: 'RUB', amount: 25000_00, amountSpent: 3000_00} as BudgetWithSpent,

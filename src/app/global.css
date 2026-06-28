@@ -1,0 +1,10 @@
+
+.cell-input::-webkit-outer-spin-button,
+.cell-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.cell-input {
+    -moz-appearance: textfield;
+}
