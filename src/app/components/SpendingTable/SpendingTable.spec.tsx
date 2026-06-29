@@ -27,5 +27,5 @@ test('SpendingTable', async ({ mount, page }) => {
 
   await page.pause()
 
-  await expect(page.getByTestId('spendings-table')).toHaveScreenshot('table-edit-row.png');
+  await expect(page.getByRole('table')).toHaveScreenshot('table-edit-row.png');
 });

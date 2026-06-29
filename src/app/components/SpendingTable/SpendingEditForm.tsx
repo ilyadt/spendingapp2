@@ -13,7 +13,7 @@ import {createPortal} from "react-dom";
 import {type KeyboardEvent, useContext, useRef} from "react";
 import {BudgetsContext} from "@/models/contexts.ts";
 import {budgetsSortFn} from "@/helpers/helper.ts";
-import styles from "./SpendingTable.module.css"
+import styles from "./table.module.css"
 import SpTableColgroup from "./SpTableColgroup.tsx";
 
 type Props = {
@@ -76,6 +76,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
           <input name="budgetId" defaultValue={budget.id} style={{visibility: 'hidden'}}/>
         )}
         <table
+          role="grid"
           className={`table table-bordered table-sm align-middle ${styles.spDayTable} ${styles.modalTable}`}
           style={{top: sp.rowIdx * 40 + 'px'}}
         >

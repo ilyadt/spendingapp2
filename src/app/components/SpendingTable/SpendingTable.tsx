@@ -17,7 +17,7 @@ import {
   genReceiptId,
   receiptTotals
 } from "@/helpers/helper.ts";
-import styles from './SpendingTable.module.css'
+import styles from './table.module.css'
 import useSpendingRows from "@/state/spendingRows.ts";
 import {BudgetsContext, SpendingsStoreActionsContext} from "@/models/contexts.ts";
 import SpendingEditForm from "./SpendingEditForm.tsx";
@@ -159,7 +159,6 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
 
       <div style={{position: 'relative', padding: 0}}>
         <table
-          data-testid="spendings-table"
           className={`table table-bordered table-sm align-middle ${styles.spDayTable}`}
           style={{opacity: isToday(date) ? 1 : 0.5}}
         >
