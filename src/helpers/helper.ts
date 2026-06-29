@@ -3,6 +3,9 @@ import {daysFrom2000UTC} from "@/helpers/date.ts";
 import {v7 as uuidv7} from "uuid";
 import {customAlphabet} from "nanoid/non-secure";
 import {alphanumeric} from "nanoid-dictionary";
+import type {NavLinkRenderProps} from "react-router";
+import clsx from "clsx/lite";
+import styles from "@/app/App.module.css";
 
 export const genSpendingID = (): string => uuidv7()
 
@@ -96,4 +99,8 @@ export function receiptTotals(rows: SpendingRow[]): Record<RowId, Total> {
   }
 
   return res
+}
+
+export function navLinkClass({isActive}: NavLinkRenderProps): string {
+  return clsx(styles.navLink, isActive && styles.active)
 }

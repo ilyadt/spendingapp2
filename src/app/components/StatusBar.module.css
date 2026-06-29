@@ -1,11 +1,12 @@
 .statusBar {
+    position: sticky;
+    display: flex;
+    padding: 0 10px;
     top: 0;
     height: 30px;
     min-height: 30px;
     max-height: 30px;
     overflow: hidden;
-    position: sticky;
-    display: flex;
     z-index: 1000;
 }
 

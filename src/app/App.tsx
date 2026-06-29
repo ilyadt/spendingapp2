@@ -1,6 +1,6 @@
 import StatusBar from "./components/StatusBar.tsx";
 import HomeScreen from "./screens/HomeScreen.tsx";
-import {NavLink, type NavLinkRenderProps, Route, Routes} from "react-router";
+import {NavLink, Route, Routes} from "react-router";
 import {CrossBudgetScreen} from "./screens/CrossBudgetScreen.tsx";
 import {ErrorsScreen} from "./screens/ErrorsScreen.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -8,7 +8,7 @@ import {faHome} from "@fortawesome/free-solid-svg-icons/faHome";
 import clsx from "clsx/lite";
 import styles from './App.module.css'
 import {BudgetRoute} from "../facilities/BudgetRoute.tsx";
-import {budgetsSortFn} from "@/helpers/helper.ts";
+import {budgetsSortFn, navLinkClass} from "@/helpers/helper.ts";
 import {BudgetsContext} from "@/models/contexts.ts";
 import {useContext} from "react";
 
@@ -60,8 +60,4 @@ export default function App() {
       </nav>
     </BudgetsContext>
   )
-}
-
-function navLinkClass({isActive}: NavLinkRenderProps): string {
-  return clsx(styles.navLink, isActive && styles.active)
 }

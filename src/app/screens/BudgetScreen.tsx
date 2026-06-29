@@ -55,11 +55,7 @@ export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
     setTimeout(() => { alert('Сохранено!') }, 0)
   }
 
-  const dates = dateRangePlusItemSet(
-    budget.dateFrom,
-    budget.dateTo,
-    new Set(Object.keys(initSpendingsByDate)),
-  )
+  const dates = dateRangePlusItemSet(budget.dateFrom, budget.dateTo, new Set(Object.keys(initSpendingsByDate)))
 
   return (
     <div>
