@@ -4,25 +4,16 @@ import {type Currency, toMajorUnits, totals} from '@/helpers/money'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faReceipt, faXmark} from '@fortawesome/free-solid-svg-icons'
 import {faGripDotsVertical} from '@/helpers/icons'
-import {
-  type Budget,
-  type SpendingRow,
-  type SpendingFormValidator,
-  isNew,
-} from "@/models/models.ts";
+import {type Budget, type SpendingRow, isNew} from "@/models/models.ts";
 import {type Ref, useContext, useImperativeHandle, useState} from "react";
-import {
-  colorFromReceiptId,
-  genRandInt,
-  genReceiptId,
-  receiptTotals
-} from "@/helpers/helper.ts";
-import styles from './table.module.css'
-import useSpendingRows from "@/state/spendingRows.ts";
+import {colorFromReceiptId, genRandInt, genReceiptId, receiptTotals} from "@/helpers/helper.ts";
+import styles from './styles.module.css'
+import useSpendingRows from "./logic/spendingRows.ts";
 import {BudgetsContext, SpendingsStoreActionsContext} from "@/models/contexts.ts";
-import SpendingEditForm from "./SpendingEditForm.tsx";
-import SpTableColgroup from "./SpTableColgroup.tsx";
-import useTableGroupMode from "@/state/tableGroupMode.ts";
+import SpendingEditForm from "./components/SpendingEditForm.tsx";
+import SpTableColgroup from "./components/SpTableColgroup.tsx";
+import useTableGroupMode from "./logic/tableGroupMode.ts";
+import type {SpendingFormData} from "@/app/components/SpendingTable/logic/spendingFormData.ts";
 
 type Props = {
   date: Date
@@ -80,7 +71,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
     groupMode.disable()
   }
 
-  function savePendingSp(f: SpendingFormValidator) {
+  function savePendingSp(f: SpendingFormData) {
     const sp = pendingRow!
 
     // Do nothing
@@ -102,7 +93,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
     setPendingRow(null)
   }
 
-  function cancelPendingSp(f: SpendingFormValidator) {
+  function cancelPendingSp(f: SpendingFormData) {
     const sp = pendingRow!
 
     if (f.isEqual(sp)) {

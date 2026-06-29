@@ -2,25 +2,20 @@ import {dateISO} from "@/helpers/date.ts";
 import {formatAmount, toMajorUnits} from "@/helpers/money.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheck, faXmark} from "@fortawesome/free-solid-svg-icons";
-import {
-  type Budget,
-  isNew,
-  type SpendingFormValidator,
-  createSpendingFormValidator,
-  type SpendingRow
-} from "@/models/models.ts";
+import {type Budget, isNew, type SpendingRow} from "@/models/models.ts";
 import {createPortal} from "react-dom";
 import {type KeyboardEvent, useContext, useRef} from "react";
 import {BudgetsContext} from "@/models/contexts.ts";
 import {budgetsSortFn} from "@/helpers/helper.ts";
-import styles from "./table.module.css"
+import styles from "../styles.module.css"
 import SpTableColgroup from "./SpTableColgroup.tsx";
+import {createSpendingFormData, type SpendingFormData} from "@/app/components/SpendingTable/logic/spendingFormData.ts";
 
 type Props = {
   sp: SpendingRow & { rowIdx: number };
   budget?: Budget;
-  save(fd: SpendingFormValidator): void;
-  cancel(fd: SpendingFormValidator): void;
+  save(fd: SpendingFormData): void;
+  cancel(fd: SpendingFormData): void;
 }
 
 export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
@@ -60,8 +55,8 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
       : save(f)
   }
 
-  function createValidator(formElement: HTMLFormElement): SpendingFormValidator {
-    return createSpendingFormValidator(
+  function createValidator(formElement: HTMLFormElement): SpendingFormData {
+    return createSpendingFormData(
       new FormData(formElement),
       budgets,
       {selectBudget: !budget, selectDate: false},

@@ -7,10 +7,11 @@ import styles from './BudgetScreen.module.css'
 import type {BudgetWithSpent} from "@/stores/budgets.ts";
 import useSpendingRowsByDate from "@/state/spendingRowsByDate.ts";
 import {Facade} from "@/facade.ts";
-import {createSpendingFormValidator, type SpendingRow} from "@/models/models.ts";
+import {createSpendingFormData} from "@/app/components/SpendingTable/logic/spendingFormData.ts";
 import {useContext, useRef} from "react";
 import {genRandInt} from "@/helpers/helper.ts";
 import {SpendingsStoreActionsContext} from "@/models/contexts.ts";
+import type {SpendingRow} from "@/models/models.ts";
 
 export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
   const spStoreActions = useContext(SpendingsStoreActionsContext)
@@ -24,7 +25,7 @@ export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
     e.preventDefault()
 
     const form = e.currentTarget
-    const f = createSpendingFormValidator(
+    const f = createSpendingFormData(
       new FormData(form),
       {[budget.id]: budget},
       {selectBudget: false, selectDate: true},
