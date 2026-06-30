@@ -1,5 +1,5 @@
 import createClient from 'openapi-fetch'
-import { budgetsAndSpendingsRepository } from '@/stores/budgetSpendings'
+import { budgetsAndSpendingsRepository } from '@/repository'
 import { useStatusStore } from '@/stores/status'
 import { useConflictVersionStore } from '@/stores/conflictVersions'
 import { v4 as uuidv4 } from 'uuid'

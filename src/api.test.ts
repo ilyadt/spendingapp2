@@ -1,6 +1,6 @@
 import { test, describe, beforeEach, afterEach, expect, vi } from 'vitest'
 import { Fetcher, Uploader } from '@/api'
-import { budgetsAndSpendingsRepository } from '@/stores/budgetSpendings'
+import { budgetsAndSpendingsRepository } from '@/repository'
 import { useStatusStore } from '@/stores/status'
 import { type ConflictSpendingVersion, useConflictVersionStore } from '@/stores/conflictVersions'
 import type {

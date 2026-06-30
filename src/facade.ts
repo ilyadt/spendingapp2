@@ -1,6 +1,6 @@
 import { Uploader } from '@/api'
 import type { DelSpending, Spending } from '@/models/models'
-import { budgetsAndSpendingsRepository } from '@/stores/budgetSpendings'
+import { budgetsAndSpendingsRepository } from '@/repository'
 import { budgetsWithSpentStore } from "@/stores/budgets.ts";
 
 class FacadeImpl {

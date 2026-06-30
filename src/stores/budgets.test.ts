@@ -6,7 +6,7 @@ import {
   initBudgetsWithSpent
 } from "@/stores/budgets.ts";
 import type {ApiSpending, Spending, SpendingPrev} from "@/models/models.ts";
-import {budgetsAndSpendingsRepository} from "@/stores/budgetSpendings.ts";
+import {budgetsAndSpendingsRepository} from "@/repository.ts";
 
 describe('dynamic_budgets', () => {
   beforeEach(() => {
