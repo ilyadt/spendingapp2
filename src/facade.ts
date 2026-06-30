@@ -1,12 +1,12 @@
 import { Uploader } from '@/api'
 import type { DelSpending, Spending } from '@/models/models'
-import { BudgetSpendingsStore } from '@/stores/budgetSpendings'
+import { budgetsAndSpendingsRepository } from '@/stores/budgetSpendings'
 import { budgetsWithSpentStore } from "@/stores/budgets.ts";
 
 class FacadeImpl {
   constructor(
     private readonly composite: CudSpending,
-    private readonly storage = BudgetSpendingsStore,
+    private readonly storage = budgetsAndSpendingsRepository,
   ) {}
 
   spendingsByBudgetId(bid: number): Spending[] {
@@ -58,6 +58,6 @@ const budgetsWithSpentFacade: CudSpending = {
   },
 }
 
-export const Composite = createComposite([BudgetSpendingsStore, Uploader, budgetsWithSpentFacade])
+const composite = createComposite([budgetsAndSpendingsRepository, Uploader, budgetsWithSpentFacade])
 
-export const Facade = new FacadeImpl(Composite, BudgetSpendingsStore)
+export const Facade = new FacadeImpl(composite, budgetsAndSpendingsRepository)

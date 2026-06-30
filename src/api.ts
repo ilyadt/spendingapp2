@@ -1,5 +1,5 @@
 import createClient from 'openapi-fetch'
-import { BudgetSpendingsStore } from '@/stores/budgetSpendings'
+import { budgetsAndSpendingsRepository } from '@/stores/budgetSpendings'
 import { useStatusStore } from '@/stores/status'
 import { useConflictVersionStore } from '@/stores/conflictVersions'
 import { v4 as uuidv4 } from 'uuid'
@@ -47,10 +47,10 @@ export const Fetcher = {
 
       status.setGetSpendingStatus('ok')
 
-      BudgetSpendingsStore.storeBudgetsFromRemote(data!.budgets)
+      budgetsAndSpendingsRepository.storeBudgetsFromRemote(data!.budgets)
 
       for (const apiSpsByBudget of data!.spendings) {
-        const revoked = BudgetSpendingsStore.storeSpendingsFromRemote(apiSpsByBudget.budgetId, apiSpsByBudget.spendings)
+        const revoked = budgetsAndSpendingsRepository.storeSpendingsFromRemote(apiSpsByBudget.budgetId, apiSpsByBudget.spendings)
 
         conflictVersions.add(...revoked)
       }
@@ -219,15 +219,14 @@ export const Uploader = {
     const { success, conflict, errors } = await this.sendEvents(events)
 
     // Помечаем все события во внешнем Storage
-    const spendingsStore = BudgetSpendingsStore
     const conflictVersion = useConflictVersionStore.getState()
 
     for (const ev of success) {
-      spendingsStore.setStatusApplied(ev.budgetId, ev.spendingId, ev.newVersion)
+      budgetsAndSpendingsRepository.setStatusApplied(ev.budgetId, ev.spendingId, ev.newVersion)
     }
 
     for (const ev of conflict) {
-      const conflictedVers = spendingsStore.revokeConflictVersion(ev.budgetId, ev.spendingId, ev.newVersion)
+      const conflictedVers = budgetsAndSpendingsRepository.revokeConflictVersion(ev.budgetId, ev.spendingId, ev.newVersion)
 
       for (const c of conflictedVers) {
         c.reason = errors.find(e => e.eventId == ev.eventId)?.error ?? null

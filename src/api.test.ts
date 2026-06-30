@@ -1,6 +1,6 @@
 import { test, describe, beforeEach, afterEach, expect, vi } from 'vitest'
 import { Fetcher, Uploader } from '@/api'
-import { BudgetSpendingsStore } from '@/stores/budgetSpendings'
+import { budgetsAndSpendingsRepository } from '@/stores/budgetSpendings'
 import { useStatusStore } from '@/stores/status'
 import { type ConflictSpendingVersion, useConflictVersionStore } from '@/stores/conflictVersions'
 import type {
@@ -85,9 +85,9 @@ describe('fetcher', () => {
         params: {},
       },
     ]
-    expect(BudgetSpendingsStore.getBudgets()).toEqual(exp)
+    expect(budgetsAndSpendingsRepository.getBudgets()).toEqual(exp)
 
-    expect(BudgetSpendingsStore.spendingsByBudgetId(1)).toEqual([])
+    expect(budgetsAndSpendingsRepository.spendingsByBudgetId(1)).toEqual([])
 
     const expSpB23: Spending[] = [
       {
@@ -104,13 +104,13 @@ describe('fetcher', () => {
       },
     ]
 
-    expect(BudgetSpendingsStore.spendingsByBudgetId(23)).toEqual(expSpB23)
-    expect(BudgetSpendingsStore.spendingsByBudgetId(25)).length(2)
+    expect(budgetsAndSpendingsRepository.spendingsByBudgetId(23)).toEqual(expSpB23)
+    expect(budgetsAndSpendingsRepository.spendingsByBudgetId(25)).length(2)
   })
 
   test('fetch_and_store:conflict', async () => {
-    BudgetSpendingsStore.storeBudgetsFromRemote([makeBudget(23)])
-    BudgetSpendingsStore.storeSpendingsFromRemote(23, [
+    budgetsAndSpendingsRepository.storeBudgetsFromRemote([makeBudget(23)])
+    budgetsAndSpendingsRepository.storeSpendingsFromRemote(23, [
       makeApiSpending({
         id: 'nHSPMxURHX',
         version: 'ver_server_1', // первая версия серверная
@@ -123,7 +123,7 @@ describe('fetcher', () => {
       }),
     ])
 
-    BudgetSpendingsStore.updateSpending(23, {
+    budgetsAndSpendingsRepository.updateSpending(23, {
       id: 'nHSPMxURHX',
       version: 'pending_2', // версия локальная
       prev: {version: 'ver_server_1', amount: 8500, currency: 'RUB', description: 'кофе'},
@@ -272,7 +272,7 @@ describe('updater', () => {
       },
     ]
     const mockSpendingsStore_revokeConflictVersion = vi
-      .spyOn(BudgetSpendingsStore, 'revokeConflictVersion')
+      .spyOn(budgetsAndSpendingsRepository, 'revokeConflictVersion')
       .mockReturnValue(conflictedVersions)
 
     vi.stubGlobal(
@@ -348,7 +348,7 @@ describe('updater', () => {
   test('uploader:delete', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const spyUuid = vi.spyOn(uuid, 'v4' as any).mockReturnValue('event_id_uuid_v4')
-    const spyStorageNotifyApplied = vi.spyOn(BudgetSpendingsStore, 'setStatusApplied')
+    const spyStorageNotifyApplied = vi.spyOn(budgetsAndSpendingsRepository, 'setStatusApplied')
 
     vi.stubGlobal(
       'fetch',

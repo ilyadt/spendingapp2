@@ -6,7 +6,7 @@ import {
   initBudgetsWithSpent
 } from "@/stores/budgets.ts";
 import type {ApiSpending, Spending, SpendingPrev} from "@/models/models.ts";
-import {BudgetSpendingsStore} from "@/stores/budgetSpendings.ts";
+import {budgetsAndSpendingsRepository} from "@/stores/budgetSpendings.ts";
 
 describe('dynamic_budgets', () => {
   beforeEach(() => {
@@ -18,7 +18,7 @@ describe('dynamic_budgets', () => {
   })
 
   test('with budgets and spendings', () => {
-    BudgetSpendingsStore.storeBudgetsFromRemote([
+    budgetsAndSpendingsRepository.storeBudgetsFromRemote([
       {
         id: 1,
         alias: "b1",
@@ -52,7 +52,7 @@ describe('dynamic_budgets', () => {
       },
     ])
 
-    BudgetSpendingsStore.storeSpendingsFromRemote(1, [
+    budgetsAndSpendingsRepository.storeSpendingsFromRemote(1, [
       makeApiSpending({id: 'sp1', money: {amount:  500_00, fraction: 2, currency: "RUB"}}),
       makeApiSpending({id: 'sp2', money: {amount: 1000_00, fraction: 2, currency: "RUB"}}),
     ])

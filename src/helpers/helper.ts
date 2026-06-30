@@ -6,6 +6,7 @@ import {alphanumeric} from "nanoid-dictionary";
 import type {NavLinkRenderProps} from "react-router";
 import clsx from "clsx/lite";
 import styles from "@/app/App.module.css";
+import type {BudgetWithSpent} from "@/stores/budgets.ts";
 
 export const genSpendingID = (): string => uuidv7()
 
@@ -103,4 +104,8 @@ export function receiptTotals(rows: SpendingRow[]): Record<RowId, Total> {
 
 export function navLinkClass({isActive}: NavLinkRenderProps): string {
   return clsx(styles.navLink, isActive && styles.active)
+}
+
+export function percentAmount(b: BudgetWithSpent) {
+  return Math.floor(b.amountSpent/b.amount * 100)
 }

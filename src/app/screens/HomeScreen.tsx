@@ -3,28 +3,22 @@ import {
   toMajorUnits
 } from '@/helpers/money'
 import {dateFormat, dateISO, daysLeft, percentPassed} from '@/helpers/date'
-import {type BudgetWithSpent} from "@/stores/budgets.ts";
-import {budgetsSortFn} from "@/helpers/helper.ts";
+import {budgetsSortFn, percentAmount} from "@/helpers/helper.ts";
 import {useContext} from "react";
 import {BudgetsContext} from "@/models/contexts.ts";
 
-export default function HomeScreen() {
-  const budgets = Object
-    .values(useContext(BudgetsContext))
-    .sort(budgetsSortFn)
+const buildCommit = import.meta.env.VITE_BUILD_COMMIT
 
-  function percentAmount(b: BudgetWithSpent) {
-    return Math.floor(b.amountSpent/b.amount * 100)
-  }
+export default function HomeScreen() {
+  const budgets = useContext(BudgetsContext)
 
   const todayDate = new Date(dateISO(new Date()))
-  const buildCommit = import.meta.env.VITE_BUILD_COMMIT
 
   return (
     <div className="container">
       <h1>Love you so much ♥{' '} <span style={{fontSize: 'small'}}> {buildCommit.slice(0, 7)} </span> </h1>
 
-      {budgets.map(b=> (
+      {Object.values(budgets).sort(budgetsSortFn).map(b=> (
         <div
           key={b.id}
           style={{

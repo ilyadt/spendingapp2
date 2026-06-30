@@ -115,7 +115,7 @@ function lsBudgetsKey(): string {
   return `${lsPrefix}:budgets`
 }
 
-export const BudgetSpendingsStore: BudgetSpendingsStoreInterface = {
+export const budgetsAndSpendingsRepository: BudgetSpendingsStoreInterface = {
   getBudgets(): Budget[] {
     const budgets: ApiBudget[] = JSON.parse(localStorage.getItem(lsBudgetsKey()) ?? '[]')
 
