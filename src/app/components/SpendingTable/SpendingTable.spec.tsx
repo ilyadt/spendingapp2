@@ -28,4 +28,12 @@ test('SpendingTable', async ({ mount, page }) => {
   await page.pause()
 
   await expect(page.getByRole('table')).toHaveScreenshot('table-edit-row.png');
+
+  const rowBox = await page.getByRole('table').getByRole('row').nth(1).boundingBox()
+  const formBox = await page.getByRole('form').getByRole('grid').boundingBox()
+
+  expect(rowBox).not.toBeNull()
+  expect(formBox).not.toBeNull()
+
+  expect(formBox!.height).toBe(rowBox!.height)
 });

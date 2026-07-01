@@ -74,17 +74,20 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
         <table
           role="grid"
           className={`table table-bordered table-sm align-middle ${styles.spDayTable} ${styles.modalTable}`}
-          style={{top: sp.rowIdx * 40 + 'px'}}
+          style={{
+            top: sp.rowIdx * 40 + 'px',
+            margin: 0,
+          }}
         >
           <SpTableColgroup crossBudget={crossBudget}/>
           <tbody>
-          <tr>
-            <td className="text-end">
+          <tr style={{borderTop: 0, borderBottom: 0}}>
+            <td>
               <input
                 autoFocus={isNew(sp)}
                 name="amount"
                 step="0.01"
-                className={`form-control cell-input ${moduleStyles.inputField}`}
+                className={`form-control cell-input ${moduleStyles.inputField} text-end`}
                 type="number"
                 defaultValue={toMajorUnits(sp.amount, sp.currency) || ''}
                 onKeyDown={onKeyDown}
