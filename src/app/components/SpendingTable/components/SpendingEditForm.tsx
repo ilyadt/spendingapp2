@@ -8,6 +8,7 @@ import {type KeyboardEvent, useContext, useRef} from "react";
 import {BudgetsContext} from "@/models/contexts.ts";
 import {budgetsSortFn} from "@/helpers/helper.ts";
 import styles from "../styles.module.css"
+import moduleStyles from "./SpendingEditForm.module.css"
 import SpTableColgroup from "./SpTableColgroup.tsx";
 import {createSpendingFormData, type SpendingFormData} from "@/app/components/SpendingTable/logic/spendingFormData.ts";
 
@@ -83,7 +84,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
                 autoFocus={isNew(sp)}
                 name="amount"
                 step="0.01"
-                className="form-control cell-input"
+                className={`form-control cell-input ${moduleStyles.inputField}`}
                 type="number"
                 defaultValue={toMajorUnits(sp.amount, sp.currency) || ''}
                 onKeyDown={onKeyDown}
@@ -92,7 +93,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
             <td>
               <input
                 name="description"
-                className="form-control cell-input"
+                className={`form-control cell-input ${moduleStyles.inputField}`}
                 defaultValue={sp.description}
                 onKeyDown={onKeyDown}
               />
@@ -100,8 +101,13 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
 
             {crossBudget && (
               <td>
-                <select name="budgetId" className="form-select cell-input" defaultValue={sp.budgetId}>
-                  <option key="0" value="0">бюджет</option>
+                <select
+                  name="budgetId"
+                  style={{backgroundImage: 'none'}}
+                  className={`form-select cell-input ${moduleStyles.inputField}`}
+                  defaultValue={sp.budgetId}
+                >
+                  <option key="0" value="0"></option>
                   {Object.values(budgets).sort(budgetsSortFn).map(b => (
                     <option key={b.id} value={b.id}>
                       {b.alias}: {formatAmount(b.amount - b.amountSpent, b.currency)}
