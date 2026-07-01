@@ -1,7 +1,6 @@
 import {beforeEach, describe, expect, test, vi} from 'vitest'
 import {
   type BudgetsWithSpentById,
-  budgetsWithSpentStore,
   createBudgetsWithSpentStore,
   initBudgetsWithSpent
 } from "@/stores/budgets.ts";
@@ -14,6 +13,8 @@ describe('dynamic_budgets', () => {
   })
 
   test('empty', () => {
+    const budgetsWithSpentStore = createBudgetsWithSpentStore(initBudgetsWithSpent())
+
     expect({}).toEqual(budgetsWithSpentStore.getState().budgets)
   })
 

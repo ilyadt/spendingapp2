@@ -9,7 +9,7 @@ import {type Ref, useContext, useImperativeHandle, useState} from "react";
 import {colorFromReceiptId, genRandInt, genReceiptId, receiptTotals} from "@/helpers/helper.ts";
 import styles from './styles.module.css'
 import useSpendingRows from "./logic/spendingRows.ts";
-import {BudgetsContext, SpendingsStoreActionsContext} from "@/models/contexts.ts";
+import {BudgetsContext, SpendingActionsContext} from "@/models/contexts.ts";
 import SpendingEditForm from "./components/SpendingEditForm.tsx";
 import SpTableColgroup from "./components/SpTableColgroup.tsx";
 import useTableGroupMode from "./logic/tableGroupMode.ts";
@@ -29,7 +29,7 @@ export type SpendingTableHandle = {
 
 export default function SpendingTable({date, budget, initSpendings, onEmpty, ref}: Props) {
   const budgets = useContext(BudgetsContext)
-  const spStoreActions = useContext(SpendingsStoreActionsContext)
+  const spStoreActions = useContext(SpendingActionsContext)
 
   const [spendings, spRowsActions] = useSpendingRows(initSpendings, onEmpty)
 

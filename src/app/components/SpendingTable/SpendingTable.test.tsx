@@ -4,7 +4,7 @@ import SpendingTable, {type SpendingTableHandle} from './SpendingTable'
 import {vi, describe, test, expect, beforeEach, afterEach} from 'vitest'
 import {
   BudgetsContext,
-  SpendingsStoreActionsContext
+  SpendingActionsContext
 } from "@/models/contexts.ts";
 import type {BudgetsWithSpentById, BudgetWithSpent} from "@/stores/budgets.ts";
 import type {Budget, Spending, SpendingRow} from "@/models/models.ts";
@@ -97,11 +97,11 @@ describe('SpendingTable', async () => {
     }
 
     render(
-      <SpendingsStoreActionsContext value={storeActions as SpendingsStoreActions}>
+      <SpendingActionsContext value={storeActions as SpendingsStoreActions}>
         <BudgetsContext value={budgetsById}>
           <SpendingTable date={new Date('2026-06-10')} initSpendings={[]}/>
         </BudgetsContext>
-      </SpendingsStoreActionsContext>
+      </SpendingActionsContext>
     )
 
     await user.click(screen.getByRole('button', {name: '+'}))
@@ -188,7 +188,7 @@ describe('SpendingTable', async () => {
     } as SpendingsStoreActions
 
     render(
-      <SpendingsStoreActionsContext value={storeActions}>
+      <SpendingActionsContext value={storeActions}>
         <BudgetsContext value={budgetsById}>
           <SpendingTable
             date={new Date('2026-06-10')}
@@ -209,7 +209,7 @@ describe('SpendingTable', async () => {
             ]}
           />
         </BudgetsContext>
-      </SpendingsStoreActionsContext>
+      </SpendingActionsContext>
     )
 
     const user = userEvent.setup()
@@ -332,11 +332,11 @@ describe('SpendingTable', async () => {
     const wrapper = createCudSpendingWrapper(cudMock)
 
     render(
-      <SpendingsStoreActionsContext value={wrapper}>
+      <SpendingActionsContext value={wrapper}>
         <BudgetsContext value={budgetsById}>
           <SpendingTable date={new Date('2026-06-10')} initSpendings={[sp1, sp2, sp3]} />
         </BudgetsContext>
-      </SpendingsStoreActionsContext>
+      </SpendingActionsContext>
     )
     let rows = within(screen.getByRole('table')).getAllByRole('row')
 

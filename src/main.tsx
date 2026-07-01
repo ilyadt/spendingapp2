@@ -4,10 +4,12 @@ import App from '@/app/App.tsx'
 import {Fetcher, Uploader} from "@/api.ts";
 import { HashRouter } from "react-router";
 import {createCudSpendingWrapper} from "./models/cudSpendingWrapper.ts";
-import {SpendingsStoreActionsContext} from "@/models/contexts.ts";
-import {Facade} from "@/facade.ts";
+import {SpendingActionsContext, SpendingsContext} from "@/models/contexts.ts";
+import {createComposite} from "@/facade.ts";
 import {BudgetsContextProvider} from "@/facilities/BudgetsContextProvider.tsx";
-import {budgetsWithSpentStore} from "@/stores/budgets.ts";
+import {createBudgetsWithSpentStore, initBudgetsWithSpent} from "@/stores/budgets.ts";
+import {budgetsAndSpendingsRepository} from "@/repository.ts";
+import {createSpendingsStore, type SpendingsByBudget} from "@/stores/spendings.ts";
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import '@/app/global.css'
@@ -15,14 +17,40 @@ import '@/app/global.css'
 await Fetcher.initAndStart()
 Uploader.init()
 
+const budgetsStore = createBudgetsWithSpentStore(initBudgetsWithSpent())
+
+export function spendingsByBudgetIds(bids: number[]): SpendingsByBudget {
+  const spByBid: SpendingsByBudget = {}
+  for (const bid of bids) {
+    spByBid[bid] = budgetsAndSpendingsRepository.spendingsByBudgetId(bid)
+  }
+
+  return spByBid
+}
+
+const spendingsStore = createSpendingsStore(
+  spendingsByBudgetIds(
+    Object.keys(budgetsStore.getState().budgets).map(Number)
+  )
+)
+
+const spActions = createComposite([
+  budgetsAndSpendingsRepository,
+  Uploader,
+  budgetsStore.getState(),
+  spendingsStore,
+])
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <SpendingsStoreActionsContext value={createCudSpendingWrapper(Facade)}>
-      <BudgetsContextProvider store={budgetsWithSpentStore}>
-        <HashRouter>
-          <App />
-        </HashRouter>
+    <SpendingActionsContext value={createCudSpendingWrapper(spActions)}>
+      <BudgetsContextProvider store={budgetsStore}>
+        <SpendingsContext value={spendingsStore}>
+          <HashRouter>
+            <App />
+          </HashRouter>
+        </SpendingsContext>
       </BudgetsContextProvider>
-    </SpendingsStoreActionsContext>
+    </SpendingActionsContext>
   </StrictMode>,
 )

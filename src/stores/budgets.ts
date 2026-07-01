@@ -60,4 +60,3 @@ export const createBudgetsWithSpentStore = (initBudgets: BudgetsWithSpentById) =
     )
   )
 
-export const budgetsWithSpentStore = createBudgetsWithSpentStore(initBudgetsWithSpent())

@@ -1,30 +1,4 @@
-import { Uploader } from '@/api'
 import type { DelSpending, Spending } from '@/models/models'
-import { budgetsAndSpendingsRepository } from '@/repository'
-import { budgetsWithSpentStore } from "@/stores/budgets.ts";
-
-class FacadeImpl {
-  constructor(
-    private readonly composite: CudSpending,
-    private readonly storage = budgetsAndSpendingsRepository,
-  ) {}
-
-  spendingsByBudgetId(bid: number): Spending[] {
-    return this.storage.spendingsByBudgetId(bid)
-  }
-
-  createSpending(bid: number, newSp: Spending): void {
-    this.composite.createSpending(bid, newSp)
-  }
-
-  updateSpending(bid: number, upd: Spending): void {
-    this.composite.updateSpending(bid, upd)
-  }
-
-  deleteSpending(bid: number, del: DelSpending): void {
-    this.composite.deleteSpending(bid, del)
-  }
-}
 
 export interface CudSpending {
   createSpending(bid: number, newSp: Spending): void
@@ -45,19 +19,3 @@ export function createComposite(subjects: CudSpending[]): CudSpending {
     },
   }
 }
-
-const budgetsWithSpentFacade: CudSpending = {
-  createSpending(bid: number, newSp: Spending): void {
-    budgetsWithSpentStore.getState().createSpending(bid, newSp)
-  },
-  deleteSpending(bid: number, del: DelSpending): void {
-    budgetsWithSpentStore.getState().deleteSpending(bid, del)
-  },
-  updateSpending(bid: number, upd: Spending): void {
-    budgetsWithSpentStore.getState().updateSpending(bid, upd)
-  },
-}
-
-const composite = createComposite([budgetsAndSpendingsRepository, Uploader, budgetsWithSpentFacade])
-
-export const Facade = new FacadeImpl(composite, budgetsAndSpendingsRepository)

@@ -6,20 +6,21 @@ import SpendingTable, {type SpendingTableHandle} from '../components/SpendingTab
 import styles from './BudgetScreen.module.css'
 import type {BudgetWithSpent} from "@/stores/budgets.ts";
 import useSpendingRowsByDate from "@/state/spendingRowsByDate.ts";
-import {Facade} from "@/facade.ts";
 import {createSpendingFormData} from "@/app/components/SpendingTable/logic/spendingFormData.ts";
 import {useContext, useRef} from "react";
 import {genRandInt} from "@/helpers/helper.ts";
-import {SpendingsStoreActionsContext} from "@/models/contexts.ts";
+import {SpendingsContext, SpendingActionsContext} from "@/models/contexts.ts";
 import type {SpendingRow} from "@/models/models.ts";
 
 export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
-  const spStoreActions = useContext(SpendingsStoreActionsContext)
-  const tableRefs = useRef<Record<string, SpendingTableHandle|null>>({})
+  const spendingsStore = useContext(SpendingsContext)
+  const spendingsActions = useContext(SpendingActionsContext)
 
   const [initSpendingsByDate, addSpendingRow, clearSpendings] = useSpendingRowsByDate({
-      [budget.id]: Facade.spendingsByBudgetId(budget.id)
+      [budget.id]: spendingsStore.spendingsByBudgetId(budget.id)
   })
+
+  const tableRefs = useRef<Record<string, SpendingTableHandle|null>>({})
 
   function onSubmitTopForm(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -42,7 +43,7 @@ export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
     const tbl = tableRefs?.current[dateStr]
 
     const newSpRow: SpendingRow = {
-      ...spStoreActions.createSpending(f.data, new Date()),
+      ...spendingsActions.createSpending(f.data, new Date()),
       rowId: genRandInt(),
       budgetId: budget.id,
     }

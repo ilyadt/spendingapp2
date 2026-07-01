@@ -1,7 +1,7 @@
 import {createCudSpendingWrapper} from "@/models/cudSpendingWrapper.ts";
 import {createComposite, type CudSpending} from "@/facade.ts";
 import {type BudgetsWithSpentById, createBudgetsWithSpentStore} from "@/stores/budgets.ts";
-import {SpendingsStoreActionsContext} from "@/models/contexts.ts";
+import {SpendingActionsContext} from "@/models/contexts.ts";
 import SpendingTable from "@/app/components/SpendingTable/SpendingTable.tsx";
 import type {SpendingRow} from "@/models/models.ts";
 import {BudgetsContextProvider} from "@/facilities/BudgetsContextProvider.tsx";
@@ -16,10 +16,10 @@ export function SpendingTableForTest({initBudgets, initSpendings}: Props) {
   const spActions: CudSpending = createComposite([budgetsStore.getState()])
 
   return (
-    <SpendingsStoreActionsContext value={createCudSpendingWrapper(spActions)}>
+    <SpendingActionsContext value={createCudSpendingWrapper(spActions)}>
       <BudgetsContextProvider store={budgetsStore}>
         <SpendingTable date={new Date('2026-06-24')} initSpendings={initSpendings} />
       </BudgetsContextProvider>
-    </SpendingsStoreActionsContext>
+    </SpendingActionsContext>
   )
 }
