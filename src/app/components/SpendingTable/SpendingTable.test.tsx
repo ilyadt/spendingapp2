@@ -11,10 +11,10 @@ import type {Budget, Spending, SpendingRow} from "@/models/models.ts";
 import * as helper from "@/helpers/helper"
 import {createRef} from "react";
 import {
-  createCudSpendingWrapper,
+  createSpendingActionsWrapper,
   type SpendingData,
-  type SpendingsStoreActions
-} from "@/models/cudSpendingWrapper.ts";
+  type WrappedSpendingActions
+} from "@/models/spendingActionsWrapper.ts";
 import type {SpendingActions} from "@/facade.ts";
 
 const NOW_TIME = new Date('2026-06-12T10:30:00Z')
@@ -97,7 +97,7 @@ describe('SpendingTable', async () => {
     }
 
     render(
-      <SpendingActionsContext value={storeActions as SpendingsStoreActions}>
+      <SpendingActionsContext value={storeActions as WrappedSpendingActions}>
         <BudgetsContext value={budgetsById}>
           <SpendingTable date={new Date('2026-06-10')} initSpendings={[]}/>
         </BudgetsContext>
@@ -185,7 +185,7 @@ describe('SpendingTable', async () => {
 
     const storeActions = {
       updateSpending: updateSpendingMock as unknown,
-    } as SpendingsStoreActions
+    } as WrappedSpendingActions
 
     render(
       <SpendingActionsContext value={storeActions}>
@@ -328,8 +328,8 @@ describe('SpendingTable', async () => {
       }
 
     const updateSpendingStore = vi.fn()
-    const cudMock = {updateSpending: updateSpendingStore as unknown} as SpendingActions
-    const wrapper = createCudSpendingWrapper(cudMock)
+    const spActionsMock = {updateSpending: updateSpendingStore as unknown} as SpendingActions
+    const wrapper = createSpendingActionsWrapper(spActionsMock)
 
     render(
       <SpendingActionsContext value={wrapper}>

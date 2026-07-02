@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from '@/app/App.tsx'
 import {Fetcher, Uploader} from "@/api.ts";
 import { HashRouter } from "react-router";
-import {createCudSpendingWrapper} from "./models/cudSpendingWrapper.ts";
+import {createSpendingActionsWrapper} from "./models/spendingActionsWrapper.ts";
 import {SpendingActionsContext, SpendingsContext} from "@/models/contexts.ts";
 import {composeSpActions} from "@/facade.ts";
 import {BudgetsContextProvider} from "@/facilities/BudgetsContextProvider.tsx";
@@ -43,7 +43,7 @@ const spActions = composeSpActions([
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <SpendingActionsContext value={createCudSpendingWrapper(spActions)}>
+    <SpendingActionsContext value={createSpendingActionsWrapper(spActions)}>
       <BudgetsContextProvider store={budgetsStore}>
         <SpendingsContext value={spendingsStore}>
           <HashRouter>

@@ -1,6 +1,6 @@
 import {it, expect, vi, afterEach, describe} from 'vitest'
 import type {Budget, DelSpending, Spending, SpendingRow} from "@/models/models.ts"
-import {createCudSpendingWrapper} from "./cudSpendingWrapper.ts";
+import {createSpendingActionsWrapper} from "./spendingActionsWrapper.ts";
 import * as helper from '@/helpers/helper.ts'
 import type {SpendingActions} from "@/facade.ts";
 
@@ -23,7 +23,7 @@ describe(() => {
     const date = new Date('2026-05-26')
     const createdAt = '2026-05-26T12:32:00'
 
-    const wrapper = createCudSpendingWrapper(spendingActions)
+    const wrapper = createSpendingActionsWrapper(spendingActions)
 
     const result = wrapper.saveSpendingChanges(
       {rowId: 666} as SpendingRow, // empty old spending
@@ -63,7 +63,7 @@ describe(() => {
     const date = new Date('2026-05-26')
     const updatedAt = new Date('2026-05-26T12:34:00')
 
-    const wrapper = createCudSpendingWrapper(spendingActions)
+    const wrapper = createSpendingActionsWrapper(spendingActions)
 
     const result = wrapper.saveSpendingChanges(
       {
@@ -130,7 +130,7 @@ describe(() => {
     const date = new Date('2026-05-26')
     const updatedAt = new Date('2026-05-26T12:36:00')
 
-    const wrapper = createCudSpendingWrapper(spendingActions)
+    const wrapper = createSpendingActionsWrapper(spendingActions)
 
     const result = wrapper.saveSpendingChanges(
       {

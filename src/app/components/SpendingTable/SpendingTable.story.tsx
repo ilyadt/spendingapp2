@@ -1,4 +1,4 @@
-import {createCudSpendingWrapper} from "@/models/cudSpendingWrapper.ts";
+import {createSpendingActionsWrapper} from "@/models/spendingActionsWrapper.ts";
 import {composeSpActions, type SpendingActions} from "@/facade.ts";
 import {type BudgetsWithSpentById, createBudgetsWithSpentStore} from "@/stores/budgets.ts";
 import {SpendingActionsContext} from "@/models/contexts.ts";
@@ -16,7 +16,7 @@ export function SpendingTableForTest({initBudgets, initSpendings}: Props) {
   const spActions: SpendingActions = composeSpActions([budgetsStore.getState()])
 
   return (
-    <SpendingActionsContext value={createCudSpendingWrapper(spActions)}>
+    <SpendingActionsContext value={createSpendingActionsWrapper(spActions)}>
       <BudgetsContextProvider store={budgetsStore}>
         <SpendingTable date={new Date('2026-06-24')} initSpendings={initSpendings} />
       </BudgetsContextProvider>
