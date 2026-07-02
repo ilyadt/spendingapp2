@@ -15,7 +15,7 @@ export interface ConflictSpendingVersion {
   reason: string | null
 }
 
-type ConflictVersionState = {
+export type ConflictVersionStoreApi = {
     conflictVersions: Record<SpVersionId, ConflictSpendingVersion>
 
     add: (...ver: ConflictSpendingVersion[]) => void
@@ -25,7 +25,7 @@ type ConflictVersionState = {
 }
 
 type StateWithPersist = StateCreator<
-  ConflictVersionState,
+  ConflictVersionStoreApi,
   [],
   [
     ['zustand/persist', unknown],

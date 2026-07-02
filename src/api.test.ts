@@ -17,10 +17,16 @@ vi.mock('uuid', () => ({ v4: vi.fn(() => 'mocked-uuid') }))
 
 describe('fetcher', () => {
   const budgetsAndSpendingsRepository = createBudgetsAndSpendingsRepository(localStorage)
-  const Fetcher = createFetcher(budgetsAndSpendingsRepository)
+  const Fetcher = createFetcher(
+    localStorage,
+    'http://localhost:3000',
+    budgetsAndSpendingsRepository,
+    useStatusStore.getState(),
+    useConflictVersionStore.getState(),
+  )
 
   beforeEach(() => {
-    clearLocalStorageByPrefix(Fetcher._lsFetcherPrefix)
+    localStorage.removeItem(Fetcher.lsUpdatedAtKey)
   })
 
   afterEach(() => {
@@ -30,22 +36,16 @@ describe('fetcher', () => {
   })
 
   test('fetch_and_store:initial', () => {
-    expect(Fetcher.isInitialized()).toBe(false)
-    expect(Fetcher.getUpdatedAt()).toBe(0)
+    expect(Fetcher.getUpdatedAt()).toBeFalsy()
   })
 
   test('fetch_and_store', async () => {
-    const mockResponse: Partial<Response> = {
-      ok: true,
+    const mockResponse = new Response(jsonResponse, {
       status: 200,
       headers: new Headers(),
-      text: async () => jsonResponse,
-    }
+    })
 
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(() => Promise.resolve(mockResponse)),
-    )
+    vi.spyOn(global, "fetch").mockResolvedValue(mockResponse);
 
     vi.useFakeTimers()
     vi.setSystemTime(777)
@@ -55,7 +55,6 @@ describe('fetcher', () => {
     const status = useStatusStore.getState()
     expect(status.statusGetSpendings).toBe('ok')
 
-    expect(Fetcher.isInitialized()).toBe(true)
     expect(Fetcher.getUpdatedAt()).toBe(777)
 
     expect(useConflictVersionStore.getState().conflictVersionsArr()).not.toEqual(

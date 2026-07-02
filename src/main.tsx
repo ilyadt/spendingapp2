@@ -13,10 +13,19 @@ import {composeSpActions, getAllBudgetsAndSpendings} from "@/helpers/helper.ts";
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import '@/app/global.css'
+import {useStatusStore} from "@/stores/status.ts";
+import {useConflictVersionStore} from "@/stores/conflictVersions.ts";
 
 const budgetsAndSpendingsRepository = createBudgetsAndSpendingsRepository(localStorage)
 
-const fetcher = createFetcher(budgetsAndSpendingsRepository)
+const fetcher = createFetcher(
+  localStorage,
+  import.meta.env.VITE_SERVER_URL,
+  budgetsAndSpendingsRepository,
+  useStatusStore.getState(),
+  useConflictVersionStore.getState(),
+)
+
 const uploader = createUploader(budgetsAndSpendingsRepository)
 
 await fetcher.initAndStart()

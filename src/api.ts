@@ -1,7 +1,7 @@
 import createClient from 'openapi-fetch'
 import {type BudgetsAndSpendingsRepository} from '@/repository'
-import { useStatusStore } from '@/stores/status'
-import { useConflictVersionStore } from '@/stores/conflictVersions'
+import {type StatusStoreApi, useStatusStore} from '@/stores/status'
+import {type ConflictVersionStoreApi, useConflictVersionStore} from '@/stores/conflictVersions'
 import { v4 as uuidv4 } from 'uuid'
 import { format } from 'date-fns'
 import type { Spending, ApiSpendingEvent, DelSpending, ApiUploadError, ApiSchemaPaths } from '@/models/models'
@@ -12,18 +12,20 @@ function createApiClient(baseUrl: string) {
 }
 
 // Получение бюджетов и расходов по ним
-export const createFetcher = (repo: BudgetsAndSpendingsRepository) => ({
-  _lsFetcherPrefix: 'fetcher',
-  get _lsFetcherUpdatedAt() {
-    return this._lsFetcherPrefix + ':lastUpdatedAt'
-  },
-
+export const createFetcher = (
+  ls: Storage,
+  serverUrl: string,
+  repo: BudgetsAndSpendingsRepository,
+  statusApi: StatusStoreApi,
+  conflictVersionsApi: ConflictVersionStoreApi,
+) => ({
+  lsUpdatedAtKey: 'fetcher:lastUpdatedAt',
   async initAndStart() {
     // Startup fetch data (no-blocking)
     const task = this.fetchAndStore()
 
     // Blocks on first run
-    if (!this.isInitialized()) {
+    if (!this.getUpdatedAt()) {
       await task
     }
 
@@ -32,9 +34,7 @@ export const createFetcher = (repo: BudgetsAndSpendingsRepository) => ({
   },
 
   async fetchAndStore() {
-    const client = createApiClient(import.meta.env.VITE_SERVER_URL)
-    const status = useStatusStore.getState()
-    const conflictVersions = useConflictVersionStore.getState()
+    const client = createApiClient(serverUrl)
 
     try {
       const { data, response } = await client.GET('/budgets/spendings', {
@@ -45,35 +45,26 @@ export const createFetcher = (repo: BudgetsAndSpendingsRepository) => ({
         throw new Error(`HTTP ${response.status}`)
       }
 
-      status.setGetSpendingStatus('ok')
+      statusApi.setGetSpendingStatus('ok')
 
       repo.storeBudgetsFromRemote(data!.budgets)
 
       for (const apiSpsByBudget of data!.spendings) {
         const revoked = repo.storeSpendingsFromRemote(apiSpsByBudget.budgetId, apiSpsByBudget.spendings)
 
-        conflictVersions.add(...revoked)
+        conflictVersionsApi.add(...revoked)
       }
 
-      this.setUpdatedAt(Date.now())
-    } catch (error: unknown) {
+      ls.setItem(this.lsUpdatedAtKey, String(Date.now()))
+    } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error))
 
-      status.setGetSpendingStatus(err.name + ' ' + err.message)
+      statusApi.setGetSpendingStatus(err.name + ' ' + err.message)
     }
   },
 
-  isInitialized(): boolean {
-    return this.getUpdatedAt() !== 0
-  },
-
   getUpdatedAt(): number {
-    const val = localStorage.getItem(this._lsFetcherUpdatedAt)
-    return val ? Number(val) : 0
-  },
-
-  setUpdatedAt(t: number) {
-    localStorage.setItem(this._lsFetcherUpdatedAt, String(t))
+    return Number(ls.getItem(this.lsUpdatedAtKey))
   },
 })
 

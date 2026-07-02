@@ -1,7 +1,7 @@
 import {create} from 'zustand'
 import {persist} from 'zustand/middleware'
 
-type StatusState = {
+export type StatusStoreApi = {
   statusGetSpendings: string
   statusUpdateSpendings: string
   pendingEvents: number
@@ -11,7 +11,7 @@ type StatusState = {
   setPendingEvents: (n: number) => void
 }
 
-export const useStatusStore = create<StatusState>()(
+export const useStatusStore = create<StatusStoreApi>()(
   persist(
     (set) => ({
       statusGetSpendings: '',
