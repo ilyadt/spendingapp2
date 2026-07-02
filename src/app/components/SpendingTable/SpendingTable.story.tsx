@@ -1,10 +1,10 @@
 import {createSpendingActionsWrapper} from "@/models/spendingActionsWrapper.ts";
-import {composeSpActions, type SpendingActions} from "@/facade.ts";
 import {type BudgetsWithSpentById, createBudgetsWithSpentStore} from "@/stores/budgets.ts";
 import {SpendingActionsContext} from "@/models/contexts.ts";
 import SpendingTable from "@/app/components/SpendingTable/SpendingTable.tsx";
-import type {SpendingRow} from "@/models/models.ts";
+import type {SpendingActions, SpendingRow} from "@/models/models.ts";
 import {BudgetsContextProvider} from "@/facilities/BudgetsContextProvider.tsx";
+import {composeSpActions} from "@/helpers/helper.ts";
 
 type Props = {
   initBudgets: BudgetsWithSpentById

@@ -1,5 +1,5 @@
-import type {SpendingActions} from "@/facade.ts";
-import type {DelSpending, Spending} from "@/models/models.ts";
+
+import type {DelSpending, Spending, SpendingActions} from "@/models/models.ts";
 
 export type SpendingsByBudget = Record<number, Spending[]>
 

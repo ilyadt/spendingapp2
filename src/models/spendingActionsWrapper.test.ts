@@ -1,8 +1,7 @@
 import {it, expect, vi, afterEach, describe} from 'vitest'
-import type {Budget, DelSpending, Spending, SpendingRow} from "@/models/models.ts"
+import type {Budget, DelSpending, Spending, SpendingActions, SpendingRow} from "@/models/models.ts"
 import {createSpendingActionsWrapper} from "./spendingActionsWrapper.ts";
 import * as helper from '@/helpers/helper.ts'
-import type {SpendingActions} from "@/facade.ts";
 
 afterEach(() => {
   vi.clearAllMocks()

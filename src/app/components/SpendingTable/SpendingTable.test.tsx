@@ -7,7 +7,7 @@ import {
   SpendingActionsContext
 } from "@/models/contexts.ts";
 import type {BudgetsWithSpentById, BudgetWithSpent} from "@/stores/budgets.ts";
-import type {Budget, Spending, SpendingRow} from "@/models/models.ts";
+import type {Budget, Spending, SpendingActions, SpendingRow} from "@/models/models.ts";
 import * as helper from "@/helpers/helper"
 import {createRef} from "react";
 import {
@@ -15,7 +15,6 @@ import {
   type SpendingData,
   type WrappedSpendingActions
 } from "@/models/spendingActionsWrapper.ts";
-import type {SpendingActions} from "@/facade.ts";
 
 const NOW_TIME = new Date('2026-06-12T10:30:00Z')
 

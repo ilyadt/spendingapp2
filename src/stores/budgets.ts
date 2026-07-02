@@ -1,7 +1,6 @@
 import {createStore, type StateCreator} from 'zustand'
 import { immer } from 'zustand/middleware/immer';
-import {type SpendingActions} from "@/facade.ts";
-import type {Budget, DelSpending, Spending} from "@/models/models.ts";
+import type {Budget, DelSpending, Spending, SpendingActions} from "@/models/models.ts";
 import { budgetsAndSpendingsRepository } from '@/repository'
 
 export type BudgetWithSpent = Budget & {

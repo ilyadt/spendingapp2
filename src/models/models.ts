@@ -1,5 +1,5 @@
 import {type Currency} from '@/helpers/money'
-import type { components, paths } from '@/models/oaschema'
+import type {components, paths} from '@/models/oaschema'
 
 export type ApiBudget = components['schemas']['Budget']
 export type ApiSpending = components['schemas']['Spending']
@@ -57,3 +57,11 @@ export interface Budget {
 }
 
 export type DelSpending = Pick<Spending, 'id' | 'version' | 'prev' | 'updatedAt'>
+
+export interface SpendingActions {
+  createSpending(bid: number, newSp: Spending): void
+
+  updateSpending(bid: number, upd: Spending): void
+
+  deleteSpending(bid: number, del: DelSpending): void
+}

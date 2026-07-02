@@ -5,7 +5,6 @@ import {Fetcher, Uploader} from "@/api.ts";
 import { HashRouter } from "react-router";
 import {createSpendingActionsWrapper} from "./models/spendingActionsWrapper.ts";
 import {SpendingActionsContext, SpendingsContext} from "@/models/contexts.ts";
-import {composeSpActions} from "@/facade.ts";
 import {BudgetsContextProvider} from "@/facilities/BudgetsContextProvider.tsx";
 import {createBudgetsWithSpentStore, initBudgetsWithSpent} from "@/stores/budgets.ts";
 import {budgetsAndSpendingsRepository} from "@/repository.ts";
@@ -13,6 +12,7 @@ import {createSpendingsStore, type SpendingsByBudget} from "@/stores/spendings.t
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import '@/app/global.css'
+import {composeSpActions} from "@/helpers/helper.ts";
 
 await Fetcher.initAndStart()
 Uploader.init()

@@ -1,4 +1,4 @@
-import type {Budget, SpendingRow} from "@/models/models.ts";
+import type {Budget, SpendingActions, SpendingRow} from "@/models/models.ts";
 import {daysFrom2000UTC} from "@/helpers/date.ts";
 import {v7 as uuidv7} from "uuid";
 import {customAlphabet} from "nanoid/non-secure";
@@ -108,4 +108,18 @@ export function navLinkClass({isActive}: NavLinkRenderProps): string {
 
 export function percentAmount(b: BudgetWithSpent) {
   return Math.floor(b.amountSpent/b.amount * 100)
+}
+
+export function composeSpActions(subjects: SpendingActions[]): SpendingActions {
+  return {
+    createSpending(bid, newSp) {
+      subjects.forEach(s => s.createSpending(bid, newSp))
+    },
+    updateSpending(bid, upd) {
+      subjects.forEach(s => s.updateSpending(bid, upd))
+    },
+    deleteSpending(bid, del) {
+      subjects.forEach(s => s.deleteSpending(bid, del))
+    },
+  }
 }

@@ -2,9 +2,9 @@ import {
   type Budget,
   isNew,
   type Spending,
+  type SpendingActions,
   type SpendingRow,
 } from "@/models/models.ts";
-import {type SpendingActions} from "@/facade.ts";
 import {genSpendingID, genVersion} from "@/helpers/helper.ts";
 
 export interface SpendingData {
