@@ -2,7 +2,7 @@ import {it, expect, vi, afterEach, describe} from 'vitest'
 import type {Budget, DelSpending, Spending, SpendingRow} from "@/models/models.ts"
 import {createCudSpendingWrapper} from "./cudSpendingWrapper.ts";
 import * as helper from '@/helpers/helper.ts'
-import type {CudSpending} from "@/facade.ts";
+import type {SpendingActions} from "@/facade.ts";
 
 afterEach(() => {
   vi.clearAllMocks()
@@ -10,7 +10,7 @@ afterEach(() => {
 })
 
 describe(() => {
-  const spendingActions: CudSpending = {
+  const spendingActions: SpendingActions = {
       createSpending: vi.fn(),
       updateSpending: vi.fn(),
       deleteSpending: vi.fn(),

@@ -4,7 +4,7 @@ import {
   type Spending,
   type SpendingRow,
 } from "@/models/models.ts";
-import {type CudSpending} from "@/facade.ts";
+import {type SpendingActions} from "@/facade.ts";
 import {genSpendingID, genVersion} from "@/helpers/helper.ts";
 
 export interface SpendingData {
@@ -18,7 +18,7 @@ export interface SpendingData {
 
 export type SpendingsStoreActions = ReturnType<typeof createCudSpendingWrapper>
 
-export function createCudSpendingWrapper(cud: CudSpending) {
+export function createCudSpendingWrapper(cud: SpendingActions) {
   const wrapper = {
     createSpending(data: SpendingData, createdAt: Date): Spending {
       const sp: Spending = {

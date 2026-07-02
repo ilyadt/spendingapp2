@@ -1,4 +1,4 @@
-import type {CudSpending} from "@/facade.ts";
+import type {SpendingActions} from "@/facade.ts";
 import type {DelSpending, Spending} from "@/models/models.ts";
 
 export type SpendingsByBudget = Record<number, Spending[]>
@@ -46,5 +46,5 @@ export const createSpendingsStore = (initSpendings: SpendingsByBudget) => {
 }
 
 // Checks Interface
-const _: CudSpending = createSpendingsStore({});
+const _: SpendingActions = createSpendingsStore({});
 void _

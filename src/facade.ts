@@ -1,12 +1,12 @@
 import type { DelSpending, Spending } from '@/models/models'
 
-export interface CudSpending {
+export interface SpendingActions {
   createSpending(bid: number, newSp: Spending): void
   updateSpending(bid: number, upd: Spending): void
   deleteSpending(bid: number, del: DelSpending): void
 }
 
-export function createComposite(subjects: CudSpending[]): CudSpending {
+export function composeSpActions(subjects: SpendingActions[]): SpendingActions {
   return {
     createSpending(bid, newSp) {
       subjects.forEach(s => s.createSpending(bid, newSp))

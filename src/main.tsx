@@ -5,7 +5,7 @@ import {Fetcher, Uploader} from "@/api.ts";
 import { HashRouter } from "react-router";
 import {createCudSpendingWrapper} from "./models/cudSpendingWrapper.ts";
 import {SpendingActionsContext, SpendingsContext} from "@/models/contexts.ts";
-import {createComposite} from "@/facade.ts";
+import {composeSpActions} from "@/facade.ts";
 import {BudgetsContextProvider} from "@/facilities/BudgetsContextProvider.tsx";
 import {createBudgetsWithSpentStore, initBudgetsWithSpent} from "@/stores/budgets.ts";
 import {budgetsAndSpendingsRepository} from "@/repository.ts";
@@ -34,7 +34,7 @@ const spendingsStore = createSpendingsStore(
   )
 )
 
-const spActions = createComposite([
+const spActions = composeSpActions([
   budgetsAndSpendingsRepository,
   Uploader,
   budgetsStore.getState(),

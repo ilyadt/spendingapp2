@@ -15,7 +15,7 @@ import {
   type SpendingData,
   type SpendingsStoreActions
 } from "@/models/cudSpendingWrapper.ts";
-import type {CudSpending} from "@/facade.ts";
+import type {SpendingActions} from "@/facade.ts";
 
 const NOW_TIME = new Date('2026-06-12T10:30:00Z')
 
@@ -328,7 +328,7 @@ describe('SpendingTable', async () => {
       }
 
     const updateSpendingStore = vi.fn()
-    const cudMock = {updateSpending: updateSpendingStore as unknown} as CudSpending
+    const cudMock = {updateSpending: updateSpendingStore as unknown} as SpendingActions
     const wrapper = createCudSpendingWrapper(cudMock)
 
     render(

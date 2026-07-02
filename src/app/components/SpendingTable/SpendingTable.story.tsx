@@ -1,5 +1,5 @@
 import {createCudSpendingWrapper} from "@/models/cudSpendingWrapper.ts";
-import {createComposite, type CudSpending} from "@/facade.ts";
+import {composeSpActions, type SpendingActions} from "@/facade.ts";
 import {type BudgetsWithSpentById, createBudgetsWithSpentStore} from "@/stores/budgets.ts";
 import {SpendingActionsContext} from "@/models/contexts.ts";
 import SpendingTable from "@/app/components/SpendingTable/SpendingTable.tsx";
@@ -13,7 +13,7 @@ type Props = {
 
 export function SpendingTableForTest({initBudgets, initSpendings}: Props) {
   const budgetsStore = createBudgetsWithSpentStore(initBudgets)
-  const spActions: CudSpending = createComposite([budgetsStore.getState()])
+  const spActions: SpendingActions = composeSpActions([budgetsStore.getState()])
 
   return (
     <SpendingActionsContext value={createCudSpendingWrapper(spActions)}>
