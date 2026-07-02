@@ -1,42 +1,35 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from '@/app/App.tsx'
-import {Fetcher, Uploader} from "@/api.ts";
+import {createFetcher, createUploader} from "@/api.ts";
 import { HashRouter } from "react-router";
 import {createSpendingActionsWrapper} from "./models/spendingActionsWrapper.ts";
 import {SpendingActionsContext, SpendingsContext} from "@/models/contexts.ts";
 import {BudgetsContextProvider} from "@/facilities/BudgetsContextProvider.tsx";
-import {createBudgetsWithSpentStore, initBudgetsWithSpent} from "@/stores/budgets.ts";
-import {budgetsAndSpendingsRepository} from "@/repository.ts";
-import {createSpendingsStore, type SpendingsByBudget} from "@/stores/spendings.ts";
+import {createBudgetsWithSpentStore} from "@/stores/budgets.ts";
+import {createBudgetsAndSpendingsRepository} from "@/repository.ts";
+import {createSpendingsStore} from "@/stores/spendings.ts";
+import {composeSpActions, getAllBudgetsAndSpendings} from "@/helpers/helper.ts";
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import '@/app/global.css'
-import {composeSpActions} from "@/helpers/helper.ts";
 
-await Fetcher.initAndStart()
-Uploader.init()
+const budgetsAndSpendingsRepository = createBudgetsAndSpendingsRepository(localStorage)
 
-const budgetsStore = createBudgetsWithSpentStore(initBudgetsWithSpent())
+const fetcher = createFetcher(budgetsAndSpendingsRepository)
+const uploader = createUploader(budgetsAndSpendingsRepository)
 
-export function spendingsByBudgetIds(bids: number[]): SpendingsByBudget {
-  const spByBid: SpendingsByBudget = {}
-  for (const bid of bids) {
-    spByBid[bid] = budgetsAndSpendingsRepository.spendingsByBudgetId(bid)
-  }
+await fetcher.initAndStart()
+uploader.init()
 
-  return spByBid
-}
+const {budgetsById, spendingsByBid} = getAllBudgetsAndSpendings(budgetsAndSpendingsRepository)
 
-const spendingsStore = createSpendingsStore(
-  spendingsByBudgetIds(
-    Object.keys(budgetsStore.getState().budgets).map(Number)
-  )
-)
+const budgetsStore = createBudgetsWithSpentStore(budgetsById)
+const spendingsStore = createSpendingsStore(spendingsByBid)
 
 const spActions = composeSpActions([
   budgetsAndSpendingsRepository,
-  Uploader,
+  uploader,
   budgetsStore.getState(),
   spendingsStore,
 ])

@@ -1,11 +1,6 @@
 import {beforeEach, describe, expect, test, vi} from 'vitest'
-import {
-  type BudgetsWithSpentById,
-  createBudgetsWithSpentStore,
-  initBudgetsWithSpent
-} from "@/stores/budgets.ts";
-import type {ApiSpending, Spending, SpendingPrev} from "@/models/models.ts";
-import {budgetsAndSpendingsRepository} from "@/repository.ts";
+import {type BudgetsWithSpentById, createBudgetsWithSpentStore} from "@/stores/budgets.ts";
+import type {Spending, SpendingPrev} from "@/models/models.ts";
 
 describe('dynamic_budgets', () => {
   beforeEach(() => {
@@ -13,52 +8,39 @@ describe('dynamic_budgets', () => {
   })
 
   test('empty', () => {
-    const budgetsWithSpentStore = createBudgetsWithSpentStore(initBudgetsWithSpent())
+    const budgetsWithSpentStore = createBudgetsWithSpentStore({})
 
     expect({}).toEqual(budgetsWithSpentStore.getState().budgets)
   })
 
   test('with budgets and spendings', () => {
-    budgetsAndSpendingsRepository.storeBudgetsFromRemote([
-      {
+    const dynamicBudgetsStore = createBudgetsWithSpentStore({
+      1: {
         id: 1,
         alias: "b1",
         name: "for love",
         sort: 11,
-        money: {
-          amount: 10_000_00,
-          fraction: 2,
-          currency: "RUB"
-        },
-        dateFrom: "2026-04-20",
-        dateTo: "2026-04-30",
-        params: {}
+        amount: 10_000_00,
+        currency: "RUB",
+        dateFrom: new Date("2026-04-20"),
+        dateTo: new Date("2026-04-30"),
+        params: {},
+        amountSpent: 1500_00,
       },
-      {
+      2: {
         id: 2,
         alias: "b2",
         name: "for pleasure",
         description: 'барчикс',
         sort: 22,
-        money: {
-          amount: 2000_00,
-          fraction: 2,
-          currency: "RUB"
-        },
-        dateFrom: "2026-04-01",
-        dateTo: "2026-04-22",
-        params: {
-          perDate: true,
-        }
+        amount: 2000_00,
+        currency: "RUB",
+        dateFrom: new Date("2026-04-01"),
+        dateTo: new Date("2026-04-22"),
+        params: {perDate: true},
+        amountSpent: 0,
       },
-    ])
-
-    budgetsAndSpendingsRepository.storeSpendingsFromRemote(1, [
-      makeApiSpending({id: 'sp1', money: {amount:  500_00, fraction: 2, currency: "RUB"}}),
-      makeApiSpending({id: 'sp2', money: {amount: 1000_00, fraction: 2, currency: "RUB"}}),
-    ])
-
-    const dynamicBudgetsStore = createBudgetsWithSpentStore(initBudgetsWithSpent())
+    })
 
     const listener = vi.fn()
 
@@ -119,21 +101,6 @@ describe('dynamic_budgets', () => {
     expect(dynamicBudgetsStore.getState().budgets[1].amountSpent).toEqual(600_00)
   })
 })
-
-
-function makeApiSpending(sp: Partial<ApiSpending>): ApiSpending {
-  return {
-    id: sp.id ?? '',
-    date: sp.date ?? '',
-    sort: sp.sort ?? 0,
-    money: sp.money ?? {amount: 0, fraction: 0, currency: ''},
-    description: sp.description ?? '',
-    createdAt: sp.createdAt ?? '',
-    updatedAt: sp.updatedAt ?? '',
-    version: sp.version ?? '',
-    versions: sp.versions ?? [],
-  }
-}
 
 function makeSpending(sp: Partial<Spending>): Spending {
   return {

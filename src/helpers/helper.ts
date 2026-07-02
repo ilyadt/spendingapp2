@@ -6,7 +6,9 @@ import {alphanumeric} from "nanoid-dictionary";
 import type {NavLinkRenderProps} from "react-router";
 import clsx from "clsx/lite";
 import styles from "@/app/App.module.css";
-import type {BudgetWithSpent} from "@/stores/budgets.ts";
+import type {BudgetsWithSpentById, BudgetWithSpent} from "@/stores/budgets.ts";
+import type {SpendingsByBudget} from "@/stores/spendings.ts";
+import type {BudgetsAndSpendingsRepository} from "@/repository.ts";
 
 export const genSpendingID = (): string => uuidv7()
 
@@ -122,4 +124,30 @@ export function composeSpActions(subjects: SpendingActions[]): SpendingActions {
       subjects.forEach(s => s.deleteSpending(bid, del))
     },
   }
+}
+
+type BudgetsAndSpendings = {
+  budgetsById: BudgetsWithSpentById
+  spendingsByBid: SpendingsByBudget
+}
+
+// TODO: write test
+export function getAllBudgetsAndSpendings(repo: BudgetsAndSpendingsRepository): BudgetsAndSpendings {
+  const budgets = repo.getBudgets()
+
+  const spendingsByBid: SpendingsByBudget = {}
+  const budgetsById: BudgetsWithSpentById = {}
+
+  for (const b of budgets) {
+    const spendings = repo.spendingsByBudgetId(b.id)
+
+    spendingsByBid[b.id] = spendings
+
+    budgetsById[b.id] = {
+      ...b,
+      amountSpent: spendings.reduce((sum, sp) => sum + sp.amount, 0),
+    }
+  }
+
+  return {budgetsById, spendingsByBid}
 }

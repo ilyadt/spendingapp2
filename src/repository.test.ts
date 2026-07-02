@@ -1,9 +1,11 @@
 import { test, expect, describe, beforeEach, vi } from 'vitest'
 
 import type {ApiBudget, ApiMoney, ApiSpending, Budget, Spending} from '@/models/models'
-import { budgetsAndSpendingsRepository, VersionStatus, _test, formatVersionPayload, type SpendingVersion } from '@/repository'
+import { createBudgetsAndSpendingsRepository, VersionStatus, _test, formatVersionPayload, type SpendingVersion } from '@/repository'
 
 describe('storage_test', () => {
+  const budgetsAndSpendingsRepository = createBudgetsAndSpendingsRepository(localStorage)
+
   beforeEach(() => {
     clearLocalStorageByPrefix(_test.lsPrefix)
   })

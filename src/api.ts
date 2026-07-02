@@ -1,5 +1,5 @@
 import createClient from 'openapi-fetch'
-import { budgetsAndSpendingsRepository } from '@/repository'
+import {type BudgetsAndSpendingsRepository} from '@/repository'
 import { useStatusStore } from '@/stores/status'
 import { useConflictVersionStore } from '@/stores/conflictVersions'
 import { v4 as uuidv4 } from 'uuid'
@@ -12,7 +12,7 @@ function createApiClient(baseUrl: string) {
 }
 
 // Получение бюджетов и расходов по ним
-export const Fetcher = {
+export const createFetcher = (repo: BudgetsAndSpendingsRepository) => ({
   _lsFetcherPrefix: 'fetcher',
   get _lsFetcherUpdatedAt() {
     return this._lsFetcherPrefix + ':lastUpdatedAt'
@@ -47,10 +47,10 @@ export const Fetcher = {
 
       status.setGetSpendingStatus('ok')
 
-      budgetsAndSpendingsRepository.storeBudgetsFromRemote(data!.budgets)
+      repo.storeBudgetsFromRemote(data!.budgets)
 
       for (const apiSpsByBudget of data!.spendings) {
-        const revoked = budgetsAndSpendingsRepository.storeSpendingsFromRemote(apiSpsByBudget.budgetId, apiSpsByBudget.spendings)
+        const revoked = repo.storeSpendingsFromRemote(apiSpsByBudget.budgetId, apiSpsByBudget.spendings)
 
         conflictVersions.add(...revoked)
       }
@@ -75,9 +75,9 @@ export const Fetcher = {
   setUpdatedAt(t: number) {
     localStorage.setItem(this._lsFetcherUpdatedAt, String(t))
   },
-}
+})
 
-export const Uploader = {
+export const createUploader = (repo: BudgetsAndSpendingsRepository) => ({
   _lsEventsKey: 'updater:events',
   _events: [] as ApiSpendingEvent[],
 
@@ -222,11 +222,11 @@ export const Uploader = {
     const conflictVersion = useConflictVersionStore.getState()
 
     for (const ev of success) {
-      budgetsAndSpendingsRepository.setStatusApplied(ev.budgetId, ev.spendingId, ev.newVersion)
+      repo.setStatusApplied(ev.budgetId, ev.spendingId, ev.newVersion)
     }
 
     for (const ev of conflict) {
-      const conflictedVers = budgetsAndSpendingsRepository.revokeConflictVersion(ev.budgetId, ev.spendingId, ev.newVersion)
+      const conflictedVers = repo.revokeConflictVersion(ev.budgetId, ev.spendingId, ev.newVersion)
 
       for (const c of conflictedVers) {
         c.reason = errors.find(e => e.eventId == ev.eventId)?.error ?? null
@@ -263,4 +263,4 @@ export const Uploader = {
 
     return this._events
   },
-}
+})

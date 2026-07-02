@@ -1,6 +1,6 @@
 import { test, describe, beforeEach, afterEach, expect, vi } from 'vitest'
-import { Fetcher, Uploader } from '@/api'
-import { budgetsAndSpendingsRepository } from '@/repository'
+import { createFetcher, createUploader } from '@/api'
+import {createBudgetsAndSpendingsRepository} from '@/repository'
 import { useStatusStore } from '@/stores/status'
 import { type ConflictSpendingVersion, useConflictVersionStore } from '@/stores/conflictVersions'
 import type {
@@ -16,6 +16,9 @@ import * as uuid from 'uuid'
 vi.mock('uuid', () => ({ v4: vi.fn(() => 'mocked-uuid') }))
 
 describe('fetcher', () => {
+  const budgetsAndSpendingsRepository = createBudgetsAndSpendingsRepository(localStorage)
+  const Fetcher = createFetcher(budgetsAndSpendingsRepository)
+
   beforeEach(() => {
     clearLocalStorageByPrefix(Fetcher._lsFetcherPrefix)
   })
@@ -172,6 +175,9 @@ describe('fetcher', () => {
 })
 
 describe('updater', () => {
+  const budgetsAndSpendingsRepository = createBudgetsAndSpendingsRepository(localStorage)
+  const Uploader = createUploader(budgetsAndSpendingsRepository)
+
   beforeEach(() => {
     clearLocalStorageByPrefix(Uploader._lsEventsKey)
   })

@@ -1,7 +1,6 @@
 import {createStore, type StateCreator} from 'zustand'
 import { immer } from 'zustand/middleware/immer';
 import type {Budget, DelSpending, Spending, SpendingActions} from "@/models/models.ts";
-import { budgetsAndSpendingsRepository } from '@/repository'
 
 export type BudgetWithSpent = Budget & {
   amountSpent: number
@@ -34,23 +33,6 @@ export const budgetsWithSpentStateCreator = (initBudgets: BudgetsWithSpentById):
       })
     },
   })
-
-export const initBudgetsWithSpent = (): BudgetsWithSpentById => {
-  const budgets = budgetsAndSpendingsRepository.getBudgets()
-
-  const result: BudgetsWithSpentById = {}
-
-  for (const b of budgets) {
-    const spendings = budgetsAndSpendingsRepository.spendingsByBudgetId(b.id)
-
-    result[b.id] = {
-      ...b,
-      amountSpent: spendings.reduce((sum, sp) => sum + sp.amount, 0),
-    }
-  }
-
-  return result
-}
 
 export const createBudgetsWithSpentStore = (initBudgets: BudgetsWithSpentById) =>
   createStore<BudgetsStore>()(
