@@ -39,70 +39,10 @@ export interface SpendingVersion {
   receiptId?: number // объединение в один чек в рамках одного дня
 }
 
-const SpendingVersionProto = {
-  // Final status
-  isFinal(this: SpendingVersion): boolean {
-    return this.deleted == true
-  },
-}
-
-function withProto(obj: SpendingVersion): SpendingVersion & typeof SpendingVersionProto {
-  return Object.setPrototypeOf(obj, SpendingVersionProto)
-}
-
 interface SpendingVersioned {
   id: string
   createdAt: Date
   versions: SpendingVersion[]
-}
-
-interface BudgetSpendingsStoreInterface {
-  // -----------------------------------------------------------------
-  // Методы получения данных из стора
-
-  getBudgets(): Budget[]
-  spendingsByBudgetId(bid: number): Spending[]
-
-  // -----------------------------------------------------------------
-
-  // Синхронные методы, используемые UI для манипуляции с Spending ДО всякого взаимодействия с беком
-  // Они должны отрабатывать без ошибок. В случае ошибки не давать пользователю сохранять действие
-
-  /**
-   * Creates a new spending.
-   * @throws Error if already there
-   */
-  createSpending(bid: number, sp: Spending): void
-
-  /**
-   * @throws Error if not exist / cannot be applied
-   */
-  updateSpending(bid: number, sp: Spending): void
-
-  // Silently skips if not there
-  // fields: id, version, prevVersion, updatedAt / deletedAt /,
-  // @throws Error if not exist / cannot be applied
-  deleteSpending(bid: number, sp: Spending): void
-
-  // -----------------------------------------------------------------
-
-  // Методы, синхронизации с беком
-
-  // Железная логика по сохранению бюджетов (перетирание всех данных по бюджету, даже spendings)
-  // (если бюджет исчез, то предполагается, что в него никак нельзя добавить данные, поэтому все pending Spending's будут нерелевантны)
-  // в дальнейшем можно предусмотреть возвращение удаленных Pending
-  storeBudgetsFromRemote(bs: ApiBudget[]): void
-
-  // Поэлементное spendingID, сравнение текущих данных и новых.
-  // Новые данные имеют точку правды, все несоответствующие pending переносятся в <Error Storage>.
-  storeSpendingsFromRemote(bid: number, sps: ApiSpending[]): ConflictSpendingVersion[]
-
-  // После доставки обновления на бек изменяем статус версии в Storage
-  setStatusApplied(bid: number, spId: string, version: string): void
-
-  // Если произошел конфликт обновления (обновление не может быть применено), то удаляем эту версию из Storage,
-  // возвращая удаленные (не примененные) версии
-  revokeConflictVersion(bid: number, spId: string, version: string): ConflictSpendingVersion[]
 }
 
 const lsPrefix = 'storageV2'
@@ -115,7 +55,9 @@ function lsBudgetsKey(): string {
   return `${lsPrefix}:budgets`
 }
 
-export const budgetsAndSpendingsRepository: BudgetSpendingsStoreInterface = {
+export const budgetsAndSpendingsRepository = {
+  // -----------------------------------------------------------------
+  // Методы получения данных из стора
   getBudgets(): Budget[] {
     const budgets: ApiBudget[] = JSON.parse(localStorage.getItem(lsBudgetsKey()) ?? '[]')
 
@@ -132,7 +74,6 @@ export const budgetsAndSpendingsRepository: BudgetSpendingsStoreInterface = {
       params: apib.params,
     }))
   },
-
   spendingsByBudgetId(bid: number): Spending[] {
     const fromStore: SpendingVersioned[] = JSON.parse(localStorage.getItem(lsSpendingsKey(bid)) || '[]')
 
@@ -162,6 +103,13 @@ export const budgetsAndSpendingsRepository: BudgetSpendingsStoreInterface = {
     return res
   },
 
+  // -----------------------------------------------------------------
+  // Синхронные методы, используемые UI для манипуляции с Spending ДО всякого взаимодействия с беком
+  // Они должны отрабатывать без ошибок. В случае ошибки не давать пользователю сохранять действие
+
+  /**
+   * @throws Error if already there
+   */
   createSpending(bid: number, newSp: Spending): void {
     assertBudget(bid)
 
@@ -198,6 +146,9 @@ export const budgetsAndSpendingsRepository: BudgetSpendingsStoreInterface = {
     localStorage.setItem(lsSpendingsKey(bid), JSON.stringify(spendingsFromLS))
   },
 
+  /**
+   * @throws Error if not exist / cannot be applied
+   */
   updateSpending(bid: number, upd: Spending): void {
     assertBudget(bid)
 
@@ -209,9 +160,9 @@ export const budgetsAndSpendingsRepository: BudgetSpendingsStoreInterface = {
       throw new Error('spending not found')
     }
 
-    const lastVer = withProto(sp.versions.at(-1)!)
+    const lastVer = sp.versions.at(-1)!
 
-    if (lastVer.isFinal()) {
+    if (isFinal(lastVer)) {
       throw new Error('spending cannot be changed')
     }
 
@@ -234,6 +185,9 @@ export const budgetsAndSpendingsRepository: BudgetSpendingsStoreInterface = {
     localStorage.setItem(lsSpendingsKey(bid), JSON.stringify(fromStore))
   },
 
+  // Silently skips if not there
+  // fields: id, version, prevVersion, updatedAt / deletedAt /,
+  // @throws Error if not exist / cannot be applied
   deleteSpending(bid: number, del: DelSpending): void {
     assertBudget(bid)
 
@@ -244,9 +198,9 @@ export const budgetsAndSpendingsRepository: BudgetSpendingsStoreInterface = {
       throw new Error('spending not found')
     }
 
-    const lastVer = withProto(sp.versions.at(-1)!)
+    const lastVer = sp.versions.at(-1)!
 
-    if (lastVer.isFinal()) {
+    if (isFinal(lastVer)) {
       throw new Error('spending cannot be changed')
     }
 
@@ -264,6 +218,12 @@ export const budgetsAndSpendingsRepository: BudgetSpendingsStoreInterface = {
     localStorage.setItem(lsSpendingsKey(bid), JSON.stringify(fromStore))
   },
 
+  // -----------------------------------------------------------------
+  // Методы, синхронизации с беком
+
+  // Железная логика по сохранению бюджетов (перетирание всех данных по бюджету, даже spendings)
+  // (если бюджет исчез, то предполагается, что в него никак нельзя добавить данные, поэтому все pending Spending's будут нерелевантны)
+  // в дальнейшем можно предусмотреть возвращение удаленных Pending
   storeBudgetsFromRemote(budgets: ApiBudget[]): void {
     budgets.sort((b1, b2) => b1.id - b2.id)
 
@@ -282,7 +242,9 @@ export const budgetsAndSpendingsRepository: BudgetSpendingsStoreInterface = {
     localStorage.setItem(lsBudgetsKey(), JSON.stringify(budgets))
   },
 
- storeSpendingsFromRemote(bid: number, remoteSps: ApiSpending[]): ConflictSpendingVersion[] {
+  // Поэлементное spendingID, сравнение текущих данных и новых.
+  // Новые данные имеют точку правды, все несоответствующие pending переносятся в <Error Storage>.
+  storeSpendingsFromRemote(bid: number, remoteSps: ApiSpending[]): ConflictSpendingVersion[] {
     assertBudget(bid)
 
     const localSps: SpendingVersioned[] = JSON.parse(localStorage.getItem(lsSpendingsKey(bid)) ?? '[]')
@@ -361,6 +323,7 @@ export const budgetsAndSpendingsRepository: BudgetSpendingsStoreInterface = {
     return revoked
   },
 
+  // После доставки обновления на бек изменяем статус версии в Storage
   setStatusApplied(bid: number, spId: string, version: string): void {
     const fromStore: SpendingVersioned[] = JSON.parse(localStorage.getItem(lsSpendingsKey(bid)) ?? '[]')
 
@@ -382,6 +345,8 @@ export const budgetsAndSpendingsRepository: BudgetSpendingsStoreInterface = {
     localStorage.setItem(lsSpendingsKey(bid), JSON.stringify(fromStore))
   },
 
+  // Если произошел конфликт обновления (обновление не может быть применено), то удаляем эту версию из Storage,
+  // возвращая удаленные (не примененные) версии
   revokeConflictVersion(bid: number, spId: string, version: string): ConflictSpendingVersion[] {
     let fromStore: SpendingVersioned[] = JSON.parse(localStorage.getItem(lsSpendingsKey(bid)) ?? '[]')
 
@@ -467,6 +432,11 @@ export function makeConflictVersions(
   }
 
   return revoked
+}
+
+// Final status
+function isFinal(spVersion: SpendingVersion): boolean {
+  return spVersion.deleted == true
 }
 
 export function formatVersionPayload(ver?: SpendingVersion): string | null {
