@@ -175,7 +175,13 @@ describe('fetcher', () => {
 
 describe('updater', () => {
   const budgetsAndSpendingsRepository = createBudgetsAndSpendingsRepository(localStorage)
-  const Uploader = createUploader(budgetsAndSpendingsRepository)
+  const Uploader = createUploader(
+    localStorage,
+    'http://localhost:3000',
+    budgetsAndSpendingsRepository,
+    useStatusStore.getState(),
+    useConflictVersionStore.getState(),
+  )
 
   beforeEach(() => {
     clearLocalStorageByPrefix(Uploader._lsEventsKey)

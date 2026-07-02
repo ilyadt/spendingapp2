@@ -18,15 +18,23 @@ import {useConflictVersionStore} from "@/stores/conflictVersions.ts";
 
 const budgetsAndSpendingsRepository = createBudgetsAndSpendingsRepository(localStorage)
 
+const serverUrl = import.meta.env.VITE_SERVER_URL
+
 const fetcher = createFetcher(
   localStorage,
-  import.meta.env.VITE_SERVER_URL,
+  serverUrl,
   budgetsAndSpendingsRepository,
   useStatusStore.getState(),
   useConflictVersionStore.getState(),
 )
 
-const uploader = createUploader(budgetsAndSpendingsRepository)
+const uploader = createUploader(
+  localStorage,
+  serverUrl,
+  budgetsAndSpendingsRepository,
+  useStatusStore.getState(),
+  useConflictVersionStore.getState(),
+)
 
 await fetcher.initAndStart()
 uploader.init()

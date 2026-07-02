@@ -1,15 +1,11 @@
 import createClient from 'openapi-fetch'
 import {type BudgetsAndSpendingsRepository} from '@/repository'
-import {type StatusStoreApi, useStatusStore} from '@/stores/status'
-import {type ConflictVersionStoreApi, useConflictVersionStore} from '@/stores/conflictVersions'
+import {type StatusStoreApi} from '@/stores/status'
+import {type ConflictVersionStoreApi} from '@/stores/conflictVersions'
 import { v4 as uuidv4 } from 'uuid'
 import { format } from 'date-fns'
 import type { Spending, ApiSpendingEvent, DelSpending, ApiUploadError, ApiSchemaPaths } from '@/models/models'
 import {currencyFraction} from "@/helpers/money.ts";
-
-function createApiClient(baseUrl: string) {
-  return createClient<ApiSchemaPaths>({ baseUrl: baseUrl })
-}
 
 // Получение бюджетов и расходов по ним
 export const createFetcher = (
@@ -34,7 +30,7 @@ export const createFetcher = (
   },
 
   async fetchAndStore() {
-    const client = createApiClient(serverUrl)
+    const client = createClient<ApiSchemaPaths>({ baseUrl: serverUrl })
 
     try {
       const { data, response } = await client.GET('/budgets/spendings', {
@@ -68,7 +64,13 @@ export const createFetcher = (
   },
 })
 
-export const createUploader = (repo: BudgetsAndSpendingsRepository) => ({
+export const createUploader = (
+  ls: Storage,
+  serverUrl: string,
+  repo: BudgetsAndSpendingsRepository,
+  statusApi: StatusStoreApi,
+  conflictVersionsApi: ConflictVersionStoreApi,
+) => ({
   _lsEventsKey: 'updater:events',
   _events: [] as ApiSpendingEvent[],
 
@@ -88,9 +90,7 @@ export const createUploader = (repo: BudgetsAndSpendingsRepository) => ({
     // Initially run
     task()
 
-    const intervalId = setInterval(task, 30_000)
-
-    return intervalId
+    return setInterval(task, 30_000)
   },
 
   createSpending(bid: number, newSp: Spending) {
@@ -115,10 +115,7 @@ export const createUploader = (repo: BudgetsAndSpendingsRepository) => ({
 
     const evts = this.addEvent(ev)
 
-    // Async send event
-    const h = this.processEvents(evts)
-
-    return h
+    return this.processEvents(evts)
   },
 
   updateSpending(bid: number, upd: Spending) {
@@ -145,10 +142,7 @@ export const createUploader = (repo: BudgetsAndSpendingsRepository) => ({
 
     const evts = this.addEvent(ev)
 
-    // Async send event
-    const h = this.processEvents(evts)
-
-    return h
+    return this.processEvents(evts)
   },
 
   deleteSpending(bid: number, del: DelSpending) {
@@ -166,15 +160,11 @@ export const createUploader = (repo: BudgetsAndSpendingsRepository) => ({
 
     const evts = this.addEvent(ev)
 
-    // Async send event
-    const h = this.processEvents(evts)
-
-    return h
+    return  this.processEvents(evts)
   },
 
   async sendEvents(events: ApiSpendingEvent[]): Promise<{ success: ApiSpendingEvent[]; conflict: ApiSpendingEvent[], errors: ApiUploadError[] }> {
-    const client = createApiClient(import.meta.env.VITE_SERVER_URL)
-    const statusStore = useStatusStore.getState()
+    const client = createClient<ApiSchemaPaths>({ baseUrl: serverUrl })
 
     try {
       const { response, data } = await client.POST('/budgets/spendings/bulk', {
@@ -188,7 +178,7 @@ export const createUploader = (repo: BudgetsAndSpendingsRepository) => ({
         throw new Error('status: ' + response.status)
       }
 
-      statusStore.setUpdateSpendingStatus('ok')
+      statusApi.setUpdateSpendingStatus('ok')
 
       const successIds = data?.success ?? []
       const conflictIds = data?.errors.map((e: { eventId: string }) => e.eventId) ?? []
@@ -200,7 +190,7 @@ export const createUploader = (repo: BudgetsAndSpendingsRepository) => ({
       }
     } catch (error: unknown) {
       const err = error instanceof Error ? error : new Error(String(error))
-      statusStore.setUpdateSpendingStatus(err.name + ' ' + err.message)
+      statusApi.setUpdateSpendingStatus(err.name + ' ' + err.message)
     }
 
     return { success: [], conflict: [], errors: [] }
@@ -210,8 +200,6 @@ export const createUploader = (repo: BudgetsAndSpendingsRepository) => ({
     const { success, conflict, errors } = await this.sendEvents(events)
 
     // Помечаем все события во внешнем Storage
-    const conflictVersion = useConflictVersionStore.getState()
-
     for (const ev of success) {
       repo.setStatusApplied(ev.budgetId, ev.spendingId, ev.newVersion)
     }
@@ -221,7 +209,7 @@ export const createUploader = (repo: BudgetsAndSpendingsRepository) => ({
 
       for (const c of conflictedVers) {
         c.reason = errors.find(e => e.eventId == ev.eventId)?.error ?? null
-        conflictVersion.add(c)
+        conflictVersionsApi.add(c)
       }
     }
 
@@ -230,8 +218,8 @@ export const createUploader = (repo: BudgetsAndSpendingsRepository) => ({
   },
 
   loadEvents(): void {
-    this._events = JSON.parse(localStorage.getItem(this._lsEventsKey) || '[]')
-    useStatusStore.getState().setPendingEvents(this._events.length)
+    this._events = JSON.parse(ls.getItem(this._lsEventsKey) || '[]')
+    statusApi.setPendingEvents(this._events.length)
   },
 
   getEvents(): ApiSpendingEvent[] {
@@ -242,15 +230,15 @@ export const createUploader = (repo: BudgetsAndSpendingsRepository) => ({
     const idsToDelete = new Set(del.map(e => e.eventId))
     this._events = this._events.filter(e => !idsToDelete.has(e.eventId))
 
-    localStorage.setItem(this._lsEventsKey, JSON.stringify(this._events))
-    useStatusStore.getState().setPendingEvents(this._events.length)
+    ls.setItem(this._lsEventsKey, JSON.stringify(this._events))
+    statusApi.setPendingEvents(this._events.length)
   },
 
   addEvent(e: ApiSpendingEvent): ApiSpendingEvent[] {
     this._events.push(e)
 
-    localStorage.setItem(this._lsEventsKey, JSON.stringify(this._events))
-    useStatusStore.getState().setPendingEvents(this._events.length)
+    ls.setItem(this._lsEventsKey, JSON.stringify(this._events))
+    statusApi.setPendingEvents(this._events.length)
 
     return this._events
   },
