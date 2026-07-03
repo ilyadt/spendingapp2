@@ -4,7 +4,7 @@ import App from '@/app/App.tsx'
 import {createFetcher, createUploader} from "@/api.ts";
 import { HashRouter } from "react-router";
 import {createSpendingActionsWrapper} from "./models/spendingActionsWrapper.ts";
-import {SpendingActionsContext, SpendingsContext} from "@/models/contexts.ts";
+import {SpendingActionsContext, SpendingsContext, StatusContext} from "@/models/contexts.ts";
 import {BudgetsContextProvider} from "@/facilities/BudgetsContextProvider.tsx";
 import {createBudgetsWithSpentStore} from "@/stores/budgets.ts";
 import {createBudgetsAndSpendingsRepository} from "@/repository.ts";
@@ -13,18 +13,20 @@ import {composeSpActions, getAllBudgetsAndSpendings} from "@/helpers/helper.ts";
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import '@/app/global.css'
-import {useStatusStore} from "@/stores/status.ts";
+import {createPersistentStatusStore} from "@/stores/status.ts";
 import {useConflictVersionStore} from "@/stores/conflictVersions.ts";
 
 const budgetsAndSpendingsRepository = createBudgetsAndSpendingsRepository(localStorage)
 
 const serverUrl = import.meta.env.VITE_SERVER_URL
 
+const statusStore = createPersistentStatusStore()
+
 const fetcher = createFetcher(
   localStorage,
   serverUrl,
   budgetsAndSpendingsRepository,
-  useStatusStore.getState(),
+  statusStore.getState(),
   useConflictVersionStore.getState(),
 )
 
@@ -32,7 +34,7 @@ const uploader = createUploader(
   localStorage,
   serverUrl,
   budgetsAndSpendingsRepository,
-  useStatusStore.getState(),
+  statusStore.getState(),
   useConflictVersionStore.getState(),
 )
 
@@ -53,14 +55,16 @@ const spActions = composeSpActions([
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <SpendingActionsContext value={createSpendingActionsWrapper(spActions)}>
-      <BudgetsContextProvider store={budgetsStore}>
-        <SpendingsContext value={spendingsStore}>
-          <HashRouter>
-            <App />
-          </HashRouter>
-        </SpendingsContext>
-      </BudgetsContextProvider>
-    </SpendingActionsContext>
+    <StatusContext value={statusStore}>
+      <SpendingActionsContext value={createSpendingActionsWrapper(spActions)}>
+        <BudgetsContextProvider store={budgetsStore}>
+          <SpendingsContext value={spendingsStore}>
+            <HashRouter>
+              <App />
+            </HashRouter>
+          </SpendingsContext>
+        </BudgetsContextProvider>
+      </SpendingActionsContext>
+    </StatusContext>
   </StrictMode>,
 )

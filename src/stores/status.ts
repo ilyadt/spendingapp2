@@ -1,7 +1,7 @@
-import {create} from 'zustand'
+import {createStore, type StateCreator} from 'zustand'
 import {persist} from 'zustand/middleware'
 
-export type StatusStoreApi = {
+export type StatusStore = {
   statusGetSpendings: string
   statusUpdateSpendings: string
   pendingEvents: number
@@ -11,19 +11,22 @@ export type StatusStoreApi = {
   setPendingEvents: (n: number) => void
 }
 
-export const useStatusStore = create<StatusStoreApi>()(
-  persist(
-    (set) => ({
-      statusGetSpendings: '',
-      statusUpdateSpendings: '',
-      pendingEvents: 0,
+export const statusStoreCreator: StateCreator<StatusStore> =
+  (set): StatusStore => ({
+    statusGetSpendings: '',
+    statusUpdateSpendings: '',
+    pendingEvents: 0,
 
-      setUpdateSpendingStatus: (s) => set({statusUpdateSpendings: s}),
-      setGetSpendingStatus: (s) => set({statusGetSpendings: s}),
-      setPendingEvents: (n) => set({pendingEvents: n})
-    }),
-    {
-      name: 'statusV2',
-    }
+    setUpdateSpendingStatus: (s) => set({statusUpdateSpendings: s}),
+    setGetSpendingStatus: (s) => set({statusGetSpendings: s}),
+    setPendingEvents: (n) => set({pendingEvents: n})
+  })
+
+export const createPersistentStatusStore = () => createStore<StatusStore>()(
+  persist(
+    statusStoreCreator,
+    {name: 'statusV2'}
   )
 )
+
+export const createStatusStore = () => createStore<StatusStore>(statusStoreCreator)

@@ -1,11 +1,13 @@
-import {useStatusStore} from '@/stores/status'
 import {useConflictVersionStore} from '@/stores/conflictVersions'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faSync} from '@fortawesome/free-solid-svg-icons'
 import styles from './StatusBar.module.css'
+import {useContext} from "react";
+import {StatusContext} from "@/models/contexts.ts";
+import {useStore} from "zustand/react";
 
 export default function StatusBar() {
-  const statusState = useStatusStore()
+  const statusState = useStore(useContext(StatusContext))
   const conflictVersions = useConflictVersionStore(s => s.conflictVersions)
 
   const conflictVersionsNum = Object.values(conflictVersions).length

@@ -1,7 +1,7 @@
 import { test, describe, beforeEach, afterEach, expect, vi } from 'vitest'
 import { createFetcher, createUploader } from '@/api'
 import {createBudgetsAndSpendingsRepository} from '@/repository'
-import { useStatusStore } from '@/stores/status'
+import {createStatusStore} from '@/stores/status'
 import { type ConflictSpendingVersion, useConflictVersionStore } from '@/stores/conflictVersions'
 import type {
   ApiBudget,
@@ -16,12 +16,13 @@ import * as uuid from 'uuid'
 vi.mock('uuid', () => ({ v4: vi.fn(() => 'mocked-uuid') }))
 
 describe('fetcher', () => {
+  const statusStore = createStatusStore()
   const budgetsAndSpendingsRepository = createBudgetsAndSpendingsRepository(localStorage)
   const Fetcher = createFetcher(
     localStorage,
     'http://localhost:3000',
     budgetsAndSpendingsRepository,
-    useStatusStore.getState(),
+    statusStore.getState(),
     useConflictVersionStore.getState(),
   )
 
@@ -52,7 +53,7 @@ describe('fetcher', () => {
 
     await Fetcher.fetchAndStore()
 
-    const status = useStatusStore.getState()
+    const status = statusStore.getState()
     expect(status.statusGetSpendings).toBe('ok')
 
     expect(Fetcher.getUpdatedAt()).toBe(777)
@@ -174,12 +175,13 @@ describe('fetcher', () => {
 })
 
 describe('updater', () => {
+  const statusStore = createStatusStore()
   const budgetsAndSpendingsRepository = createBudgetsAndSpendingsRepository(localStorage)
   const Uploader = createUploader(
     localStorage,
     'http://localhost:3000',
     budgetsAndSpendingsRepository,
-    useStatusStore.getState(),
+    statusStore.getState(),
     useConflictVersionStore.getState(),
   )
 
@@ -247,7 +249,7 @@ describe('updater', () => {
     await promise
 
     // status
-    const status = useStatusStore.getState()
+    const status = statusStore.getState()
     expect(status.statusUpdateSpendings).toEqual('ok')
 
     // удаляются из внутреннего стора
@@ -416,12 +418,12 @@ describe('updater', () => {
   })
 
   test('uploader:loadEvents', async () => {
-    useStatusStore.getState().setPendingEvents(777)
+    statusStore.getState().setPendingEvents(777)
     {
       const t = Uploader.init()
       clearInterval(t)
       expect(Uploader.getEvents()).length(0)
-      expect(useStatusStore.getState().pendingEvents).toEqual(0)
+      expect(statusStore.getState().pendingEvents).toEqual(0)
     }
 
     {
@@ -434,11 +436,11 @@ describe('updater', () => {
         expect(events).length(2)
         expect(events[0]!.eventId).toEqual('ev1')
         expect(events[1]!.eventId).toEqual('ev2')
-        expect(useStatusStore.getState().pendingEvents).toEqual(2)
+        expect(statusStore.getState().pendingEvents).toEqual(2)
       }
 
       Uploader._events = []
-      useStatusStore.getState().setPendingEvents(777)
+      statusStore.getState().setPendingEvents(777)
 
       const t = Uploader.init()
       clearInterval(t)
@@ -449,7 +451,7 @@ describe('updater', () => {
         expect(events).length(2)
         expect(events[0]!.eventId).toEqual('ev1')
         expect(events[1]!.eventId).toEqual('ev2')
-        expect(useStatusStore.getState().pendingEvents).toEqual(2)
+        expect(statusStore.getState().pendingEvents).toEqual(2)
       }
     }
   })
@@ -476,12 +478,12 @@ describe('updater', () => {
       vi.fn(() => mockResponse),
     )
 
-    useStatusStore.getState().setUpdateSpendingStatus('')
-    expect(useStatusStore.getState().statusUpdateSpendings).toEqual('')
+    statusStore.getState().setUpdateSpendingStatus('')
+    expect(statusStore.getState().statusUpdateSpendings).toEqual('')
 
     const { success, conflict } = await Uploader.sendEvents(events)
 
-    expect(useStatusStore.getState().statusUpdateSpendings).toEqual('ok')
+    expect(statusStore.getState().statusUpdateSpendings).toEqual('ok')
 
     expect(success).toEqual([ev1, ev2])
     expect(conflict).toEqual([ev3])
@@ -500,11 +502,11 @@ describe('updater', () => {
       vi.fn(() => mockResponse),
     )
 
-    useStatusStore.getState().setUpdateSpendingStatus('')
+    statusStore.getState().setUpdateSpendingStatus('')
 
     const { success, conflict } = await Uploader.sendEvents([])
 
-    expect(useStatusStore.getState().statusUpdateSpendings).toEqual('Error status: 400')
+    expect(statusStore.getState().statusUpdateSpendings).toEqual('Error status: 400')
 
     expect(success).toEqual([])
     expect(conflict).toEqual([])
@@ -516,11 +518,11 @@ describe('updater', () => {
       vi.fn(() => Promise.reject(new Error('timeout'))),
     )
 
-    useStatusStore.getState().setUpdateSpendingStatus('')
+    statusStore.getState().setUpdateSpendingStatus('')
 
     const { success, conflict } = await Uploader.sendEvents([])
 
-    expect(useStatusStore.getState().statusUpdateSpendings).toEqual('Error timeout')
+    expect(statusStore.getState().statusUpdateSpendings).toEqual('Error timeout')
 
     expect(success).toEqual([])
     expect(conflict).toEqual([])
@@ -534,7 +536,7 @@ describe('updater', () => {
 
     expect(Uploader.getEvents()).length(1)
     expect(Uploader.getEvents()[0]?.eventId).toEqual('ev1')
-    expect(useStatusStore.getState().pendingEvents).toEqual(1)
+    expect(statusStore.getState().pendingEvents).toEqual(1)
 
     Uploader.addEvent(makeEvent({ eventId: 'ev2' }))
     Uploader.addEvent(makeEvent({ eventId: 'ev3' }))
@@ -543,13 +545,13 @@ describe('updater', () => {
     expect(Uploader.getEvents()[0]?.eventId).toEqual('ev1')
     expect(Uploader.getEvents()[1]?.eventId).toEqual('ev2')
     expect(Uploader.getEvents()[2]?.eventId).toEqual('ev3')
-    expect(useStatusStore.getState().pendingEvents).toEqual(3)
+    expect(statusStore.getState().pendingEvents).toEqual(3)
 
     Uploader.deleteEvents([makeEvent({ eventId: 'ev1' }), makeEvent({ eventId: 'ev3' })])
 
     expect(Uploader.getEvents()).length(1)
     expect(Uploader.getEvents()[0]?.eventId).toEqual('ev2')
-    expect(useStatusStore.getState().pendingEvents).toEqual(1)
+    expect(statusStore.getState().pendingEvents).toEqual(1)
   })
 })
 
