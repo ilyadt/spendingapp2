@@ -1,4 +1,4 @@
-import {create, type StateCreator} from 'zustand'
+import {createStore, type StateCreator} from 'zustand'
 import { persist } from 'zustand/middleware'
 
 // Spending version id
@@ -15,7 +15,7 @@ export interface ConflictSpendingVersion {
   reason: string | null
 }
 
-export type ConflictVersionStoreApi = {
+export type ConflictVersionStore = {
     conflictVersions: Record<SpVersionId, ConflictSpendingVersion>
 
     add: (...ver: ConflictSpendingVersion[]) => void
@@ -24,48 +24,45 @@ export type ConflictVersionStoreApi = {
     conflictVersionsArr: () => ConflictSpendingVersion[]
 }
 
-type StateWithPersist = StateCreator<
-  ConflictVersionStoreApi,
-  [],
-  [
-    ['zustand/persist', unknown],
-  ]>
+export const conflictVersionStateCreator: StateCreator<ConflictVersionStore> =
+  (set, get) => ({
+    conflictVersions: {},
 
-export const conflictVersionStateCreator: StateWithPersist =
-  persist(
-      (set, get) => ({
-        conflictVersions: {},
+    add: (...vers) =>
+      set((state) => {
+        const newVersions = {...state.conflictVersions}
 
-        add: (...vers) =>
-          set((state) => {
-            const newVersions = {...state.conflictVersions}
+        for (const v of vers) {
+          if (state.conflictVersions[v.version]) {
+            throw new Error(`Conflict version ${v.version} already exists`)
+          }
 
-            for (const v of vers) {
-              if (state.conflictVersions[v.version]) {
-                throw new Error(`Conflict version ${v.version} already exists`)
-              }
+          newVersions[v.version] = v
+        }
 
-              newVersions[v.version] = v
-            }
-
-            return {conflictVersions: newVersions}
-          }),
-
-        remove: (ver) =>
-          set((state) => {
-            if (!state.conflictVersions[ver]) {
-              return state
-            }
-
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { [ver]: _, ...remaining } = state.conflictVersions
-            return { conflictVersions: remaining }
-          }),
-        conflictVersionsArr: () => Object.values(get().conflictVersions)
+        return {conflictVersions: newVersions}
       }),
-    {
-        name: 'conflictVersionsV2',
-    }
-)
 
-export const useConflictVersionStore = create(conflictVersionStateCreator)
+    remove: (ver) =>
+      set((state) => {
+        if (!state.conflictVersions[ver]) {
+          return state
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { [ver]: _, ...remaining } = state.conflictVersions
+        return { conflictVersions: remaining }
+      }),
+    conflictVersionsArr: () => Object.values(get().conflictVersions)
+  })
+
+
+export const createConflictVersionsStore = () => createStore(conflictVersionStateCreator)
+
+export const createPersistentConflictVersionStore = () =>
+  createStore(
+    persist(
+      conflictVersionStateCreator,
+      {name: 'conflictVersionsV2'}
+    )
+)

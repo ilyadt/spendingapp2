@@ -1,8 +1,10 @@
-import { useConflictVersionStore } from '@/stores/conflictVersions'
 import { format } from 'date-fns'
+import {useStore} from "zustand/react";
+import {ConflictVersionsStoreContext} from "@/models/contexts.ts";
+import {useContext} from "react";
 
 export function ErrorsScreen() {
-  const store = useConflictVersionStore()
+  const store = useStore(useContext(ConflictVersionsStoreContext))
 
   return (
     <div>

@@ -2,7 +2,7 @@ import { test, describe, beforeEach, afterEach, expect, vi } from 'vitest'
 import { createFetcher, createUploader } from '@/api'
 import {createBudgetsAndSpendingsRepository} from '@/repository'
 import {createStatusStore} from '@/stores/status'
-import { type ConflictSpendingVersion, useConflictVersionStore } from '@/stores/conflictVersions'
+import {type ConflictSpendingVersion, createConflictVersionsStore} from '@/stores/conflictVersions'
 import type {
   ApiBudget,
   ApiSpending,
@@ -17,13 +17,14 @@ vi.mock('uuid', () => ({ v4: vi.fn(() => 'mocked-uuid') }))
 
 describe('fetcher', () => {
   const statusStore = createStatusStore()
+  const conflictVersionsStore = createConflictVersionsStore()
   const budgetsAndSpendingsRepository = createBudgetsAndSpendingsRepository(localStorage)
   const Fetcher = createFetcher(
     localStorage,
     'http://localhost:3000',
     budgetsAndSpendingsRepository,
     statusStore.getState(),
-    useConflictVersionStore.getState(),
+    conflictVersionsStore.getState(),
   )
 
   beforeEach(() => {
@@ -58,7 +59,7 @@ describe('fetcher', () => {
 
     expect(Fetcher.getUpdatedAt()).toBe(777)
 
-    expect(useConflictVersionStore.getState().conflictVersionsArr()).not.toEqual(
+    expect(conflictVersionsStore.getState().conflictVersionsArr()).not.toEqual(
       expect.arrayContaining(['JZRm7','YX3lO','hIBHc'])
     )
 
@@ -169,20 +170,21 @@ describe('fetcher', () => {
     }
 
 
-    expect(useConflictVersionStore.getState().conflictVersionsArr())
+    expect(conflictVersionsStore.getState().conflictVersionsArr())
       .toContainEqual(expConflicted)
   })
 })
 
 describe('updater', () => {
   const statusStore = createStatusStore()
+  const conflictVersionsStore = createConflictVersionsStore()
   const budgetsAndSpendingsRepository = createBudgetsAndSpendingsRepository(localStorage)
   const Uploader = createUploader(
     localStorage,
     'http://localhost:3000',
     budgetsAndSpendingsRepository,
     statusStore.getState(),
-    useConflictVersionStore.getState(),
+    conflictVersionsStore.getState(),
   )
 
   beforeEach(() => {
@@ -348,7 +350,7 @@ describe('updater', () => {
     expect(mockSpendingsStore_revokeConflictVersion).toHaveBeenCalledWith(22, 'sp1', 'ver2')
 
     // Отправились в ConflictVersions
-    expect(useConflictVersionStore.getState().conflictVersionsArr())
+    expect(conflictVersionsStore.getState().conflictVersionsArr())
       .toEqual(expect.arrayContaining(conflictedVersions))
 
     ////////////////

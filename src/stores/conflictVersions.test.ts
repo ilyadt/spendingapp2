@@ -1,6 +1,10 @@
 import {describe, expect, it, vi} from 'vitest'
 
-import {type ConflictSpendingVersion, conflictVersionStateCreator} from './conflictVersions'
+import {
+  type ConflictSpendingVersion,
+  conflictVersionStateCreator,
+  createPersistentConflictVersionStore
+} from './conflictVersions'
 import {create} from "zustand";
 
 describe('useConflictVersionStore', () => {
@@ -14,7 +18,7 @@ describe('useConflictVersionStore', () => {
       version: 'v2-2398cselstuigkpcs',
     } as ConflictSpendingVersion
 
-    const conflictVersionState = create(conflictVersionStateCreator).getState()
+    const conflictVersionState = createPersistentConflictVersionStore().getState()
     conflictVersionState.add(ver1, ver2)
 
     expect(conflictVersionState.conflictVersionsArr()).toEqual(expect.arrayContaining([ver1, ver2]))
@@ -25,7 +29,7 @@ describe('useConflictVersionStore', () => {
     expect(conflictVersionState.conflictVersionsArr()).not.toContainEqual(ver1)
 
     // New Store from localStorage
-    const conflictVersionState2 = create(conflictVersionStateCreator).getState()
+    const conflictVersionState2 = createPersistentConflictVersionStore().getState()
     expect(conflictVersionState2.conflictVersionsArr()).toContainEqual(ver2)
   })
 
@@ -38,7 +42,7 @@ describe('useConflictVersionStore', () => {
       version: 'v2-DKKsllkf',
     } as ConflictSpendingVersion
 
-    const conflictVersionState = create(conflictVersionStateCreator).getState()
+    const conflictVersionState = createPersistentConflictVersionStore().getState()
 
     conflictVersionState.add(ver1)
     conflictVersionState.add(ver2)

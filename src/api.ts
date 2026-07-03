@@ -1,7 +1,7 @@
 import createClient from 'openapi-fetch'
 import {type BudgetsAndSpendingsRepository} from '@/repository'
 import {type StatusStore} from '@/stores/status'
-import {type ConflictVersionStoreApi} from '@/stores/conflictVersions'
+import {type ConflictVersionStore} from '@/stores/conflictVersions'
 import { v4 as uuidv4 } from 'uuid'
 import { format } from 'date-fns'
 import type { Spending, ApiSpendingEvent, DelSpending, ApiUploadError, ApiSchemaPaths } from '@/models/models'
@@ -13,7 +13,7 @@ export const createFetcher = (
   serverUrl: string,
   repo: BudgetsAndSpendingsRepository,
   statusApi: StatusStore,
-  conflictVersionsApi: ConflictVersionStoreApi,
+  conflictVersionsApi: ConflictVersionStore,
 ) => ({
   lsUpdatedAtKey: 'fetcher:lastUpdatedAt',
   async initAndStart() {
@@ -69,7 +69,7 @@ export const createUploader = (
   serverUrl: string,
   repo: BudgetsAndSpendingsRepository,
   statusApi: StatusStore,
-  conflictVersionsApi: ConflictVersionStoreApi,
+  conflictVersionsApi: ConflictVersionStore,
 ) => ({
   _lsEventsKey: 'updater:events',
   _events: [] as ApiSpendingEvent[],
