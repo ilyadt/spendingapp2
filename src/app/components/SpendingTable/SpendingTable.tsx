@@ -48,6 +48,10 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
     spRowsActions.deleteSpendingRow(s.rowId)
   }
 
+  function editSpending(s: SpendingRow, rowIdx: number) {
+    return () => setPendingRow({...s, rowIdx})
+  }
+
   function uniteReceipt() {
     _setReceiptIdForSelectedItems(genReceiptId(date))
   }
@@ -166,7 +170,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
             >
               <td style={{textAlign: 'right', position: "relative"}}>
 
-                <span aria-label="amount" onClick={() => setPendingRow({...sp, rowIdx: idx})}>
+                <span aria-label="amount" onClick={groupMode.enabled ? undefined : editSpending(sp,idx)}>
                   {toMajorUnits(sp.amount, sp.currency)}
                 </span>
 
@@ -191,19 +195,23 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
               </td>
 
               <td>
-                <span onClick={() => setPendingRow({...sp, rowIdx: idx})}>{sp.description}</span>
+                <span onClick={groupMode.enabled ? undefined : editSpending(sp,idx)}>{sp.description}</span>
               </td>
 
               {crossBudget && (
                 <td>
-                  <span onClick={() => setPendingRow({...sp, rowIdx: idx})}>
+                  <span onClick={groupMode.enabled ? undefined : editSpending(sp,idx)}>
                     {!isNew(sp) && budgets[sp.budgetId].alias}
                   </span>
                 </td>
               )}
 
               <td>
-                <button className={`btn btn-warning btn-sm ${styles.actionButton}`} onClick={() => delSpending(sp)}>
+                <button
+                  className={`btn btn-warning btn-sm ${styles.actionButton}`}
+                  onClick={() => delSpending(sp)}
+                  disabled={groupMode.enabled}
+                >
                   <FontAwesomeIcon icon={faXmark}/>
                 </button>
                 <button className={`btn btn-sm ${styles.actionButton}`}>
@@ -218,6 +226,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
               <button
                 type="button"
                 onClick={addNewSpending}
+                disabled={groupMode.enabled}
                 className="btn btn-success btn-small"
               >+</button>
             </td>

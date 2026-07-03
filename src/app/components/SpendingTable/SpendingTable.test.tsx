@@ -467,6 +467,45 @@ describe('SpendingTable', async () => {
     assertGroupOperations(false)
   })
 
+  test('group/cannot-edit-or-del-speninding', async () => {
+    render(
+      <BudgetsContext value={{1: { id: 1, alias: 'drinks', currency: 'RUB', amount: 0, amountSpent: 0} as BudgetWithSpent}}>
+        <SpendingTable
+          date={new Date('2026-06-10')}
+          initSpendings={[
+            {
+              rowId: 1,
+              budgetId: 1,
+              id: 'id-1',
+              version: '1',
+              date: new Date('2026-06-10'),
+              amount: 100_00,
+              currency: 'RUB',
+              description: 'кофе',
+              sort: 1,
+            } as SpendingRow,
+          ]}
+        />
+      </BudgetsContext>
+    )
+
+    const gpModeBtn = screen.getByRole('button', {name: 'Enable group mode'})
+
+    const user = userEvent.setup()
+    await user.click(gpModeBtn)
+
+    assertGroupOperations(true)
+    //
+    const amountText = screen.getByText('100')
+    await user.click(amountText)
+
+    // Edit form isn't opened
+    expect(screen.queryByRole('form')).not.toBeInTheDocument()
+
+    // TODO:
+    // expect(screen.queryByRole('del spending')).not.toBeInTheDocument()
+  })
+
   test('ref/add-spending-row', async () => {
     const budgetsById: BudgetsWithSpentById = {
       3: {

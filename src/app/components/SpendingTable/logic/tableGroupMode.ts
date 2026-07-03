@@ -2,7 +2,7 @@ import {useState} from "react";
 
 export default function useTableGroupMode() {
   const [enabled, setEnabled] = useState<boolean>(false)
-  const [selectedItems, setSelectedItems] = useState<Set<string>>(() => new Set())
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
 
   return {
     enabled: enabled,
