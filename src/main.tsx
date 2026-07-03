@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from '@/app/App.tsx'
 import {createFetcher, createUploader} from "@/api.ts";
 import { HashRouter } from "react-router";
-import {createSpendingActionsWrapper} from "./models/spendingActionsWrapper.ts";
+import {createSpendingActionsWrapper} from "@/models/spendingActionsWrapper.ts";
 import {
   ConflictVersionsStoreContext,
   SpendingActionsContext,
@@ -15,11 +15,10 @@ import {createBudgetsWithSpentStore} from "@/stores/budgets.ts";
 import {createBudgetsAndSpendingsRepository} from "@/repository.ts";
 import {createSpendingsStore} from "@/stores/spendings.ts";
 import {composeSpActions, getAllBudgetsAndSpendings} from "@/helpers/helper.ts";
-
-import 'bootstrap/dist/css/bootstrap.min.css'
-import '@/app/global.css'
 import {createPersistentStatusStore} from "@/stores/status.ts";
 import {createPersistentConflictVersionStore} from "@/stores/conflictVersions.ts";
+import 'bootstrap/dist/css/bootstrap.min.css'
+import '@/app/global.css'
 
 const budgetsAndSpendingsRepository = createBudgetsAndSpendingsRepository(localStorage)
 
