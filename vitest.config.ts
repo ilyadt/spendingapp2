@@ -20,12 +20,9 @@ export default defineConfig({
   test: {
     testTimeout: 0,
     setupFiles: [
-      // For .toBeInTheDocument() assertions to work
+      // For .toBeInTheDocument() assertions to work (adds DOM matchers)
       '@testing-library/jest-dom/vitest',
     ],
-    env: {
-      VITE_SERVER_URL: 'http://localhost:3000',
-    },
     environment: 'jsdom',
     execArgv: execArgv,
     include: [
