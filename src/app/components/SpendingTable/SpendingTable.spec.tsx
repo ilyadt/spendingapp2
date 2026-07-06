@@ -35,5 +35,20 @@ test('SpendingTable', async ({ mount, page }) => {
   expect(rowBox).not.toBeNull()
   expect(formBox).not.toBeNull()
 
-  expect(formBox!.height).toBe(rowBox!.height)
-});
+  expectBoxEq(formBox!, rowBox!)
+})
+
+
+type Box = {x: number, y: number, width: number, height: number}
+
+function expectBoxEq(act: Box, exp: Box) {
+  expectWithin(act.x, exp.x)
+  expectWithin(act.y, exp.y)
+  expectWithin(act.width, exp.width)
+  expectWithin(act.height, exp.height)
+}
+
+function expectWithin(actual: number, expected: number, delta = 1) {
+  expect(actual).toBeGreaterThanOrEqual(expected - delta)
+  expect(actual).toBeLessThanOrEqual(expected + delta)
+}
