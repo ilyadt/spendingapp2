@@ -10,7 +10,7 @@ import {budgetsSortFn} from "@/helpers/helper.ts";
 import styles from "../styles.module.css"
 import moduleStyles from "./SpendingEditForm.module.css"
 import SpTableColgroup from "./SpTableColgroup.tsx";
-import {createSpendingFormData, type SpendingFormData} from "@/app/components/SpendingTable/logic/spendingFormData.ts";
+import {createSpendingFormData, type SpendingFormData} from "@/models/spendingFormData.ts";
 
 type Props = {
   sp: SpendingRow & { rowIdx: number };

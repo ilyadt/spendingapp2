@@ -6,7 +6,7 @@ import SpendingTable, {type SpendingTableHandle} from '../components/SpendingTab
 import styles from './BudgetScreen.module.css'
 import type {BudgetWithSpent} from "@/stores/budgets.ts";
 import useSpendingRowsByDate from "@/state/spendingRowsByDate.ts";
-import {createSpendingFormData} from "@/app/components/SpendingTable/logic/spendingFormData.ts";
+import {createSpendingFormData} from "@/models/spendingFormData.ts";
 import {useContext, useRef} from "react";
 import {genRandInt} from "@/helpers/helper.ts";
 import {SpendingsContext, SpendingActionsContext} from "@/models/contexts.ts";

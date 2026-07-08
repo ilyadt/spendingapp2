@@ -13,7 +13,7 @@ import {BudgetsContext, SpendingActionsContext} from "@/models/contexts.ts";
 import SpendingEditForm from "./components/SpendingEditForm.tsx";
 import SpTableColgroup from "./components/SpTableColgroup.tsx";
 import useTableGroupMode from "./logic/tableGroupMode.ts";
-import type {SpendingFormData} from "@/app/components/SpendingTable/logic/spendingFormData.ts";
+import type {SpendingFormData} from "@/models/spendingFormData.ts";
 
 type Props = {
   date: Date
