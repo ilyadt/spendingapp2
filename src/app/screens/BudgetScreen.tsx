@@ -26,24 +26,20 @@ export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
     e.preventDefault()
 
     const form = e.currentTarget
-    const f = createSpendingFormData(
-      new FormData(form),
-      {[budget.id]: budget},
-      {selectBudget: false, selectDate: true},
-  )
+    const formData = createSpendingFormData(new FormData(form), {[budget.id]: budget})
 
-    const err = f.validate()
+    const err = formData.validate()
     if (err) {
       alert(err)
       return
     }
 
-    const dateStr = dateISO(f.data.date)
+    const dateStr = dateISO(formData.data.date)
 
     const tbl = tableRefs?.current[dateStr]
 
     const newSpRow: SpendingRow = {
-      ...spendingsActions.createSpending(f.data, new Date()),
+      ...spendingsActions.createSpending(formData.data, new Date()),
       rowId: genRandInt(),
       budgetId: budget.id,
     }

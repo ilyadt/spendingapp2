@@ -3,14 +3,8 @@ import type {Budget, SpendingRow} from "@/models/models.ts";
 
 export type SpendingFormData = ReturnType<typeof createSpendingFormData>;
 
-export function createSpendingFormData(
-  fd: FormData,
-  bs: Record<number, Budget>,
-  cfg: {
-    selectBudget: boolean
-    selectDate: boolean
-  }) {
-  const budget: Budget|undefined = bs[Number(fd.get('budgetId'))]
+export function createSpendingFormData(fd: FormData, budgets: Record<number, Budget>) {
+  const budget: Budget|undefined = budgets[Number(fd.get('budgetId'))]
 
   const amountFull = Number(fd.get('amount')?.toString() ?? '')
   const amount = budget ? fromMajorUnits(amountFull, budget.currency) : 0
@@ -20,20 +14,8 @@ export function createSpendingFormData(
 
   return {
     data: {amount, description, budget, date: date!},
-    isEmpty: (): boolean => {
-      let userFilled = Boolean(amountFull) || Boolean(description)
-
-      if (cfg.selectBudget) {
-        userFilled ||= Boolean(budget)
-      }
-
-      if (cfg.selectDate) {
-        userFilled ||= Boolean(date)
-      }
-
-      return !userFilled
-    },
-    validate: function () {
+    isEmpty: () => !amountFull && !description,
+    validate() {
       if (!budget) {
         return 'не выбран бюджет'
       }

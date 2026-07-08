@@ -60,7 +60,6 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
     return createSpendingFormData(
       new FormData(formElement),
       budget ? {[budget.id] : budget} : budgets,
-      {selectBudget: !budget, selectDate: false},
     );
   }
 

@@ -18,40 +18,39 @@ describe('spendingFormValidator', () => {
 
   test.each([
     [
-      {}, {}, { selectBudget: true, selectDate: false },
+      {}, {},
       true,
     ],
     [ // wrong budget
-      {budgetId: '2'}, { 1: makeBudget() }, { selectBudget: true, selectDate: false },
+      {budgetId: '2'}, { 1: makeBudget() },
       true,
     ],
     [
-      { budgetId: '1' }, { 1: makeBudget() }, { selectBudget: true, selectDate: false },
+      { budgetId: '1' }, { 1: makeBudget() },
+      true, // for now, we are ignoring filled budgets
+    ],
+    [
+      { budgetId: '1', date: '2026-04-29' }, { 1: makeBudget() },
+      true,
+    ],
+    [
+      { budgetId: '1' }, { 1: makeBudget() },
+      true,
+    ],
+    [
+      { description: 'some val' }, { 1: makeBudget() },
       false,
     ],
     [
-      { budgetId: '1', date: '2026-04-29' }, { 1: makeBudget() }, { selectBudget: false, selectDate: false },
-      true,
-    ],
-    [
-      { budgetId: '1' }, { 1: makeBudget() }, { selectBudget: false, selectDate: true },
-      true,
-    ],
-    [
-      { description: 'some val' }, { 1: makeBudget() }, { selectBudget: false, selectDate: true },
-      false,
-    ],
-    [
-      { amount: '33' }, {}, { selectBudget: true, selectDate: false },
+      { amount: '33' }, {},
       false,
     ]
   ])(
     'isEmpty',
-    (fd, budgets, cfg, isEmpty) => {
+    (fd, budgets, isEmpty) => {
       const validator = createSpendingFormData(
         makeFormData(fd),
-        budgets,
-        cfg,
+        budgets
       )
 
       expect(validator.isEmpty()).toBe(isEmpty)
@@ -62,7 +61,6 @@ describe('spendingFormValidator', () => {
     const form1 = createSpendingFormData(
       makeFormData({amount: '10', description: 'coffee', budgetId: ''}),
       {},
-      {selectBudget: true, selectDate: false},
     )
 
     expect(form1.validate()).toBe('не выбран бюджет')
@@ -70,7 +68,6 @@ describe('spendingFormValidator', () => {
     const form2 = createSpendingFormData(
       makeFormData({amount: '10', description: 'coffee', budgetId: '2'}),
       {},
-      {selectBudget: true, selectDate: false},
     )
 
     expect(form2.validate()).toBe('не выбран бюджет')
@@ -82,7 +79,6 @@ describe('spendingFormValidator', () => {
     const form = createSpendingFormData(
       makeFormData({amount: '', description: 'coffee', budgetId: '1', date: '2026-04-29'}),
       {1: budget},
-      {selectBudget: false, selectDate: false},
     )
 
     expect(form.validate()).toBe('пустая сумма')
@@ -94,7 +90,6 @@ describe('spendingFormValidator', () => {
     const form = createSpendingFormData(
       makeFormData({amount: '10', description: '', budgetId: '1', date: '2026-04-29'}),
       {1: budget},
-      {selectBudget: false, selectDate: false},
     )
 
     expect(form.validate()).toBe('пустое описание')
@@ -106,7 +101,6 @@ describe('spendingFormValidator', () => {
     const form = createSpendingFormData(
       makeFormData({amount: '10', description: 'som', budgetId: '1'}),
       {1: budget},
-      {selectBudget: false, selectDate: false},
     )
 
     expect(form.validate()).toBe('не выбрана дата')
@@ -118,7 +112,6 @@ describe('spendingFormValidator', () => {
     const form = createSpendingFormData(
       makeFormData({amount: '123.45', description: 'coffee', budgetId: '1', date: '2026-04-29'}),
       {1: budget},
-      {selectBudget: false, selectDate: false},
     )
 
     expect(form.validate()).toBe(null)
@@ -132,7 +125,6 @@ describe('spendingFormValidator', () => {
     const form = createSpendingFormData(
       makeFormData({amount: '123.45', description: 'coffee', budgetId: '1', date: '2026-04-29'}),
       {1: budget},
-      {selectBudget: false, selectDate: false},
     )
 
     expect(form.isEqual({amount, description: 'coffee', budgetId: 1, date: new Date('2026-04-29')} as SpendingRow)).toBe(true)
