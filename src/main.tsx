@@ -10,7 +10,7 @@ import {
   SpendingsContext,
   StatusStoreContext
 } from "@/models/contexts.ts";
-import {BudgetsContextProvider} from "@/facilities/BudgetsContextProvider.tsx";
+import {BudgetsContextProvider} from "./app/facilities/BudgetsContextProvider.tsx";
 import {createBudgetsWithSpentStore} from "@/stores/budgets.ts";
 import {createBudgetsAndSpendingsRepository} from "@/repository.ts";
 import {createSpendingsStore} from "@/stores/spendings.ts";

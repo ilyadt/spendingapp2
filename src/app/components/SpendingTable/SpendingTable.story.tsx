@@ -3,7 +3,7 @@ import {type BudgetsWithSpentById, createBudgetsWithSpentStore} from "@/stores/b
 import {SpendingActionsContext} from "@/models/contexts.ts";
 import SpendingTable from "@/app/components/SpendingTable/SpendingTable.tsx";
 import type {SpendingActions, SpendingRow} from "@/models/models.ts";
-import {BudgetsContextProvider} from "@/facilities/BudgetsContextProvider.tsx";
+import {BudgetsContextProvider} from "@/app/facilities/BudgetsContextProvider.tsx";
 import {composeSpActions} from "@/helpers/helper.ts";
 
 type Props = {

@@ -7,7 +7,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHome} from "@fortawesome/free-solid-svg-icons/faHome";
 import clsx from "clsx/lite";
 import styles from './App.module.css'
-import {BudgetRoute} from "../facilities/BudgetRoute.tsx";
+import {BudgetRoute} from "./facilities/BudgetRoute.tsx";
 import {budgetsSortFn, navLinkClass} from "@/helpers/helper.ts";
 import {BudgetsContext} from "@/models/contexts.ts";
 import {useContext} from "react";
