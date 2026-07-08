@@ -6,6 +6,12 @@ import { v4 as uuidv4 } from 'uuid'
 import { format } from 'date-fns'
 import type { Spending, ApiSpendingEvent, DelSpending, ApiUploadError, ApiSchemaPaths } from '@/models/models'
 import {currencyFraction} from "@/helpers/money.ts";
+import type {operations} from "@/models/oaschema.ts";
+
+type FetchResult = {
+  data?: operations['getBudgetsWithSpendings']['responses']['200']['content']['application/json']
+  error?: string
+}
 
 // Получение бюджетов и расходов по ним
 export const createFetcher = (
@@ -30,6 +36,27 @@ export const createFetcher = (
   },
 
   async fetchAndStore() {
+    const {data, error} = await this._fetch()
+
+    if (error) {
+      statusApi.setGetSpendingStatus(error)
+      return
+    }
+
+    statusApi.setGetSpendingStatus('ok')
+
+    repo.storeBudgetsFromRemote(data!.budgets)
+
+    for (const apiSpsByBudget of data!.spendings) {
+      const revoked = repo.storeSpendingsFromRemote(apiSpsByBudget.budgetId, apiSpsByBudget.spendings)
+
+      conflictVersionsApi.add(...revoked)
+    }
+
+    ls.setItem(this.lsUpdatedAtKey, String(Date.now()))
+  },
+
+  async _fetch(): Promise<FetchResult> {
     const client = createClient<ApiSchemaPaths>({ baseUrl: serverUrl })
 
     try {
@@ -38,24 +65,12 @@ export const createFetcher = (
       })
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
+        return {error: `HTTP ${response.status}`}
       }
 
-      statusApi.setGetSpendingStatus('ok')
-
-      repo.storeBudgetsFromRemote(data!.budgets)
-
-      for (const apiSpsByBudget of data!.spendings) {
-        const revoked = repo.storeSpendingsFromRemote(apiSpsByBudget.budgetId, apiSpsByBudget.spendings)
-
-        conflictVersionsApi.add(...revoked)
-      }
-
-      ls.setItem(this.lsUpdatedAtKey, String(Date.now()))
+      return { data: data! }
     } catch (error) {
-      const err = error instanceof Error ? error : new Error(String(error))
-
-      statusApi.setGetSpendingStatus(err.name + ' ' + err.message)
+      return {error: String(error),}
     }
   },
 
