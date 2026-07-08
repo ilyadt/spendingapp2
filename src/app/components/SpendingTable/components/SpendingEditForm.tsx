@@ -26,29 +26,29 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
 
   function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
-    save(createValidator(e.currentTarget))
+    save(createFormData(e.currentTarget))
   }
 
-  function onCancel(e: React.MouseEvent<HTMLButtonElement>) {
+  function onCancelClick(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault()
-    cancel(createValidator(e.currentTarget.form!))
+    cancel(createFormData(e.currentTarget.form!))
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     switch (e.key) {
       case 'Enter':
         e.preventDefault()
-        save(createValidator(e.currentTarget.form!))
+        save(createFormData(e.currentTarget.form!))
         break
 
       case 'Escape':
-        cancel(createValidator(e.currentTarget.form!))
+        cancel(createFormData(e.currentTarget.form!))
         break
     }
   }
 
   function onOverlayClick() {
-    const f = createValidator(spFormElem.current!);
+    const f = createFormData(spFormElem.current!);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     (f.isEmpty() && isNew(sp!))
@@ -56,10 +56,10 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
       : save(f)
   }
 
-  function createValidator(formElement: HTMLFormElement): SpendingFormData {
+  function createFormData(formElement: HTMLFormElement): SpendingFormData {
     return createSpendingFormData(
       new FormData(formElement),
-      budgets,
+      budget ? {[budget.id] : budget} : budgets,
       {selectBudget: !budget, selectDate: false},
     );
   }
@@ -126,7 +126,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
                 type="button"
                 className="btn btn-danger btn-sm p-1 m-1"
                 style={{minWidth: '20px', lineHeight: 1}}
-                onClick={onCancel}
+                onClick={onCancelClick}
               >
                 <FontAwesomeIcon icon={faXmark}/>
               </button>

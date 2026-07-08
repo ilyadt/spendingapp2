@@ -24,7 +24,7 @@ export function CrossBudgetScreen() {
 
   const todayRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => todayRef.current?.scrollIntoView({behavior: 'smooth', block: 'center'}), [])
+  useEffect(() => { todayRef.current?.scrollIntoView({behavior: 'smooth', block: 'center'}) }, [])
 
   const today = dateISO(new Date())
 

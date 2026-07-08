@@ -100,7 +100,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
   function cancelPendingSp(f: SpendingFormData) {
     const sp = pendingRow!
 
-    if (f.isEqual(sp)) {
+    if (!isNew(sp) && f.isEqual(sp)) {
       setPendingRow(null)
       return
     }

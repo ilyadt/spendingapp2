@@ -30,51 +30,46 @@ beforeEach(() => {
 })
 
 describe('SpendingTable', async () => {
-  test('empty-table/cancel', async () => {
+  test.each([{ withinBudget: true }, { withinBudget: false }])('empty-table/cancel', async ({withinBudget}) => {
+    const budget = {
+      id: 1,
+      alias: 'food',
+      currency: 'RUB',
+      amount: 100000,
+      amountSpent: 0,
+    } as BudgetWithSpent
+
+    const genRandIntMock = vi.spyOn(helper, 'genRandInt')
+    genRandIntMock.mockReturnValue(888)
+
+    render(<SpendingTable date={new Date('2026-06-10')} initSpendings={[]} budget={withinBudget ? budget : undefined}/>)
+
     const user = userEvent.setup()
 
-    const budgetsById: BudgetsWithSpentById = {
-      1: {
-        id: 1,
-        alias: 'food',
-        currency: 'RUB',
-        amount: 100000,
-        amountSpent: 0,
-      } as BudgetWithSpent,
-    }
-
-    render(
-      <BudgetsContext value={budgetsById}>
-        <SpendingTable date={new Date('2026-06-10')} initSpendings={[]}/>
-      </BudgetsContext>
-    )
-
-    // open
+    // add
     await user.click(screen.getByRole('button', {name: '+'}))
 
-    expect(
-      screen.getByRole('spinbutton', {name: ''})
-    ).toBeInTheDocument()
+    expect(genRandIntMock).toHaveBeenCalledOnce()
 
-    expect(
-      document.getElementById('overlay')
-    ).toBeInTheDocument()
+    expect(screen.getByRole('spinbutton', {name: ''})).toBeInTheDocument()
+    expect(document.getElementById('overlay')).toBeInTheDocument()
 
     // cancel
-    await user.click(
-      screen.getByRole('button', {name: 'cancel pending spending'})
-    )
+    const editForm = screen.getByRole('form', {name: 'spending edit form'})
+    const cancelBtn = within(editForm).getByRole('button', {name: 'cancel pending spending'})
+    await user.click(cancelBtn)
 
-    expect(
-      screen.queryByRole('spinbutton')
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument()
 
-    expect(
-      document.getElementById('overlay')
-    ).not.toBeInTheDocument()
+    expect(document.getElementById('overlay')).not.toBeInTheDocument()
+
+    const rows = within(screen.getByRole('table')).getAllByRole('row')
+    expect(rows.length).toEqual(1)
   })
 
-  test('empty-table/create-new-spending', async () => {
+  test.each(
+    [{ withinBudget: true }, { withinBudget: false }]
+  )('empty-table/create-new-spending', async ({withinBudget}) => {
     const user = userEvent.setup()
 
     const saveSpendingChangesMock = vi.fn()
@@ -98,7 +93,10 @@ describe('SpendingTable', async () => {
     render(
       <SpendingActionsContext value={storeActions as WrappedSpendingActions}>
         <BudgetsContext value={budgetsById}>
-          <SpendingTable date={new Date('2026-06-10')} initSpendings={[]}/>
+          <SpendingTable
+            date={new Date('2026-06-10')}
+            initSpendings={[]} budget={withinBudget ? budgetsById[1] : undefined
+          }/>
         </BudgetsContext>
       </SpendingActionsContext>
     )
@@ -124,11 +122,13 @@ describe('SpendingTable', async () => {
     descriptionInput!.focus()
     await user.keyboard('мороженое')
 
-    const budgetSelect = editForm.querySelector<HTMLSelectElement>('select[name="budgetId"]')
-    expect(budgetSelect).toBeInTheDocument()
+    if (!withinBudget) {
+      const budgetSelect = editForm.querySelector<HTMLSelectElement>('select[name="budgetId"]')
+      expect(budgetSelect).toBeInTheDocument()
 
-    budgetSelect!.focus()
-    await user.selectOptions(budgetSelect!, '1')
+      budgetSelect!.focus()
+      await user.selectOptions(budgetSelect!, '1')
+    }
 
     await user.click(screen.getByRole('button', {name: 'submit pending spending'}))
 
@@ -148,6 +148,10 @@ describe('SpendingTable', async () => {
       } satisfies SpendingData,
       NOW_TIME,
     )
+
+    const rows = within(screen.getByRole('table')).getAllByRole('row')
+    expect(rows.length).toEqual(2) // one row is "+" sign
+    // TODO: test content of this row
   })
 
   test('group/unite-receipt', async () => {
