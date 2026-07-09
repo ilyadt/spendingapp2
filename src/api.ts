@@ -6,10 +6,10 @@ import { v4 as uuidv4 } from 'uuid'
 import { format } from 'date-fns'
 import type { Spending, ApiSpendingEvent, DelSpending, ApiUploadError, ApiSchemaPaths } from '@/models/models'
 import {currencyFraction} from "@/helpers/money.ts";
-import type {operations} from "@/models/oaschema.ts";
+import type {paths} from "@/models/oaschema.ts";
 
 type FetchResult = {
-  data?: operations['getBudgetsWithSpendings']['responses']['200']['content']['application/json']
+  data?: paths['/budgets/spendings']['get']['responses']['200']['content']['application/json']
   error?: string
 }
 
@@ -36,7 +36,7 @@ export const createFetcher = (
   },
 
   async fetchAndStore() {
-    const {data, error} = await this._fetch()
+    const {data, error} = await this.fetch()
 
     if (error) {
       statusApi.setGetSpendingStatus(error)
@@ -56,11 +56,11 @@ export const createFetcher = (
     ls.setItem(this.lsUpdatedAtKey, String(Date.now()))
   },
 
-  async _fetch(): Promise<FetchResult> {
+  async fetch(): Promise<FetchResult> {
     const client = createClient<ApiSchemaPaths>({ baseUrl: serverUrl })
 
     try {
-      const { data, response } = await client.GET('/budgets/spendings', {
+      const { data, response } = await client.request('get', '/budgets/spendings', {
         signal: AbortSignal.timeout(10_000),
       })
 
@@ -68,9 +68,9 @@ export const createFetcher = (
         return {error: `HTTP ${response.status}`}
       }
 
-      return { data: data! }
+      return {data: data!}
     } catch (error) {
-      return {error: String(error),}
+      return {error: String(error)}
     }
   },
 
