@@ -34,6 +34,7 @@ const fetcher = createFetcher(
   statusStore.getState(),
   conflictVersionsStore.getState(),
 )
+await fetcher.initAndStart()
 
 const uploader = createUploader(
   localStorage,
@@ -43,7 +44,6 @@ const uploader = createUploader(
   conflictVersionsStore.getState(),
 )
 
-await fetcher.initAndStart()
 uploader.init()
 
 const {budgetsById, spendingsByBid} = getAllBudgetsAndSpendings(budgetsAndSpendingsRepository)

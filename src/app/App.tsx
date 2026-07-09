@@ -16,7 +16,7 @@ export default function App() {
   const budgets = useContext(BudgetsContext)
 
   return (
-    <BudgetsContext value={budgets}>
+    <>
       <StatusBar/>
 
       <Routes>
@@ -58,6 +58,6 @@ export default function App() {
           </li>
         </ul>
       </nav>
-    </BudgetsContext>
+    </>
   )
 }
