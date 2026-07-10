@@ -16,7 +16,7 @@ export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
   const spendingsStore = useContext(SpendingsContext)
   const spendingsActions = useContext(SpendingActionsContext)
 
-  const [initSpendingsByDate, addSpendingRow, clearSpendings] = useSpendingRowsByDate({
+  const [initSpendingsByDate, setInitSpending, clearSpendings] = useSpendingRowsByDate({
       [budget.id]: spendingsStore.spendingsByBudgetId(budget.id)
   })
 
@@ -34,18 +34,16 @@ export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
       return
     }
 
-    const dateStr = dateISO(formData.data.date)
-
-    const tbl = tableRefs?.current[dateStr]
-
     const newSpRow: SpendingRow = {
       ...spendingsActions.createSpending(formData.data, new Date()),
       rowId: genRandInt(),
       budgetId: budget.id,
     }
 
+    const dateStr = dateISO(formData.data.date)
+    const tbl = tableRefs.current[dateStr]
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    tbl ? tbl.addSpendingRow(newSpRow) : addSpendingRow(newSpRow)
+    tbl ? tbl.addSpendingRow(newSpRow) : setInitSpending(dateStr, newSpRow)
 
     // clear form
     form.reset()

@@ -27,15 +27,9 @@ export default function useSpendingRowsByDate(initSps: Record<number, Spending[]
     return grouped
   })
 
-  function addSpendingRow(spRow: SpendingRow) {
+  function setInitSpending(date: DateISO, spRow: SpendingRow) {
     updateSpendings(initSpendings => {
-      const date = dateISO(spRow.date);
-
-      if (!initSpendings[date]) {
-        initSpendings[date] = [];
-      }
-
-      initSpendings[date].push(spRow)
+      initSpendings[date] = [spRow];
     })
   }
 
@@ -43,5 +37,5 @@ export default function useSpendingRowsByDate(initSps: Record<number, Spending[]
     updateSpendings(initSpendings => { delete initSpendings[date] })
   }
 
-  return [initSpendings, addSpendingRow, clearSpendings] as const
+  return [initSpendings, setInitSpending, clearSpendings] as const
 }

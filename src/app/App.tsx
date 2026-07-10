@@ -31,13 +31,13 @@ export default function App() {
       { /* Нижняя навигация */}
       <nav className={`${styles.navbarCustom} fixed-bottom navbar-light bg-light border-top ${styles.navScroll} p-0`}>
         <ul className="nav flex-nowrap">
-          <li className={styles.btnStyle}>
+          <li key="home" className={styles.btnStyle}>
             <NavLink to="/" style={{padding: "0px 5px 0 10px"}} className={navLinkClass}>
               <FontAwesomeIcon icon={faHome}/>
             </NavLink>
           </li>
 
-          <li className={styles.btnStyle}>
+          <li key="cross" className={styles.btnStyle}>
             <NavLink to="/cross-budget" className={navLinkClass}>
               cross
             </NavLink>
@@ -51,7 +51,7 @@ export default function App() {
             </li>
           ))}
 
-          <li className={clsx(styles.btnStyle, styles.navItemLast)}>
+          <li key="errors" className={clsx(styles.btnStyle, styles.navItemLast)}>
             <NavLink to="/errors" className={navLinkClass}>
               Errs
             </NavLink>

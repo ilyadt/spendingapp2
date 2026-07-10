@@ -27,17 +27,11 @@ export default function HomeScreen() {
             opacity: b.dateTo >= todayDate ? 1 : 0.5,
           }}
         >
-          <h4 style={{marginBottom: 0}}>
-            {b.name} #{b.id}
-          </h4>
+          <h4 style={{marginBottom: 0}}> {b.name} #{b.id} </h4>
 
-          <p style={{marginBottom: 0}}>
-            {dateFormat(b.dateFrom)}-{dateFormat(b.dateTo)}
-          </p>
+          <p style={{marginBottom: 0}}> {dateFormat(b.dateFrom)}-{dateFormat(b.dateTo)} </p>
 
-          <p style={{marginBottom: '2px'}}>
-            {formatAmount(b.amount, b.currency)}
-          </p>
+          <p style={{marginBottom: '2px'}}> {formatAmount(b.amount, b.currency)} </p>
 
           <p style={{whiteSpace: 'pre', fontSize: '0.6rem', marginBottom: 0, fontStyle: 'italic'}}>
             {b.description}
