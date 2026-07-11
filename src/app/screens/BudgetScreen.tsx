@@ -1,20 +1,15 @@
 import {dateFormat, dateISO, dateRangePlusItemSet} from '@/helpers/date'
 import {toMajorUnits} from '@/helpers/money'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
 import SpendingTable, {type SpendingTableHandle} from '../components/SpendingTable/SpendingTable'
-import styles from './BudgetScreen.module.css'
 import type {BudgetWithSpent} from "@/stores/budgets.ts";
 import useSpendingRowsByDate from "@/state/spendingRowsByDate.ts";
-import {createSpendingFormData} from "@/models/spendingFormData.ts";
 import {useContext, useRef} from "react";
-import {genRandInt} from "@/helpers/helper.ts";
-import {SpendingsContext, SpendingActionsContext} from "@/models/contexts.ts";
+import {SpendingsContext} from "@/models/contexts.ts";
 import type {SpendingRow} from "@/models/models.ts";
+import AddSpendingForm from "@/app/components/AddSpendingForm.tsx";
 
 export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
   const spendingsStore = useContext(SpendingsContext)
-  const spendingsActions = useContext(SpendingActionsContext)
 
   const [initSpendingsByDate, setInitSpending, clearSpendings] = useSpendingRowsByDate({
       [budget.id]: spendingsStore.spendingsByBudgetId(budget.id)
@@ -22,32 +17,14 @@ export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
 
   const tableRefs = useRef<Record<string, SpendingTableHandle|null>>({})
 
-  function onSubmitTopForm(e: React.SubmitEvent<HTMLFormElement>) {
-    e.preventDefault()
-
-    const form = e.currentTarget
-    const formData = createSpendingFormData(new FormData(form), {[budget.id]: budget})
-
-    const err = formData.validate()
-    if (err) {
-      alert(err)
-      return
+  function addSpendingRow(sp: SpendingRow) {
+    const dateStr = dateISO(sp.date)
+    const table = tableRefs.current[dateStr]
+    if (table) {
+      table.addSpendingRow(sp)
+    } else {
+      setInitSpending(dateStr, sp)
     }
-
-    const newSpRow: SpendingRow = {
-      ...spendingsActions.createSpending(formData.data, new Date()),
-      rowId: genRandInt(),
-      budgetId: budget.id,
-    }
-
-    const dateStr = dateISO(formData.data.date)
-    const tbl = tableRefs.current[dateStr]
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    tbl ? tbl.addSpendingRow(newSpRow) : setInitSpending(dateStr, newSpRow)
-
-    // clear form
-    form.reset()
-    setTimeout(() => { alert('Сохранено!') }, 0)
   }
 
   const dates = dateRangePlusItemSet(budget.dateFrom, budget.dateTo, new Set(Object.keys(initSpendingsByDate)))
@@ -65,32 +42,9 @@ export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
         </p>
         <p style={{whiteSpace: 'pre'}}>{ budget.description }</p>
       </div>
-      <form className="d-flex align-items-center gap-1 mb-5" onSubmit={onSubmitTopForm}>
-        <input type="hidden" name="budgetId" value={budget.id}/>
-        <input
-          type="date"
-          name="date"
-          className="form-control form-control-sm p-1"
-          placeholder="дата"
-          style={{width: '16ch'}}
-        />
-        <input
-          type="number"
-          name="amount"
-          className={`form-control form-control-sm ${styles.noSpinner} text-end p-1`}
-          placeholder="сумма"
-          style={{width: '10ch'}}
-        />
-        <input
-          type="text"
-          name="description"
-          className="form-control form-control-sm flex-grow-1 p-1"
-          placeholder="описание"
-        />
-        <button className="btn btn-warning btn-sm">
-          <FontAwesomeIcon icon={faFloppyDisk} />
-        </button>
-      </form>
+
+      <AddSpendingForm onCreate={addSpendingRow} budget={budget} />
+
       {dates.map((date) => (
         <SpendingTable
           key={date}
