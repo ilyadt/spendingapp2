@@ -2,8 +2,8 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faFloppyDisk} from "@fortawesome/free-solid-svg-icons";
 import {createSpendingFormData} from "@/models/spendingFormData.ts";
 import type {Budget, SpendingRow} from "@/models/models.ts";
-import {genRandInt} from "@/helpers/helper.ts";
-import {useContext, type SubmitEvent} from "react";
+import {genRandInt, submitFormData} from "@/helpers/helper.ts";
+import {useContext} from "react";
 import {SpendingActionsContext} from "@/models/contexts.ts";
 
 type Props = {
@@ -14,19 +14,16 @@ type Props = {
 export default function AddSpendingForm({onCreate, budget}: Props) {
   const spendingsActions = useContext(SpendingActionsContext)
 
-  function onSubmit(e: SubmitEvent<HTMLFormElement>) {
-    e.preventDefault()
+  function onSubmit(formData: FormData) {
+    const spFormData = createSpendingFormData(formData, {[budget.id]: budget})
 
-    const form = e.currentTarget
-    const formData = createSpendingFormData(new FormData(form), {[budget.id]: budget})
-
-    const err = formData.validate()
+    const err = spFormData.validate()
     if (err) {
       alert(err)
-      return
+      return false
     }
 
-    const spending = spendingsActions.createSpending(formData.data, new Date())
+    const spending = spendingsActions.createSpending(spFormData.data, new Date())
 
     const newSpRow: SpendingRow = {
       ...spending,
@@ -36,14 +33,11 @@ export default function AddSpendingForm({onCreate, budget}: Props) {
 
     onCreate(newSpRow)
 
-    // clear form
-    form.reset()
-
     setTimeout(() => { alert('Сохранено!') }, 0)
   }
 
   return (
-    <form className="d-flex align-items-center gap-1 mb-5" onSubmit={onSubmit}>
+    <form className="d-flex align-items-center gap-1 mb-5" onSubmit={submitFormData(onSubmit)}>
       <input type="hidden" name="budgetId" value={budget.id}/>
       <input
         type="date"

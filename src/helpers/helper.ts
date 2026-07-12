@@ -9,6 +9,7 @@ import styles from "@/app/App.module.css";
 import type {BudgetsWithSpentById, BudgetWithSpent} from "@/stores/budgets.ts";
 import type {SpendingsByBudget} from "@/stores/spendings.ts";
 import type {BudgetsAndSpendingsRepository} from "@/repository.ts";
+import type {SubmitEventHandler} from "react";
 
 export const genSpendingID = (): string => uuidv7()
 
@@ -150,4 +151,16 @@ export function getAllBudgetsAndSpendings(repo: BudgetsAndSpendingsRepository): 
   }
 
   return {budgetsById, spendingsByBid}
+}
+
+export function submitFormData(handler: (fd: FormData) => boolean|void): SubmitEventHandler<HTMLFormElement> {
+  return e => {
+    e.preventDefault()
+
+    const form = e.currentTarget
+
+    if (handler(new FormData(form)) !== false) {
+      form.reset()
+    }
+  }
 }
