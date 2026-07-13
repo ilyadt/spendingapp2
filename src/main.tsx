@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client'
 import App from '@/app/App.tsx'
 import {createFetcher, createUploader} from "@/api.ts";
 import { HashRouter } from "react-router";
-import {createSpendingActionsWrapper} from "@/models/spendingActionsWrapper.ts";
 import {
   ConflictVersionsStoreContext,
   SpendingActionsContext,
@@ -62,7 +61,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <StatusStoreContext value={statusStore}>
       <ConflictVersionsStoreContext value={conflictVersionsStore}>
-        <SpendingActionsContext value={createSpendingActionsWrapper(spActions)}>
+        <SpendingActionsContext value={spActions}>
           <BudgetsContextProvider store={budgetsStore}>
             <SpendingsContext value={spendingsStore}>
               <HashRouter>

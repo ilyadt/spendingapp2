@@ -14,6 +14,8 @@ import SpendingEditForm from "./components/SpendingEditForm.tsx";
 import SpTableColgroup from "./components/SpTableColgroup.tsx";
 import useTableGroupMode from "./logic/tableGroupMode.ts";
 import type {SpendingFormData} from "@/models/spendingFormData.ts";
+import {buildDeleteSpObj, buildUpdateSpObj} from "@/helpers/spendingBuilder.ts";
+import {createSpendingSaver} from "@/app/components/SpendingTable/logic/spendingSaver.ts";
 
 type Props = {
   date: Date
@@ -30,6 +32,7 @@ export type SpendingTableHandle = {
 export default function SpendingTable({date, budget, initSpendings, onEmpty, ref}: Props) {
   const budgets = useContext(BudgetsContext)
   const spStoreActions = useContext(SpendingActionsContext)
+  const spSaver = createSpendingSaver(spStoreActions)
 
   const [spendings, spRowsActions] = useSpendingRows(initSpendings, onEmpty)
 
@@ -44,7 +47,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
       return
     }
 
-    spStoreActions.deleteSpending(s, new Date())
+    spStoreActions.deleteSpending(s.budgetId, buildDeleteSpObj(s, new Date()))
     spRowsActions.deleteSpendingRow(s.rowId)
   }
 
@@ -68,7 +71,8 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
     )!
 
     for (const sp of spRows) {
-      const newSp = spStoreActions.updateSpending(sp, {receiptId}, updatedAt)
+      const newSp = buildUpdateSpObj(sp, {receiptId}, updatedAt)
+      spStoreActions.updateSpending(sp.budgetId, newSp)
       spRowsActions.patchSpendingRow(sp.rowId, newSp)
     }
 
@@ -91,7 +95,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
       return
     }
 
-    const newSp = spStoreActions.saveSpendingChanges(sp, f.data, new Date())
+    const newSp = spSaver.save(sp, f.data, new Date())
 
     spRowsActions.patchSpendingRow(sp.rowId, {...newSp, budgetId: f.data.budget!.id})
     setPendingRow(null)

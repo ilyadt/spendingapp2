@@ -5,6 +5,7 @@ import type {Budget, SpendingRow} from "@/models/models.ts";
 import {genRandInt, submitFormData} from "@/helpers/helper.ts";
 import {useContext} from "react";
 import {SpendingActionsContext} from "@/models/contexts.ts";
+import {buildCreateSpObj} from "@/helpers/spendingBuilder.ts";
 
 type Props = {
   onCreate(sp: SpendingRow): void
@@ -23,7 +24,9 @@ export default function AddSpendingForm({onCreate, budget}: Props) {
       return false
     }
 
-    const spending = spendingsActions.createSpending(spFormData.data, new Date())
+    const spending = buildCreateSpObj(spFormData.data, new Date())
+
+    spendingsActions.createSpending(budget.id, spending)
 
     const newSpRow: SpendingRow = {
       ...spending,

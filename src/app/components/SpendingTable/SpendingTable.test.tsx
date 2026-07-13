@@ -7,14 +7,10 @@ import {
   SpendingActionsContext
 } from "@/models/contexts.ts";
 import type {BudgetsWithSpentById, BudgetWithSpent} from "@/stores/budgets.ts";
-import type {Budget, Spending, SpendingActions, SpendingRow} from "@/models/models.ts";
+import type {Spending, SpendingActions, SpendingRow} from "@/models/models.ts";
 import * as helper from "@/helpers/helper"
 import {createRef} from "react";
-import {
-  createSpendingActionsWrapper,
-  type SpendingData,
-  type WrappedSpendingActions
-} from "@/models/spendingActionsWrapper.ts";
+import {buildUpdateSpObj} from "@/helpers/spendingBuilder.ts";
 
 const NOW_TIME = new Date('2026-06-12T10:30:00Z')
 
@@ -72,12 +68,13 @@ describe('SpendingTable', async () => {
   )('empty-table/create-new-spending', async ({withinBudget}) => {
     const user = userEvent.setup()
 
-    const saveSpendingChangesMock = vi.fn()
-    const storeActions = {
-      saveSpendingChanges: saveSpendingChangesMock as unknown,
-    }
+    const spActions = {
+      createSpending: vi.fn() as unknown
+    } as SpendingActions
 
     vi.spyOn(helper, 'genRandInt').mockReturnValue(777)
+    vi.spyOn(helper, 'genVersion').mockReturnValue('v1-with-love')
+    vi.spyOn(helper, 'genSpendingID').mockReturnValue('xxx-sp-id-xxx')
 
     const budgetsById: BudgetsWithSpentById = {
       1: {
@@ -91,7 +88,7 @@ describe('SpendingTable', async () => {
     }
 
     render(
-      <SpendingActionsContext value={storeActions as WrappedSpendingActions}>
+      <SpendingActionsContext value={spActions}>
         <BudgetsContext value={budgetsById}>
           <SpendingTable
             date={new Date('2026-06-10')}
@@ -132,21 +129,21 @@ describe('SpendingTable', async () => {
 
     await user.click(screen.getByRole('button', {name: 'submit pending spending'}))
 
-    expect(saveSpendingChangesMock).toHaveBeenCalledOnce()
-    expect(saveSpendingChangesMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        rowId: 777,
-        id: expect.toSatisfy(id => !id),
-        date: new Date('2026-06-10'),
-        sort: NOW_TIME.getTime()
-      } as SpendingRow),
+    expect(spActions.createSpending).toHaveBeenCalledOnce()
+    expect(spActions.createSpending).toHaveBeenCalledWith(
+      1,
       {
-        budget: expect.objectContaining({id: 1, currency: 'RUB'} as Budget),
+        id: 'xxx-sp-id-xxx',
+        version: 'v1-with-love',
         date: new Date('2026-06-10'),
+        sort: NOW_TIME.getTime(),
         amount: 100_00,
-        description: "мороженое"
-      } satisfies SpendingData,
-      NOW_TIME,
+        currency: 'RUB',
+        description: 'мороженое',
+        createdAt: NOW_TIME,
+        updatedAt: NOW_TIME,
+        receiptGroupId: 0
+      } satisfies Spending,
     )
 
     const rows = within(screen.getByRole('table')).getAllByRole('row')
@@ -184,14 +181,12 @@ describe('SpendingTable', async () => {
       sort: 2,
     } as SpendingRow
 
-    const updateSpendingMock = vi.fn()
-
-    const storeActions = {
-      updateSpending: updateSpendingMock as unknown,
-    } as WrappedSpendingActions
+    const spActions = {
+      updateSpending: vi.fn() as unknown
+    } as SpendingActions
 
     render(
-      <SpendingActionsContext value={storeActions}>
+      <SpendingActionsContext value={spActions}>
         <BudgetsContext value={budgetsById}>
           <SpendingTable
             date={new Date('2026-06-10')}
@@ -239,8 +234,7 @@ describe('SpendingTable', async () => {
 
     const receiptIdMock = 0xb3a3d8_112233
     vi.spyOn(helper, 'genReceiptId').mockReturnValue(receiptIdMock)
-
-    updateSpendingMock.mockReturnValue({receiptGroupId: receiptIdMock} as Spending)
+    vi.spyOn(helper, 'genVersion').mockImplementation((prevVer: string|null): string => String(Number(prevVer) + 1))
 
     const uniteReceiptBtn = screen.getByRole('button', {name: 'Объединить в чек'})
     await user.click(uniteReceiptBtn)
@@ -248,16 +242,14 @@ describe('SpendingTable', async () => {
     assertGroupOperations(false)
 
     // Test store savings
-    expect(updateSpendingMock).toHaveBeenCalledTimes(2)
-    expect(updateSpendingMock).toHaveBeenNthCalledWith(1,
-      sp1,
-      {receiptId: receiptIdMock} satisfies Partial<SpendingData>,
-      NOW_TIME,
+    expect(spActions.updateSpending).toHaveBeenCalledTimes(2)
+    expect(spActions.updateSpending).toHaveBeenNthCalledWith(1,
+      1,
+      buildUpdateSpObj(sp1, {receiptId: receiptIdMock}, NOW_TIME,)
     )
-    expect(updateSpendingMock).toHaveBeenNthCalledWith(2,
-      sp2,
-      {receiptId: receiptIdMock} satisfies Partial<SpendingData>,
-      NOW_TIME,
+    expect(spActions.updateSpending).toHaveBeenNthCalledWith(2,
+      2,
+      buildUpdateSpObj(sp2, {receiptId: receiptIdMock}, NOW_TIME)
     )
 
     // Check color change and total appeared in the last element
@@ -330,12 +322,10 @@ describe('SpendingTable', async () => {
         updatedAt: new Date('2026-06-10T09:30:22Z'),
       }
 
-    const updateSpendingStore = vi.fn()
-    const spActionsMock = {updateSpending: updateSpendingStore as unknown} as SpendingActions
-    const wrapper = createSpendingActionsWrapper(spActionsMock)
+    const spActions = {updateSpending: vi.fn() as unknown} as SpendingActions
 
     render(
-      <SpendingActionsContext value={wrapper}>
+      <SpendingActionsContext value={spActions}>
         <BudgetsContext value={budgetsById}>
           <SpendingTable date={new Date('2026-06-10')} initSpendings={[sp1, sp2, sp3]} />
         </BudgetsContext>
@@ -390,9 +380,9 @@ describe('SpendingTable', async () => {
     expect(row3.style.getPropertyValue('--row-bg-color')).toBeFalsy()
 
     // Check store save
-    expect(updateSpendingStore).toHaveBeenCalledTimes(2)
+    expect(spActions.updateSpending).toHaveBeenCalledTimes(2)
 
-    expect(updateSpendingStore).toHaveBeenNthCalledWith(1,  1, {
+    expect(spActions.updateSpending).toHaveBeenNthCalledWith(1,  1, {
       id: "id-1",
       version: "2",
       date: new Date('2026-06-10'),
@@ -411,7 +401,7 @@ describe('SpendingTable', async () => {
       },
     } satisfies Spending)
 
-    expect(updateSpendingStore).toHaveBeenNthCalledWith(2, 2, {
+    expect(spActions.updateSpending).toHaveBeenNthCalledWith(2, 2, {
       id: "id-3",
       version: "2",
       date: new Date('2026-06-10'),

@@ -1,14 +1,14 @@
 import {it, expect, vi, afterEach, describe} from 'vitest'
 import type {Budget, DelSpending, Spending, SpendingActions, SpendingRow} from "@/models/models.ts"
-import {createSpendingActionsWrapper} from "./spendingActionsWrapper.ts";
 import * as helper from '@/helpers/helper.ts'
+import {createSpendingSaver} from "./spendingSaver.ts";
 
 afterEach(() => {
   vi.clearAllMocks()
   vi.restoreAllMocks()
 })
 
-describe(() => {
+describe('spendingSaver', () => {
   const spendingActions: SpendingActions = {
       createSpending: vi.fn(),
       updateSpending: vi.fn(),
@@ -22,9 +22,9 @@ describe(() => {
     const date = new Date('2026-05-26')
     const createdAt = '2026-05-26T12:32:00'
 
-    const wrapper = createSpendingActionsWrapper(spendingActions)
+    const saver = createSpendingSaver(spendingActions)
 
-    const result = wrapper.saveSpendingChanges(
+    const result = saver.save(
       {rowId: 666} as SpendingRow, // empty old spending
       {
         budget: { id: 1, currency: 'RUB' } as Budget,
@@ -62,9 +62,9 @@ describe(() => {
     const date = new Date('2026-05-26')
     const updatedAt = new Date('2026-05-26T12:34:00')
 
-    const wrapper = createSpendingActionsWrapper(spendingActions)
+    const saver = createSpendingSaver(spendingActions)
 
-    const result = wrapper.saveSpendingChanges(
+    const result = saver.save(
       {
         rowId: 999,
         budgetId: 1,
@@ -115,10 +115,10 @@ describe(() => {
     expect(spendingActions.createSpending).not.toHaveBeenCalled()
   })
 
-  it('updateSpendingWithBudget', () => {
+  it('updateSpendingWithChangedBudget', () => {
     vi.spyOn(helper, 'genSpendingID').mockReturnValue('sp2')
     vi.spyOn(helper, 'genVersion')
-      .mockImplementation((prev) => {
+      .mockImplementation((prev: string|null) => {
         switch (prev) {
           case null: return 'v1'
           case 'v2': return 'v3'
@@ -129,9 +129,9 @@ describe(() => {
     const date = new Date('2026-05-26')
     const updatedAt = new Date('2026-05-26T12:36:00')
 
-    const wrapper = createSpendingActionsWrapper(spendingActions)
+    const saver = createSpendingSaver(spendingActions)
 
-    const result = wrapper.saveSpendingChanges(
+    const result = saver.save(
       {
         rowId: 777,
         budgetId: 1,

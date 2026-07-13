@@ -10,8 +10,11 @@ export type BudgetsWithSpentById = {
   [budgetId: number]: BudgetWithSpent
 }
 
-export type BudgetsStore = SpendingActions & {
+export type BudgetsStore = {
   budgets: BudgetsWithSpentById
+  createSpending(bid: number, newSp: Spending): void
+  updateSpending(bid: number, upd: Spending): void
+  deleteSpending(bid: number, del: DelSpending): void
 }
 
 export const budgetsWithSpentStateCreator = (initBudgets: BudgetsWithSpentById): StateCreator<BudgetsStore, [['zustand/immer', never]]> =>
@@ -41,3 +44,6 @@ export const createBudgetsWithSpentStore = (initBudgets: BudgetsWithSpentById) =
     )
   )
 
+// Checks Interface
+const _: SpendingActions = createBudgetsWithSpentStore({}).getState();
+void _

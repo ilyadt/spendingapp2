@@ -1,4 +1,3 @@
-import {createSpendingActionsWrapper} from "@/models/spendingActionsWrapper.ts";
 import {type BudgetsWithSpentById, createBudgetsWithSpentStore} from "@/stores/budgets.ts";
 import {SpendingActionsContext} from "@/models/contexts.ts";
 import SpendingTable from "@/app/components/SpendingTable/SpendingTable.tsx";
@@ -16,7 +15,7 @@ export function SpendingTableForTest({initBudgets, initSpendings}: Props) {
   const spActions: SpendingActions = composeSpActions([budgetsStore.getState()])
 
   return (
-    <SpendingActionsContext value={createSpendingActionsWrapper(spActions)}>
+    <SpendingActionsContext value={spActions}>
       <BudgetsContextProvider store={budgetsStore}>
         <SpendingTable date={new Date('2026-06-24')} initSpendings={initSpendings} />
       </BudgetsContextProvider>
