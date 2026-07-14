@@ -574,12 +574,15 @@ describe('storage_test', () => {
     budgetsAndSpendingsRepository.storeBudgetsFromRemote([makeBudget(1)])
 
     budgetsAndSpendingsRepository.createSpending(1, makeSpending({ id: 'sp1', version: 'ver1' }))
+    budgetsAndSpendingsRepository.createSpending(1, makeSpending({ id: 'sp2', version: 'ver1' }))
 
-    expect(budgetsAndSpendingsRepository.spendingsByBudgetId(1)).length(1)
+    expect(budgetsAndSpendingsRepository.spendingsByBudgetId(1)).length(2)
 
     const revoked = budgetsAndSpendingsRepository.revokeConflictVersion(1, 'sp1', 'ver1')
 
-    expect(budgetsAndSpendingsRepository.spendingsByBudgetId(1)).length(0)
+    const spendings2 = budgetsAndSpendingsRepository.spendingsByBudgetId(1)
+    expect(spendings2).length(1)
+    expect(eq({id: 'sp2', version: 'ver1'}, spendings2[0])).toBe(true)
 
     expect(revoked).length(1)
 

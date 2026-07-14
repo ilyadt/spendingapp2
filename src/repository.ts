@@ -350,32 +350,29 @@ export const createBudgetsAndSpendingsRepository = (ls: Storage) => ({
   // Если произошел конфликт обновления (обновление не может быть применено), то удаляем эту версию из Storage,
   // возвращая удаленные (не примененные) версии
   revokeConflictVersion(bid: number, spId: string, version: string): ConflictSpendingVersion[] {
-    let fromStore: SpendingVersioned[] = JSON.parse(ls.getItem(lsSpendingsKey(bid)) ?? '[]')
+    const storedSpendings: SpendingVersioned[] = JSON.parse(ls.getItem(lsSpendingsKey(bid)) ?? '[]')
 
-    const spVersionedIdx = fromStore.findIndex(s => s.id == spId)
-
+    const spVersionedIdx = storedSpendings.findIndex(s => s.id === spId)
     if (spVersionedIdx == -1) {
       return []
     }
 
-    const spVersioned = fromStore[spVersionedIdx]!
+    const spVersioned = storedSpendings[spVersionedIdx]!
 
-    const idx = spVersioned.versions.findIndex(ver => ver.version == version)
-    if (idx == -1) {
+    const versionIdx = spVersioned.versions.findIndex(ver => ver.version === version)
+    if (versionIdx == -1) {
       return []
     }
 
-    const conflictVersions = makeConflictVersions(bid, spId, spVersioned.versions, v => v.version == version, null)
-
-    spVersioned.versions = spVersioned.versions.slice(0, idx)
+    const revokedVersions = spVersioned.versions.splice(versionIdx)
 
     if (spVersioned.versions.length == 0) {
-      fromStore = fromStore.splice(spVersionedIdx, 0)
+      storedSpendings.splice(spVersionedIdx, 1)
     }
 
-    ls.setItem(lsSpendingsKey(bid), JSON.stringify(fromStore))
+    ls.setItem(lsSpendingsKey(bid), JSON.stringify(storedSpendings))
 
-    return conflictVersions
+    return makeConflictVersions(bid, spId, revokedVersions, () => true, null)
   },
 })
 
@@ -437,9 +434,7 @@ export function makeConflictVersions(
 }
 
 // Final status
-function isFinal(spVersion: SpendingVersion): boolean {
-  return spVersion.deleted == true
-}
+const isFinal = (spVersion: SpendingVersion) => !!spVersion.deleted
 
 export function formatVersionPayload(ver?: SpendingVersion): string | null {
   if (!ver || ver.deleted) {
