@@ -6,7 +6,7 @@ import type {
   Spending,
 } from '@/models/models'
 import {type Currency, formatAmount} from '@/helpers/money'
-import {format, isAfter, isBefore, subSeconds} from 'date-fns'
+import {format, isAfter, subSeconds} from 'date-fns'
 import type {ConflictSpendingVersion} from "@/stores/conflictVersions";
 
 export enum VersionStatus {
@@ -308,15 +308,13 @@ const createBudgetsAndSpendingsRepositoryIntern = (store: StorageWrapper) => ({
         continue
       }
 
-      const deleted =
-        v1.status === VersionStatus.InDb ||
-        (v1.status === VersionStatus.Applied && isBefore(at, subSeconds(Date.now(), 15)))
+      // ---------
+      // SP была и была удалена локально / на сервере
+      // Если были изменения, которые не были применены, помещаем их в revoked
 
-      if (deleted) {
-        revoked.push(
-          ...makeConflictVersions(bid, spv.id, spv.versions, v => v.status === VersionStatus.Pending, 'locally or remote deleted')
-        )
-      }
+      revoked.push(
+        ...makeConflictVersions(bid, spv.id, spv.versions, v => v.status === VersionStatus.Pending, 'locally or remote deleted')
+      )
     }
 
     // --- Both sides ---
@@ -343,6 +341,7 @@ const createBudgetsAndSpendingsRepositoryIntern = (store: StorageWrapper) => ({
 
     result.sort((a, b) => a.id.localeCompare(b.id))
     store.setSpendingsByBid(bid, result)
+
     return revoked
   },
 
@@ -376,22 +375,24 @@ const createBudgetsAndSpendingsRepositoryIntern = (store: StorageWrapper) => ({
       return []
     }
 
-    const spVersioned = storedSpendings[spVersionedIdx]!
+    const spVersions = storedSpendings[spVersionedIdx]!.versions
 
-    const versionIdx = spVersioned.versions.findIndex(ver => ver.version === version)
+    const versionIdx = spVersions.findIndex(ver => ver.version === version)
     if (versionIdx == -1) {
       return []
     }
 
-    const revokedVersions = spVersioned.versions.splice(versionIdx)
+    const conflictVersions = makeConflictVersions(bid, spId, spVersions, ver => ver.version === version, null)
 
-    if (spVersioned.versions.length == 0) {
+    spVersions.splice(versionIdx)
+
+    if (spVersions.length == 0) {
       storedSpendings.splice(spVersionedIdx, 1)
     }
 
     store.setSpendingsByBid(bid, storedSpendings)
 
-    return makeConflictVersions(bid, spId, revokedVersions, () => true, null)
+    return conflictVersions
   },
 })
 
