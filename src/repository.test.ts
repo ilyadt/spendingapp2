@@ -1,13 +1,19 @@
 import { test, expect, describe, beforeEach, vi } from 'vitest'
 
 import type {ApiBudget, ApiMoney, ApiSpending, Budget, Spending} from '@/models/models'
-import { createBudgetsAndSpendingsRepository, VersionStatus, _test, formatVersionPayload, type SpendingVersion } from '@/repository'
+import { createBudgetsAndSpendingsRepository, VersionStatus, formatVersionPayload, type SpendingVersion } from '@/repository'
+
+const localStorageCfg = {
+  lsPrefix: 'storageV2',
+  lsBudgetsKey: () => `storageV2:budgets`,
+  lsSpendingsKey: (bid: number) => `storageV2:b:${bid}:spendings`,
+}
 
 describe('storage_test', () => {
   const budgetsAndSpendingsRepository = createBudgetsAndSpendingsRepository(localStorage)
 
   beforeEach(() => {
-    clearLocalStorageByPrefix(_test.lsPrefix)
+    clearLocalStorageByPrefix(localStorageCfg.lsPrefix)
   })
 
   test('get_budgets:empty', () => {
@@ -15,7 +21,7 @@ describe('storage_test', () => {
   })
 
   test('get_budgets:invalid_store', () => {
-    localStorage.setItem(_test.lsBudgetsKey(), 'invalid json')
+    localStorage.setItem(localStorageCfg.lsBudgetsKey(), 'invalid json')
     expect(() => budgetsAndSpendingsRepository.getBudgets()).toThrow()
   })
 
@@ -97,8 +103,8 @@ describe('storage_test', () => {
     ])
 
     // Эмулируем траты по бюджетам
-    localStorage.setItem(_test.lsSpendingsKey(2), 'some value2')
-    localStorage.setItem(_test.lsSpendingsKey(3), 'some value3')
+    localStorage.setItem(localStorageCfg.lsSpendingsKey(2), 'some value2')
+    localStorage.setItem(localStorageCfg.lsSpendingsKey(3), 'some value3')
 
     budgetsAndSpendingsRepository.storeBudgetsFromRemote([
       {
@@ -124,16 +130,16 @@ describe('storage_test', () => {
     ])
 
     // удаляются траты по бюджетам, которых нет в списке
-    expect(localStorage.getItem(_test.lsSpendingsKey(3))).toBeNull()
+    expect(localStorage.getItem(localStorageCfg.lsSpendingsKey(3))).toBeNull()
 
     // остаются все те, которые есть
-    expect(localStorage.getItem(_test.lsSpendingsKey(2))).toEqual('some value2')
+    expect(localStorage.getItem(localStorageCfg.lsSpendingsKey(2))).toEqual('some value2')
   })
 
   test('spendings_by_budget_id:empty,invalid_store', () => {
     expect(budgetsAndSpendingsRepository.spendingsByBudgetId(555)).toEqual([])
 
-    localStorage.setItem(_test.lsSpendingsKey(555), 'invalid value')
+    localStorage.setItem(localStorageCfg.lsSpendingsKey(555), 'invalid value')
     expect(() => budgetsAndSpendingsRepository.spendingsByBudgetId(555)).toThrow(SyntaxError)
   })
 
@@ -358,7 +364,7 @@ describe('storage_test', () => {
 
   // pending -> applied -> inDB
   test(budgetsAndSpendingsRepository.storeSpendingsFromRemote.name + ':applied', () => {
-    const getValue = () => localStorage.getItem(_test.lsSpendingsKey(1)) || ''
+    const getValue = () => localStorage.getItem(localStorageCfg.lsSpendingsKey(1)) || ''
 
     budgetsAndSpendingsRepository.storeBudgetsFromRemote([makeBudget(1)])
 
@@ -556,14 +562,14 @@ describe('storage_test', () => {
 
     budgetsAndSpendingsRepository.createSpending(1, makeSpending({ id: 'sp1', version: 'ver1' }))
 
-    let storeValue = localStorage.getItem(_test.lsSpendingsKey(1)) || ''
+    let storeValue = localStorage.getItem(localStorageCfg.lsSpendingsKey(1)) || ''
 
     expect(storeValue.includes(VersionStatus.Pending)).toEqual(true)
     expect(storeValue.includes(VersionStatus.Applied)).toEqual(false)
 
     budgetsAndSpendingsRepository.setStatusApplied(1, 'sp1', 'ver1')
 
-    storeValue = localStorage.getItem(_test.lsSpendingsKey(1)) || ''
+    storeValue = localStorage.getItem(localStorageCfg.lsSpendingsKey(1)) || ''
 
     expect(storeValue.includes(VersionStatus.Applied)).toEqual(true)
   })

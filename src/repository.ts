@@ -45,23 +45,47 @@ interface SpendingVersioned {
   versions: SpendingVersion[]
 }
 
-const lsPrefix = 'storageV2'
+type StorageWrapper = ReturnType<typeof createLocalStorageWrapper>
 
-function lsSpendingsKey(bid: number): string {
-  return `${lsPrefix}:b:${bid}:spendings`
-}
+const createLocalStorageWrapper = (ls: Storage) => {
+  const prefix = 'storageV2'
+  const budgetsKey = `${prefix}:budgets`
+  const spendingsKey = (bid: number) => `${prefix}:b:${bid}:spendings`
 
-function lsBudgetsKey(): string {
-  return `${lsPrefix}:budgets`
+  return {
+    getBudgets(): ApiBudget[] {
+      return JSON.parse(ls.getItem(budgetsKey) ?? '[]')
+    },
+
+    setBudgets(budgets: ApiBudget[]) {
+      ls.setItem(budgetsKey, JSON.stringify(budgets))
+    },
+
+    getSpendingsByBid(bid: number): SpendingVersioned[] {
+      return JSON.parse(ls.getItem(spendingsKey(bid)) ?? '[]')
+    },
+    setSpendingsByBid(bid: number, spendings: SpendingVersioned[]) {
+      if (spendings.length === 0) {
+        ls.removeItem(spendingsKey(bid))
+        return
+      }
+
+      ls.setItem(spendingsKey(bid), JSON.stringify(spendings))
+    },
+  }
 }
 
 export type BudgetsAndSpendingsRepository = ReturnType<typeof createBudgetsAndSpendingsRepository>
 
-export const createBudgetsAndSpendingsRepository = (ls: Storage) => ({
+export const createBudgetsAndSpendingsRepository = (ls: Storage) => createBudgetsAndSpendingsRepositoryIntern(
+  createLocalStorageWrapper(ls)
+)
+
+const createBudgetsAndSpendingsRepositoryIntern = (store: StorageWrapper) => ({
   // -----------------------------------------------------------------
   // Методы получения данных из стора
   getBudgets(): Budget[] {
-    const budgets: ApiBudget[] = JSON.parse(ls.getItem(lsBudgetsKey()) ?? '[]')
+    const budgets: ApiBudget[] = store.getBudgets()
 
     return budgets.map(apib => ({
       id: apib.id,
@@ -77,7 +101,7 @@ export const createBudgetsAndSpendingsRepository = (ls: Storage) => ({
     }))
   },
   spendingsByBudgetId(bid: number): Spending[] {
-    const fromStore: SpendingVersioned[] = JSON.parse(ls.getItem(lsSpendingsKey(bid)) || '[]')
+    const fromStore: SpendingVersioned[] = store.getSpendingsByBid(bid)
 
     const res: Spending[] = []
 
@@ -113,9 +137,9 @@ export const createBudgetsAndSpendingsRepository = (ls: Storage) => ({
    * @throws Error if already there
    */
   createSpending(bid: number, newSp: Spending): void {
-    assertBudget(ls, bid)
+    assertBudget(store, bid)
 
-    const spendingsFromLS: SpendingVersioned[] = JSON.parse(ls.getItem(lsSpendingsKey(bid)) ?? '[]')
+    const spendingsFromLS: SpendingVersioned[] = store.getSpendingsByBid(bid)
     const idx = spendingsFromLS.findIndex(s => s.id >= newSp.id)
 
     // Дополнительная проверка. Предполагается, что ID создается на клиенте всегда уникальный
@@ -145,16 +169,16 @@ export const createBudgetsAndSpendingsRepository = (ls: Storage) => ({
 
     spendingsFromLS.splice(insertIdx, 0, newSpVersioned)
 
-    ls.setItem(lsSpendingsKey(bid), JSON.stringify(spendingsFromLS))
+    store.setSpendingsByBid(bid, spendingsFromLS)
   },
 
   /**
    * @throws Error if not exist / cannot be applied
    */
   updateSpending(bid: number, upd: Spending): void {
-    assertBudget(ls, bid)
+    assertBudget(store, bid)
 
-    const fromStore: SpendingVersioned[] = JSON.parse(ls.getItem(lsSpendingsKey(bid)) ?? '[]')
+    const fromStore: SpendingVersioned[] = store.getSpendingsByBid(bid)
 
     const sp = fromStore.find(s => s.id == upd.id)
 
@@ -184,16 +208,16 @@ export const createBudgetsAndSpendingsRepository = (ls: Storage) => ({
       receiptId: upd.receiptGroupId,
     })
 
-    ls.setItem(lsSpendingsKey(bid), JSON.stringify(fromStore))
+    store.setSpendingsByBid(bid, fromStore)
   },
 
   // Silently skips if not there
   // fields: id, version, prevVersion, updatedAt / deletedAt /,
   // @throws Error if not exist / cannot be applied
   deleteSpending(bid: number, del: DelSpending): void {
-    assertBudget(ls, bid)
+    assertBudget(store, bid)
 
-    const fromStore: SpendingVersioned[] = JSON.parse(ls.getItem(lsSpendingsKey(bid)) ?? '[]')
+    const fromStore: SpendingVersioned[] = store.getSpendingsByBid(bid)
 
     const sp = fromStore.find(s => s.id == del.id)
     if (!sp) {
@@ -217,7 +241,7 @@ export const createBudgetsAndSpendingsRepository = (ls: Storage) => ({
       deleted: true,
     })
 
-    ls.setItem(lsSpendingsKey(bid), JSON.stringify(fromStore))
+    store.setSpendingsByBid(bid, fromStore)
   },
 
   // -----------------------------------------------------------------
@@ -229,8 +253,7 @@ export const createBudgetsAndSpendingsRepository = (ls: Storage) => ({
   storeBudgetsFromRemote(budgets: ApiBudget[]): void {
     budgets.sort((b1, b2) => b1.id - b2.id)
 
-    const raw = ls.getItem(lsBudgetsKey())
-    const storageBudgets: ApiBudget[] = raw ? JSON.parse(raw) : []
+    const storageBudgets: ApiBudget[] = store.getBudgets()
 
     const newIds = new Set(budgets.map(b => b.id))
     const oldIds = new Set(storageBudgets.map(b => b.id))
@@ -238,18 +261,18 @@ export const createBudgetsAndSpendingsRepository = (ls: Storage) => ({
     const toDeleteBids = new Set([...oldIds].filter(id => !newIds.has(id)))
 
     for (const delId of toDeleteBids) {
-      ls.removeItem(lsSpendingsKey(delId))
+      store.setSpendingsByBid(delId, [])
     }
 
-    ls.setItem(lsBudgetsKey(), JSON.stringify(budgets))
+    store.setBudgets(budgets)
   },
 
   // Поэлементное spendingID, сравнение текущих данных и новых.
   // Новые данные имеют точку правды, все несоответствующие pending переносятся в <Error Storage>.
   storeSpendingsFromRemote(bid: number, remoteSps: ApiSpending[]): ConflictSpendingVersion[] {
-    assertBudget(ls, bid)
+    assertBudget(store, bid)
 
-    const localSps: SpendingVersioned[] = JSON.parse(ls.getItem(lsSpendingsKey(bid)) ?? '[]')
+    const localSps: SpendingVersioned[] = store.getSpendingsByBid(bid)
     const remoteById = new Map(remoteSps.map(sp => [sp.id, sp]))
     const localById = new Map(localSps.map(sp => [sp.id, sp]))
 
@@ -321,13 +344,13 @@ export const createBudgetsAndSpendingsRepository = (ls: Storage) => ({
     }
 
     result.sort((a, b) => a.id.localeCompare(b.id))
-    ls.setItem(lsSpendingsKey(bid), JSON.stringify(result))
+    store.setSpendingsByBid(bid, result)
     return revoked
   },
 
   // После доставки обновления на бек изменяем статус версии в Storage
   setStatusApplied(bid: number, spId: string, version: string): void {
-    const fromStore: SpendingVersioned[] = JSON.parse(ls.getItem(lsSpendingsKey(bid)) ?? '[]')
+    const fromStore: SpendingVersioned[] = store.getSpendingsByBid(bid)
 
     const spVersioned = fromStore.find(s => spId == s.id)
 
@@ -344,13 +367,13 @@ export const createBudgetsAndSpendingsRepository = (ls: Storage) => ({
     storedVer.status = VersionStatus.Applied
     storedVer.statusAt = new Date()
 
-    ls.setItem(lsSpendingsKey(bid), JSON.stringify(fromStore))
+    store.setSpendingsByBid(bid, fromStore)
   },
 
   // Если произошел конфликт обновления (обновление не может быть применено), то удаляем эту версию из Storage,
   // возвращая удаленные (не примененные) версии
   revokeConflictVersion(bid: number, spId: string, version: string): ConflictSpendingVersion[] {
-    const storedSpendings: SpendingVersioned[] = JSON.parse(ls.getItem(lsSpendingsKey(bid)) ?? '[]')
+    const storedSpendings: SpendingVersioned[] = store.getSpendingsByBid(bid)
 
     const spVersionedIdx = storedSpendings.findIndex(s => s.id === spId)
     if (spVersionedIdx == -1) {
@@ -370,15 +393,15 @@ export const createBudgetsAndSpendingsRepository = (ls: Storage) => ({
       storedSpendings.splice(spVersionedIdx, 1)
     }
 
-    ls.setItem(lsSpendingsKey(bid), JSON.stringify(storedSpendings))
+    store.setSpendingsByBid(bid, storedSpendings)
 
     return makeConflictVersions(bid, spId, revokedVersions, () => true, null)
   },
 })
 
 // Check budget exists
-function assertBudget(ls: Storage, bid: number) {
-  const budgets: ApiBudget[] = JSON.parse(ls.getItem(lsBudgetsKey()) ?? '[]')
+function assertBudget(store: StorageWrapper, bid: number) {
+  const budgets: ApiBudget[] = store.getBudgets()
   const b = budgets.find(b => b.id === bid)
   if (!b) {
     throw new Error('not existing budget')
@@ -442,10 +465,4 @@ export function formatVersionPayload(ver?: SpendingVersion): string | null {
   }
 
   return `${format(ver.date!, 'dd.MM')}: ${formatAmount(ver.amount!, ver.currency!)} ${ver.description!}`
-}
-
-export const _test = {
-  lsBudgetsKey,
-  lsSpendingsKey,
-  lsPrefix,
 }
