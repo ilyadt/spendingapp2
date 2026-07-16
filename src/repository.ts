@@ -181,13 +181,11 @@ const createBudgetsAndSpendingsRepositoryIntern = (store: StorageWrapper) => ({
     const fromStore: SpendingVersioned[] = store.getSpendingsByBid(bid)
 
     const sp = fromStore.find(s => s.id == upd.id)
-
     if (!sp) {
       throw new Error('spending not found')
     }
 
     const lastVer = sp.versions.at(-1)!
-
     if (isFinal(lastVer)) {
       throw new Error('spending cannot be changed')
     }
@@ -235,9 +233,9 @@ const createBudgetsAndSpendingsRepositoryIntern = (store: StorageWrapper) => ({
     }
 
     sp.versions.push({
-      version: del.version!,
+      version: del.version,
       status: VersionStatus.Pending,
-      updatedAt: del.updatedAt!,
+      updatedAt: del.updatedAt,
       deleted: true,
     })
 
@@ -353,13 +351,11 @@ const createBudgetsAndSpendingsRepositoryIntern = (store: StorageWrapper) => ({
     const fromStore: SpendingVersioned[] = store.getSpendingsByBid(bid)
 
     const spVersioned = fromStore.find(s => spId == s.id)
-
     if (!spVersioned) {
       return
     }
 
     const storedVer = spVersioned.versions.find(ver => ver.version == version)
-
     if (!storedVer) {
       return
     }
