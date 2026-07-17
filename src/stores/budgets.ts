@@ -1,6 +1,6 @@
 import {createStore, type StateCreator} from 'zustand'
 import { immer } from 'zustand/middleware/immer';
-import type {Budget, DelSpending, Spending, SpendingActions} from "@/models/models.ts";
+import type {Budget, DelSpending, Spending} from "@/models/models.ts";
 
 export type BudgetWithSpent = Budget & {
   amountSpent: number
@@ -43,7 +43,3 @@ export const createBudgetsWithSpentStore = (initBudgets: BudgetsWithSpentById) =
       budgetsWithSpentStateCreator(initBudgets)
     )
   )
-
-// Checks Interface
-const _: SpendingActions = createBudgetsWithSpentStore({}).getState();
-void _

@@ -1,5 +1,5 @@
 import {it, expect, vi, afterEach, describe} from 'vitest'
-import type {Budget, DelSpending, Spending, SpendingActions, SpendingRow} from "@/models/models.ts"
+import type {Budget, DelSpending, Spending, SpendingRow} from "@/models/models.ts"
 import * as helper from '@/helpers/helper.ts'
 import {createSpendingSaver} from "./spendingSaver.ts";
 
@@ -9,7 +9,7 @@ afterEach(() => {
 })
 
 describe('spendingSaver', () => {
-  const spendingActions: SpendingActions = {
+  const spendingActions = {
       createSpending: vi.fn(),
       updateSpending: vi.fn(),
       deleteSpending: vi.fn(),

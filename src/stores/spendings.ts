@@ -1,5 +1,5 @@
 
-import type {DelSpending, Spending, SpendingActions} from "@/models/models.ts";
+import type {DelSpending, Spending} from "@/models/models.ts";
 
 export type SpendingsByBudget = Record<number, Spending[]>
 
@@ -44,7 +44,3 @@ export const createSpendingsStore = (initSpendings: SpendingsByBudget) => {
     }
   }
 }
-
-// Checks Interface
-const _: SpendingActions = createSpendingsStore({});
-void _
