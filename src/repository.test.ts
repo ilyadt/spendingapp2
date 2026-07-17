@@ -156,10 +156,10 @@ describe('storage_test', () => {
     expect(res1).length(2)
     expect(res2).length(2)
 
-    expect(eq({ id: 'sp11' }, res1[0]!)).toBe(true)
-    expect(eq({ id: 'sp12' }, res1[1]!)).toBe(true)
-    expect(eq({ id: 'sp21' }, res2[0]!)).toBe(true)
-    expect(eq({ id: 'sp22' }, res2[1]!)).toBe(true)
+    expectToMatchObject({ id: 'sp11' }, res1[0]!)
+    expectToMatchObject({ id: 'sp12' }, res1[1]!)
+    expectToMatchObject({ id: 'sp21' }, res2[0]!)
+    expectToMatchObject({ id: 'sp22' }, res2[1]!)
   })
 
   test(budgetsAndSpendingsRepository.storeSpendingsFromRemote.name, () => {
@@ -356,8 +356,8 @@ describe('storage_test', () => {
     const sps2 = budgetsAndSpendingsRepository.spendingsByBudgetId(1)
 
     expect(sps2).length(2)
-    expect(eq({ id: 'sp1', version: 'ver1' }, sps2[0]!)).toBe(true)
-    expect(eq({ id: 'sp2', version: 'ver1' }, sps2[1]!)).toBe(true)
+    expectToMatchObject({ id: 'sp1', version: 'ver1' }, sps2[0])
+    expectToMatchObject({ id: 'sp2', version: 'ver1' }, sps2[1]!)
 
     vi.useRealTimers()
   })
@@ -588,11 +588,11 @@ describe('storage_test', () => {
 
     const spendings2 = budgetsAndSpendingsRepository.spendingsByBudgetId(1)
     expect(spendings2).length(1)
-    expect(eq({id: 'sp2', version: 'ver1'}, spendings2[0])).toBe(true)
+    expectToMatchObject({id: 'sp2', version: 'ver1'}, spendings2[0])
 
     expect(revoked).length(1)
 
-    expect(eq({ spendingId: 'sp1', version: 'ver1' }, revoked[0]!)).toBe(true)
+    expectToMatchObject({ spendingId: 'sp1', version: 'ver1' }, revoked[0]!)
 
     expect(budgetsAndSpendingsRepository.revokeConflictVersion(1, 'sp1', 'ver1')).toEqual([])
   })
@@ -615,16 +615,14 @@ function makeApiSpending(sp: Partial<ApiSpending> = {}): ApiSpending {
 function clearLocalStorageByPrefix(prefix: string) {
   for (let i = localStorage.length - 1; i >= 0; i--) {
     const key = localStorage.key(i)
-    if (key && key.startsWith(prefix)) {
+    if (key?.startsWith(prefix)) {
       localStorage.removeItem(key)
     }
   }
 }
 
-function eq<T extends object>(partial: Partial<T>, full: T): boolean {
-  return (Object.keys(partial) as Array<keyof T>).every(key => {
-    return full[key] === partial[key]
-  })
+function expectToMatchObject<T extends object>(exp: Partial<T>, actual: T) {
+  expect(actual).toMatchObject(exp)
 }
 
 test('formatVersionPayload', () => {
