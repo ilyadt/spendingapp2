@@ -59,8 +59,7 @@ describe('SpendingTable', async () => {
 
     expect(document.getElementById('overlay')).not.toBeInTheDocument()
 
-    const rows = within(screen.getByRole('table')).getAllByRole('row')
-    expect(rows.length).toEqual(1)
+    expect(within(screen.getByRole('table')).queryAllByRole('row')).toHaveLength(0)
   })
 
   test.each(
@@ -146,8 +145,7 @@ describe('SpendingTable', async () => {
       } satisfies Spending,
     )
 
-    const rows = within(screen.getByRole('table')).getAllByRole('row')
-    expect(rows.length).toEqual(2) // one row is "+" sign
+    expect(within(screen.getByRole('table')).queryAllByRole('row')).toHaveLength(1)
     // TODO: test content of this row
   })
 
@@ -555,12 +553,7 @@ describe('SpendingTable', async () => {
     await screen.findByText('ресторанчик')
     await screen.findAllByText('charm')
 
-    const lastRow = within(screen.getByRole('table'))
-      .getAllByRole('row')
-      .at(-1)!
-
-    const totalsCell = within(lastRow).getAllByRole('cell').at(-1)!
-    expect(totalsCell.textContent).toBe('199.99 €')
+    expect(screen.getByLabelText('totals')).toHaveTextContent('199.99 €')
   })
 })
 

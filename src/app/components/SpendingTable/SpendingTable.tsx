@@ -168,7 +168,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
 
         <table
           className={`table table-bordered table-sm align-middle ${styles.spDayTable}`}
-          style={{opacity: isToday(date) ? 1 : 0.5}}
+          style={{opacity: isToday(date) ? 1 : 0.5, marginBottom: 0}}
         >
 
           <SpTableColgroup crossBudget={crossBudget} />
@@ -234,31 +234,24 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
             </tr>
           ))}
 
-          <tr key="sp-add">
-            <td>
-              <button
-                type="button"
-                onClick={addNewSpending}
-                disabled={groupMode.enabled}
-                className="btn btn-success btn-small"
-              >+</button>
-            </td>
-            <td/>
-            {crossBudget && <td/>}
-            <td>{ totals(spendings).join(', ') }</td>
-          </tr>
-
           </tbody>
         </table>
-
-        {groupMode.enabled &&
-          <div role="group" aria-label="group-actions">
-            <button onClick={uniteReceipt} className="btn btn-success btn-small">Объединить в чек</button>
-            <button onClick={separateReceipt} className="btn btn-success btn-small">Разъединить чек</button>
-            <button onClick={groupMode.disable} className="btn btn-warning btn-small">Отменить</button>
-          </div>
-        }
       </div>
+
+      {groupMode.enabled ?
+        <div role="group" aria-label="group-actions">
+          <button onClick={uniteReceipt} className="btn btn-success btn-small">Объединить в чек</button>
+          <button onClick={separateReceipt} className="btn btn-success btn-small">Разъединить чек</button>
+          <button onClick={groupMode.disable} className="btn btn-warning btn-small">Отменить</button>
+        </div>
+        :
+        <div>
+          <button type="button" onClick={addNewSpending} className="btn btn-success btn-small">+</button>
+          <span style={{width: '20px', display: 'inline-block'}}></span>
+          <span aria-label="totals">{ totals(spendings).join(', ') }</span>
+        </div>
+      }
+      <div style={{height: '15px'}}></div>
     </div>
   )
 }
