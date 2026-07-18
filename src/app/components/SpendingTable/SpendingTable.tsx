@@ -51,7 +51,11 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
     spRowsActions.deleteSpendingRow(s.rowId)
   }
 
-  function editSpendingFunc(s: SpendingRow, rowIdx: number) {
+  function onEditSpendingClick(s: SpendingRow, rowIdx: number) {
+    if (groupMode.enabled) {
+      return
+    }
+
     return () => setPendingRow({...s, rowIdx})
   }
 
@@ -157,6 +161,11 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
       </p>
 
       <div style={{position: 'relative', padding: 0}}>
+
+        {pendingRow &&
+          <SpendingEditForm sp={pendingRow} save={savePendingSp} cancel={cancelPendingSp} budget={budget}/>
+        }
+
         <table
           className={`table table-bordered table-sm align-middle ${styles.spDayTable}`}
           style={{opacity: isToday(date) ? 1 : 0.5}}
@@ -174,7 +183,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
             >
               <td style={{textAlign: 'right', position: "relative"}}>
 
-                <span aria-label="amount" onClick={groupMode.enabled ? undefined : editSpendingFunc(sp,idx)}>
+                <span aria-label="amount" onClick={onEditSpendingClick(sp,idx)}>
                   {toMajorUnits(sp.amount, sp.currency)}
                 </span>
 
@@ -199,12 +208,12 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
               </td>
 
               <td>
-                <span onClick={groupMode.enabled ? undefined : editSpendingFunc(sp,idx)}>{sp.description}</span>
+                <span onClick={onEditSpendingClick(sp,idx)}>{sp.description}</span>
               </td>
 
               {crossBudget && (
                 <td>
-                  <span onClick={groupMode.enabled ? undefined : editSpendingFunc(sp,idx)}>
+                  <span onClick={onEditSpendingClick(sp,idx)}>
                     {!isNew(sp) && budgets[sp.budgetId].alias}
                   </span>
                 </td>
@@ -241,10 +250,6 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
 
           </tbody>
         </table>
-
-        {pendingRow &&
-          <SpendingEditForm sp={pendingRow} save={savePendingSp} cancel={cancelPendingSp} budget={budget}/>
-        }
 
         {groupMode.enabled &&
           <div role="group" aria-label="group-actions">
