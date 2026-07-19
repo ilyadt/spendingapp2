@@ -13,7 +13,7 @@ export function createSpendingFormData(fd: FormData, budgets: Record<number, Bud
   const date = d.getTime() ? d : null
 
   return {
-    data: {amount, description, budget, date: date!},
+    data: {amount, description, budget: budget!, date: date!},
     isEmpty: () => !amountFull && !description,
     validate() {
       if (!budget) {

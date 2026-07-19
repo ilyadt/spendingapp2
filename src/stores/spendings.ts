@@ -10,10 +10,12 @@ export type SpendingsStoreApi = ReturnType<typeof createSpendingsStore>
 export const createSpendingsStore = (initSpendings: SpendingsByBudget) => {
   const state: SpendingsByBudgetBySpendingId = {}
 
-  for (const bid in initSpendings) {
-    for (const s of initSpendings[bid]) {
-      state[bid] ??= {}
-      state[bid][s.id] = s
+  for (const [bid, spendings] of Object.entries(initSpendings)) {
+    const budgetId = Number(bid)
+
+    for (const s of spendings) {
+      state[budgetId] ??= {}
+      state[budgetId][s.id] = s
     }
   }
 

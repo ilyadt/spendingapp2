@@ -83,22 +83,22 @@ describe('dynamic_budgets', () => {
     dynamicBudgetsStore.getState().createSpending(2, makeSpending({id: 'sp3', amount: 200_00}))
     expect(listener).toHaveBeenCalledTimes(2)
 
-    expect(dynamicBudgetsStore.getState().budgets[1].amountSpent).toEqual(1600_00)
-    expect(dynamicBudgetsStore.getState().budgets[2].amountSpent).toEqual(200_00)
+    expect(dynamicBudgetsStore.getState().budgets[1]!.amountSpent).toEqual(1600_00)
+    expect(dynamicBudgetsStore.getState().budgets[2]!.amountSpent).toEqual(200_00)
 
     // update
     dynamicBudgetsStore.getState().updateSpending(2,
       makeSpending({id: 'sp3', amount: 300_00, prev: makeSpendingPrev({amount: 200_00})}),
     )
     expect(listener).toHaveBeenCalledTimes(3)
-    expect(dynamicBudgetsStore.getState().budgets[2].amountSpent).toEqual(300_00)
+    expect(dynamicBudgetsStore.getState().budgets[2]!.amountSpent).toEqual(300_00)
 
     // delete
     dynamicBudgetsStore.getState().deleteSpending(1,
       makeSpending({id: 'sp2', prev: makeSpendingPrev({amount: 1000_00})})
     )
     expect(listener).toHaveBeenCalledTimes(4)
-    expect(dynamicBudgetsStore.getState().budgets[1].amountSpent).toEqual(600_00)
+    expect(dynamicBudgetsStore.getState().budgets[1]!.amountSpent).toEqual(600_00)
   })
 })
 

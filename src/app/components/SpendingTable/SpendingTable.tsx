@@ -192,7 +192,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
                     aria-label="receipt total"
                     style={{position: 'absolute', bottom: 0, left: '4px', fontSize: 'small', fontFamily: 'monospace'}}
                   >
-                    {toMajorUnits(receiptTotal[sp.rowId], sp.currency)}
+                    {toMajorUnits(receiptTotal[sp.rowId]!, sp.currency)}
                   </span>
                 )}
 
@@ -214,7 +214,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
               {crossBudget && (
                 <td>
                   <span onClick={onEditSpendingClick(sp,idx)}>
-                    {!isNew(sp) && budgets[sp.budgetId].alias}
+                    {!isNew(sp) && budgets[sp.budgetId]!.alias}
                   </span>
                 </td>
               )}
@@ -251,6 +251,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
           <span aria-label="totals">{ totals(spendings).join(', ') }</span>
         </div>
       }
+
       <div style={{height: '15px'}}></div>
     </div>
   )

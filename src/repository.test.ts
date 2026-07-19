@@ -356,7 +356,7 @@ describe('storage_test', () => {
     const sps2 = budgetsAndSpendingsRepository.spendingsByBudgetId(1)
 
     expect(sps2).length(2)
-    expectToMatchObject({ id: 'sp1', version: 'ver1' }, sps2[0])
+    expectToMatchObject({ id: 'sp1', version: 'ver1' }, sps2[0]!)
     expectToMatchObject({ id: 'sp2', version: 'ver1' }, sps2[1]!)
 
     vi.useRealTimers()
@@ -588,7 +588,7 @@ describe('storage_test', () => {
 
     const spendings2 = budgetsAndSpendingsRepository.spendingsByBudgetId(1)
     expect(spendings2).length(1)
-    expectToMatchObject({id: 'sp2', version: 'ver1'}, spendings2[0])
+    expectToMatchObject({id: 'sp2', version: 'ver1'}, spendings2[0]!)
 
     expect(revoked).length(1)
 

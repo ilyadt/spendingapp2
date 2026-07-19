@@ -22,17 +22,17 @@ export const budgetsWithSpentStateCreator = (initBudgets: BudgetsWithSpentById):
     budgets: initBudgets,
     createSpending(bid: number, newSp: Spending) {
       set(state => {
-        state.budgets[bid].amountSpent += newSp.amount
+        state.budgets[bid]!.amountSpent += newSp.amount
       })
     },
     updateSpending(bid: number, upd: Spending) {
       set(state => {
-        state.budgets[bid].amountSpent += (upd.amount - upd.prev!.amount)
+        state.budgets[bid]!.amountSpent += (upd.amount - upd.prev!.amount)
       })
     },
     deleteSpending(bid: number, del: DelSpending) {
       set(state => {
-        state.budgets[bid].amountSpent -= del.prev!.amount
+        state.budgets[bid]!.amountSpent -= del.prev!.amount
       })
     },
   })
