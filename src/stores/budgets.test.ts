@@ -103,10 +103,9 @@ describe('dynamic_budgets', () => {
 })
 
 function makeSpending(sp: Partial<Spending>): Spending {
-  return {
+  const res: Spending = {
     id: sp.id ?? '',
     version: sp.version ?? '',
-    prev: sp.prev ?? undefined,
     date: sp.date ?? new Date(0),
     sort: sp.sort ?? 0,
     amount: sp.amount ?? 0,
@@ -116,6 +115,12 @@ function makeSpending(sp: Partial<Spending>): Spending {
     updatedAt: sp.updatedAt ?? new Date(0),
     receiptGroupId: sp.receiptGroupId ?? 0,
   }
+
+  if (sp.prev) {
+    res.prev = sp.prev
+  }
+
+  return res
 }
 
 function makeSpendingPrev(prev: Partial<SpendingPrev>): SpendingPrev {

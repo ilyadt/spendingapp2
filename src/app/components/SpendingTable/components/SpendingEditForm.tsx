@@ -14,7 +14,7 @@ import {createSpendingFormData, type SpendingFormData} from "@/models/spendingFo
 
 type Props = {
   sp: SpendingRow & { rowIdx: number };
-  budget?: Budget;
+  budget?: Budget|undefined;
   save(fd: SpendingFormData): void;
   cancel(fd: SpendingFormData): void;
 }

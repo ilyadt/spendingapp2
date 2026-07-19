@@ -667,10 +667,9 @@ function makeBudget(id: number): ApiBudget {
 }
 
 function makeSpending(sp: Partial<Spending> = {}): Spending {
-  return {
+  const result: Spending = {
     id: sp.id ?? '',
     version: sp.version ?? '',
-    prev: sp.prev ?? undefined,
     date: sp.date ?? new Date(0),
     sort: sp.sort ?? 0,
     amount: sp.amount ?? 0,
@@ -680,6 +679,12 @@ function makeSpending(sp: Partial<Spending> = {}): Spending {
     updatedAt: sp.updatedAt ?? new Date(0),
     receiptGroupId: sp.receiptGroupId ?? 0,
   }
+
+  if (sp.prev) {
+    result.prev = sp.prev
+  }
+
+  return result
 }
 
 function fromRUB(rubs: number): ApiMoney {

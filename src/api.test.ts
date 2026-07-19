@@ -569,17 +569,28 @@ function clearLocalStorageByPrefix(prefix: string) {
 // type WithRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
 function makeApiSpendingEvent(e: Partial<ApiSpendingEvent>): ApiSpendingEvent {
-  return {
+  const result: ApiSpendingEvent = {
     eventId: e.eventId ?? '',
     dateTime: e.dateTime ?? '',
     type: e.type ?? 'create',
     budgetId: e.budgetId ?? 0,
     spendingId: e.spendingId ?? '',
     newVersion: e.newVersion ?? '',
-    createData: e.createData ?? undefined,
-    updateData: e.updateData ?? undefined,
-    deleteData: e.deleteData ?? undefined,
   }
+
+  if (e.createData) {
+    result.createData = e.createData
+  }
+
+  if (e.updateData) {
+    result.updateData = e.updateData
+  }
+
+  if (e.deleteData) {
+    result.deleteData = e.deleteData
+  }
+
+  return result
 }
 
 const jsonResponse = `

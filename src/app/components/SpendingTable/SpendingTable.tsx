@@ -19,7 +19,7 @@ import {createSpendingSaver} from "@/app/components/SpendingTable/logic/spending
 
 type Props = {
   date: Date
-  budget?: Budget,
+  budget?: Budget|undefined,
   initSpendings: SpendingRow[]
   onEmpty?: () => void
   ref?: Ref<SpendingTableHandle>

@@ -87,18 +87,29 @@ const createBudgetsAndSpendingsRepositoryIntern = (store: StorageWrapper) => ({
   getBudgets(): Budget[] {
     const budgets: ApiBudget[] = store.getBudgets()
 
-    return budgets.map(apib => ({
-      id: apib.id,
-      alias: apib.alias,
-      name: apib.name,
-      description: apib.description,
-      sort: apib.sort,
-      amount: apib.money.amount,
-      currency: apib.money.currency as Currency,
-      dateFrom: new Date(apib.dateFrom),
-      dateTo: new Date(apib.dateTo),
-      params: apib.params,
-    }))
+    const result: Budget[] = []
+
+    for (const apib of budgets) {
+      const b: Budget = {
+        id: apib.id,
+        alias: apib.alias,
+        name: apib.name,
+        sort: apib.sort,
+        amount: apib.money.amount,
+        currency: apib.money.currency as Currency,
+        dateFrom: new Date(apib.dateFrom),
+        dateTo: new Date(apib.dateTo),
+        params: apib.params,
+      }
+
+      if (apib.description) {
+        b.description = apib.description
+      }
+
+      result.push(b)
+    }
+
+    return result
   },
   spendingsByBudgetId(bid: number): Spending[] {
     const fromStore: SpendingVersioned[] = store.getSpendingsByBid(bid)
@@ -406,7 +417,7 @@ function assertBudget(store: StorageWrapper, bid: number) {
 }
 
 function remoteToVersion(sp: ApiSpending): SpendingVersion {
-  return {
+  const result: SpendingVersion = {
     version: sp.version,
     status: VersionStatus.InDb,
     date: new Date(sp.date),
@@ -416,8 +427,13 @@ function remoteToVersion(sp: ApiSpending): SpendingVersion {
     sort: sp.sort,
     updatedAt: new Date(sp.updatedAt),
     deleted: false,
-    receiptId: sp.receiptGroupId,
   }
+
+  if (sp.receiptGroupId) {
+    result.receiptId = sp.receiptGroupId
+  }
+
+  return result
 }
 
 export function makeConflictVersions(
