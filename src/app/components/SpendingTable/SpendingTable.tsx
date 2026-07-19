@@ -224,6 +224,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
                   className={`btn btn-warning btn-sm ${styles.actionButton}`}
                   onClick={() => delSpending(sp)}
                   disabled={groupMode.enabled}
+                  aria-label="delete spending"
                 >
                   <FontAwesomeIcon icon={faXmark}/>
                 </button>

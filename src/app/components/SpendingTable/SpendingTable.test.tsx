@@ -487,15 +487,15 @@ describe('SpendingTable', async () => {
     await user.click(gpModeBtn)
 
     assertGroupOperations(true)
-    //
+
+    // No edit
     const amountText = screen.getByText('100')
     await user.click(amountText)
-
-    // Edit form isn't opened
     expect(screen.queryByRole('form')).not.toBeInTheDocument()
 
-    // TODO:
-    // expect(screen.queryByRole('del spending')).not.toBeInTheDocument()
+    // No delete
+    await user.click(screen.getByRole('button', {name: 'delete spending'}))
+    expect(screen.queryByRole('form')).not.toBeInTheDocument()
   })
 
   test('ref/add-spending-row', async () => {
@@ -560,7 +560,6 @@ describe('SpendingTable', async () => {
 function assertGroupOperations(enabled: boolean) {
   within(screen.getByRole('table'))
     .getAllByRole('row')
-    .slice(0, -1) // TODO: fix last row is "+" button
     .forEach(row => {
       const checkbox = within(row).queryByRole('checkbox', {name: 'select item'})
       if (enabled) {
