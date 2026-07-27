@@ -223,7 +223,10 @@ export const createUploader = (
       const conflictedVers = repo.revokeConflictVersion(ev.budgetId, ev.spendingId, ev.newVersion)
 
       for (const c of conflictedVers) {
-        c.reason = errors.find(e => e.eventId == ev.eventId)?.error ?? null
+        const error = errors.find(e => e.eventId == ev.eventId)?.error
+        if (error) {
+          c.reason = error
+        }
         conflictVersionsApi.add(c)
       }
     }

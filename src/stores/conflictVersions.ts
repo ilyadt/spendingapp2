@@ -10,9 +10,9 @@ export interface ConflictSpendingVersion {
   spendingId: string
   versionDt: Date
   conflictedAt: Date
-  from: string | null // null - created
-  to: string | null // null - deleted
-  reason: string | null
+  from: string|null // null - created
+  to: string|null // null - deleted
+  reason?: string
 }
 
 export type ConflictVersionStore = {
@@ -53,6 +53,7 @@ export const conflictVersionStateCreator: StateCreator<ConflictVersionStore> =
 
         return { conflictVersions: remaining }
       }),
+
     conflictVersionsArr: () => Object.values(get().conflictVersions)
   })
 

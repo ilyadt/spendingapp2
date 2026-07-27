@@ -1,4 +1,3 @@
-
 import type {DelSpending, Spending} from "@/models/models.ts";
 
 export type SpendingsByBudget = Record<number, Spending[]>

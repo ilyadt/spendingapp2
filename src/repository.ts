@@ -393,7 +393,7 @@ const createBudgetsAndSpendingsRepositoryIntern = (store: StorageWrapper) => ({
       return []
     }
 
-    const conflictVersions = makeConflictVersions(bid, spId, spVersions, ver => ver.version === version, null)
+    const conflictVersions = makeConflictVersions(bid, spId, spVersions, ver => ver.version === version)
 
     spVersions.splice(versionIdx)
 
@@ -441,7 +441,7 @@ export function makeConflictVersions(
   spID: string,
   spVersions: SpendingVersion[],
   fromIdx: (spVer: SpendingVersion) => boolean,
-  reason: string | null,
+  reason?: string,
 ): ConflictSpendingVersion[] {
   const idx = spVersions.findIndex(fromIdx)
   if (idx == -1) {
@@ -454,7 +454,7 @@ export function makeConflictVersions(
     const curr = spVersions[i]!
     const prev = spVersions[i - 1]
 
-    revoked.push({
+    const toAdd: ConflictSpendingVersion = {
       version: curr.version,
       budgetId: bid,
       spendingId: spID,
@@ -462,8 +462,13 @@ export function makeConflictVersions(
       conflictedAt: new Date(),
       from: formatVersionPayload(prev),
       to: formatVersionPayload(curr),
-      reason: reason,
-    })
+    }
+
+    if (reason) {
+      toAdd.reason = reason
+    }
+
+    revoked.push(toAdd)
   }
 
   return revoked

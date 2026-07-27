@@ -20,11 +20,10 @@ export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
   function addSpendingRow(sp: SpendingRow) {
     const dateStr = dateISO(sp.date)
     const table = tableRefs.current[dateStr]
-    if (table) {
+    if (table)
       table.addSpendingRow(sp)
-    } else {
+    else
       setInitSpending(dateStr, sp)
-    }
   }
 
   const dates = dateRangePlusItemSet(budget.dateFrom, budget.dateTo, new Set(Object.keys(initSpendingsByDate)))
