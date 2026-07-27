@@ -11,12 +11,14 @@ import type {SpendingsByBudget} from "@/stores/spendings.ts";
 import type {BudgetsAndSpendingsRepository} from "@/repository.ts";
 import type {SubmitEventHandler} from "react";
 
-export const genSpendingID = (): string => uuidv7()
+export function genSpendingID(): string {
+  return uuidv7()
+}
 
 // null    -> v1-xxxxx
 // xxxxx   -> yyyyy
 // v1-3829f -> v2-xxxxx
-export const genVersion = (prevVer: string | null): string => {
+export function genVersion(prevVer: string | null): string {
   const versionSuffix = customAlphabet(alphanumeric, 7)
 
   if (prevVer === null) {
@@ -77,7 +79,9 @@ export function budgetsSortFn(a: Budget, b: Budget) {
   return aSort - bSort
 }
 
-export const genRandInt = () => Math.floor(Math.random() * 1e15)
+export function genRandInt(): number {
+  return Math.floor(Math.random() * 1e15)
+}
 
 type RowId = number
 type Total = number

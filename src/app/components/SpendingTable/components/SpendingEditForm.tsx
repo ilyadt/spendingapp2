@@ -148,7 +148,11 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
   )
 }
 
-function Overlay({onClick}: { onClick: () => void }) {
+type OverlayProps = {
+  onClick: () => void
+}
+
+function Overlay({onClick}: OverlayProps) {
   return createPortal(
     <div
       id="overlay"
