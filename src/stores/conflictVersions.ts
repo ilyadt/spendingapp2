@@ -49,8 +49,8 @@ export const conflictVersionStateCreator: StateCreator<ConflictVersionStore> =
           return state
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { [ver]: _, ...remaining } = state.conflictVersions
+        const { [ver]: _unused, ...remaining } = state.conflictVersions
+
         return { conflictVersions: remaining }
       }),
     conflictVersionsArr: () => Object.values(get().conflictVersions)

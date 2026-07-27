@@ -572,8 +572,8 @@ function assertGroupOperations(enabled: boolean) {
 
   const groupActions = screen.queryByRole('group', {name: 'group-actions'})
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-  enabled
-    ? expect(groupActions).toBeInTheDocument()
-    : expect(groupActions).not.toBeInTheDocument()
+  if (enabled)
+    expect(groupActions).toBeInTheDocument()
+  else
+    expect(groupActions).not.toBeInTheDocument()
 }

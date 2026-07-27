@@ -11,6 +11,7 @@ import styles from "../styles.module.css"
 import moduleStyles from "./SpendingEditForm.module.css"
 import SpTableColgroup from "./SpTableColgroup.tsx";
 import {createSpendingFormData, type SpendingFormData} from "@/models/spendingFormData.ts";
+import type {SubmitEvent, MouseEvent} from "react";
 
 type Props = {
   sp: SpendingRow & { rowIdx: number };
@@ -24,12 +25,12 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
   const crossBudget = !budget
   const spFormElem = useRef<HTMLFormElement>(null)
 
-  function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+  function onSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
     save(createFormData(e.currentTarget))
   }
 
-  function onCancelClick(e: React.MouseEvent<HTMLButtonElement>) {
+  function onCancelClick(e: MouseEvent<HTMLButtonElement>) {
     e.preventDefault()
     cancel(createFormData(e.currentTarget.form!))
   }
@@ -48,12 +49,12 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
   }
 
   function onOverlayClick() {
-    const f = createFormData(spFormElem.current!);
+    const spFormData = createFormData(spFormElem.current!);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    (f.isEmpty() && isNew(sp!))
-      ? cancel(f)
-      : save(f)
+    if (spFormData.isEmpty() && isNew(sp))
+      cancel(spFormData)
+    else
+      save(spFormData)
   }
 
   function createFormData(formElement: HTMLFormElement): SpendingFormData {
