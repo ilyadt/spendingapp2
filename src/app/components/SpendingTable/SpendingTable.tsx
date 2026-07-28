@@ -1,4 +1,3 @@
-import {isToday} from 'date-fns'
 import {dateFormat, dateISO, dayName} from '@/helpers/date'
 import {type Currency, toMajorUnits, totals} from '@/helpers/money'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -168,7 +167,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
 
         <table
           className={`table table-bordered table-sm align-middle ${styles.spDayTable}`}
-          style={{opacity: isToday(date) ? 1 : 0.5, marginBottom: 0}}
+          style={{marginBottom: 0}}
         >
 
           <SpTableColgroup crossBudget={crossBudget} />

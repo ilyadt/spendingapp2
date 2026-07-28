@@ -31,7 +31,7 @@ export function CrossBudgetScreen() {
   return (
     <div>
       {dates.map(date => (
-        <div key={date} ref={date == today ? todayRef : undefined}>
+        <div key={date} ref={date == today ? todayRef : undefined} style={{opacity: today === date ? 1 : 0.5}}>
           <SpendingTable
             key={date}
             date={new Date(date)}
