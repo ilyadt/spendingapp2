@@ -4,7 +4,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheck, faXmark} from "@fortawesome/free-solid-svg-icons";
 import {type Budget, isNew, type SpendingRow} from "@/models/models.ts";
 import {createPortal} from "react-dom";
-import {type KeyboardEvent, useContext, useRef} from "react";
+import {type KeyboardEvent, use, useRef} from "react";
 import {BudgetsContext} from "@/models/contexts.ts";
 import {budgetsSortFn} from "@/helpers/helper.ts";
 import styles from "../styles.module.css"
@@ -21,7 +21,7 @@ type Props = {
 }
 
 export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
-  const budgets = useContext(BudgetsContext)
+  const budgets = use(BudgetsContext)
   const crossBudget = !budget
   const spFormElem = useRef<HTMLFormElement>(null)
 

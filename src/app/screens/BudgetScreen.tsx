@@ -3,13 +3,13 @@ import {toMajorUnits} from '@/helpers/money'
 import SpendingTable, {type SpendingTableHandle} from '../components/SpendingTable/SpendingTable'
 import type {BudgetWithSpent} from "@/stores/budgets.ts";
 import useSpendingRowsByDate from "@/state/spendingRowsByDate.ts";
-import {useContext, useRef} from "react";
+import {use, useRef} from "react";
 import {SpendingsContext} from "@/models/contexts.ts";
 import type {SpendingRow} from "@/models/models.ts";
 import AddSpendingForm from "@/app/components/AddSpendingForm.tsx";
 
 export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
-  const spendingsStore = useContext(SpendingsContext)
+  const spendingsStore = use(SpendingsContext)
 
   const [initSpendingsByDate, setInitSpending, clearSpendings] = useSpendingRowsByDate({
       [budget.id]: spendingsStore.spendingsByBudgetId(budget.id)

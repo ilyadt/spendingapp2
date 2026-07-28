@@ -1,13 +1,13 @@
 import SpendingTable from '../components/SpendingTable/SpendingTable'
 import {dateISO, dateRangePlusItemSet} from '@/helpers/date'
-import {useContext, useEffect, useRef} from "react";
+import {use, useEffect, useMemo, useRef} from "react";
 import useSpendingRowsByDate from "@/state/spendingRowsByDate.ts";
 import type {Spending} from "@/models/models.ts";
 import {BudgetsContext, SpendingsContext} from "@/models/contexts.ts";
 
 export function CrossBudgetScreen() {
-  const budgets = Object.values(useContext(BudgetsContext))
-  const spendingsStore = useContext(SpendingsContext)
+  const budgets = Object.values(use(BudgetsContext))
+  const spendingsStore = use(SpendingsContext)
 
   const spendingsByBudgetId: Record<number, Spending[]> = {}
   for (const b of budgets) {
@@ -26,7 +26,7 @@ export function CrossBudgetScreen() {
 
   useEffect(() => { todayRef.current?.scrollIntoView({behavior: 'smooth', block: 'center'}) }, [])
 
-  const today = dateISO(new Date())
+  const today = useMemo(() => dateISO(new Date()), [])
 
   return (
     <div>

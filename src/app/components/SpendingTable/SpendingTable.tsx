@@ -5,7 +5,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faReceipt, faXmark} from '@fortawesome/free-solid-svg-icons'
 import {faGripDotsVertical} from '@/helpers/icons'
 import {type Budget, type SpendingRow, isNew} from "@/models/models.ts";
-import {type Ref, useContext, useImperativeHandle, useState} from "react";
+import {type Ref, use, useImperativeHandle, useState} from "react";
 import {colorFromReceiptId, genRandInt, genReceiptId, receiptTotals} from "@/helpers/helper.ts";
 import styles from './styles.module.css'
 import useSpendingRows from "./logic/spendingRows.ts";
@@ -30,8 +30,8 @@ export type SpendingTableHandle = {
 }
 
 export default function SpendingTable({date, budget, initSpendings, onEmpty, ref}: Props) {
-  const budgets = useContext(BudgetsContext)
-  const spStoreActions = useContext(SpendingActionsContext)
+  const budgets = use(BudgetsContext)
+  const spStoreActions = use(SpendingActionsContext)
   const spSaver = createSpendingSaver(spStoreActions)
 
   const [spendings, spRowsActions] = useSpendingRows(initSpendings, onEmpty)

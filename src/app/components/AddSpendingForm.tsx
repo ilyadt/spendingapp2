@@ -3,7 +3,7 @@ import {faFloppyDisk} from "@fortawesome/free-solid-svg-icons";
 import {createSpendingFormData} from "@/models/spendingFormData.ts";
 import type {Budget, SpendingRow} from "@/models/models.ts";
 import {genRandInt, submitFormData} from "@/helpers/helper.ts";
-import {useContext} from "react";
+import {use} from "react";
 import {SpendingActionsContext} from "@/models/contexts.ts";
 import {buildCreateSpObj} from "@/helpers/spendingBuilder.ts";
 
@@ -13,7 +13,7 @@ type Props = {
 }
 
 export default function AddSpendingForm({onCreate, budget}: Props) {
-  const spendingsActions = useContext(SpendingActionsContext)
+  const spendingsActions = use(SpendingActionsContext)
 
   function onSubmit(formData: FormData) {
     const spFormData = createSpendingFormData(formData, {[budget.id]: budget})

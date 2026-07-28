@@ -1,11 +1,11 @@
 import {useParams} from "react-router";
 import {BudgetScreen} from "@/app/screens/BudgetScreen.tsx";
-import {useContext} from "react";
+import {use} from "react";
 import {BudgetsContext} from "@/models/contexts.ts";
 
 export function BudgetRoute() {
   const { budgetId } = useParams()
-  const budgets = useContext(BudgetsContext)
+  const budgets = use(BudgetsContext)
 
   const budget = budgets[Number(budgetId)]
   if (!budget) {

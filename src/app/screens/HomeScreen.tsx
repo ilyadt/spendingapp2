@@ -4,15 +4,15 @@ import {
 } from '@/helpers/money'
 import {dateFormat, dateISO, daysLeft, percentPassed} from '@/helpers/date'
 import {budgetsSortFn, percentAmount} from "@/helpers/helper.ts";
-import {useContext} from "react";
+import {use, useMemo} from "react";
 import {BudgetsContext} from "@/models/contexts.ts";
 
 const buildCommit = import.meta.env.VITE_BUILD_COMMIT
 
 export default function HomeScreen() {
-  const budgets = useContext(BudgetsContext)
+  const budgets = use(BudgetsContext)
 
-  const todayDate = new Date(dateISO(new Date()))
+  const todayDate = useMemo(() => new Date(dateISO(new Date())), [])
 
   return (
     <div className="container">

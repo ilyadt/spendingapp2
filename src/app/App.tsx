@@ -10,10 +10,10 @@ import styles from './App.module.css'
 import {BudgetRoute} from "./facilities/BudgetRoute.tsx";
 import {budgetsSortFn, navLinkClass} from "@/helpers/helper.ts";
 import {BudgetsContext} from "@/models/contexts.ts";
-import {useContext} from "react";
+import {use} from "react";
 
 export default function App() {
-  const budgets = useContext(BudgetsContext)
+  const budgets = use(BudgetsContext)
 
   return (
     <>
