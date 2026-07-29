@@ -191,7 +191,7 @@ const createBudgetsAndSpendingsRepositoryIntern = (store: StorageWrapper) => ({
 
     const fromStore: SpendingVersioned[] = store.getSpendingsByBid(bid)
 
-    const sp = fromStore.find(s => s.id == upd.id)
+    const sp = fromStore.find(s => s.id === upd.id)
     if (!sp) {
       throw new Error('spending not found')
     }
@@ -201,7 +201,7 @@ const createBudgetsAndSpendingsRepositoryIntern = (store: StorageWrapper) => ({
       throw new Error('spending cannot be changed')
     }
 
-    if (upd.prev?.version != lastVer.version) {
+    if (upd.prev?.version !== lastVer.version) {
       throw new Error('invalid parent version')
     }
 
@@ -228,7 +228,7 @@ const createBudgetsAndSpendingsRepositoryIntern = (store: StorageWrapper) => ({
 
     const fromStore: SpendingVersioned[] = store.getSpendingsByBid(bid)
 
-    const sp = fromStore.find(s => s.id == del.id)
+    const sp = fromStore.find(s => s.id === del.id)
     if (!sp) {
       throw new Error('spending not found')
     }
@@ -239,7 +239,7 @@ const createBudgetsAndSpendingsRepositoryIntern = (store: StorageWrapper) => ({
       throw new Error('spending cannot be changed')
     }
 
-    if (del.prev?.version != lastVer.version) {
+    if (del.prev?.version !== lastVer.version) {
       throw new Error('parent version is invalid')
     }
 
@@ -360,12 +360,12 @@ const createBudgetsAndSpendingsRepositoryIntern = (store: StorageWrapper) => ({
   setStatusApplied(bid: number, spId: string, version: string): void {
     const fromStore: SpendingVersioned[] = store.getSpendingsByBid(bid)
 
-    const spVersioned = fromStore.find(s => spId == s.id)
+    const spVersioned = fromStore.find(s => spId === s.id)
     if (!spVersioned) {
       return
     }
 
-    const storedVer = spVersioned.versions.find(ver => ver.version == version)
+    const storedVer = spVersioned.versions.find(ver => ver.version === version)
     if (!storedVer) {
       return
     }
@@ -382,14 +382,14 @@ const createBudgetsAndSpendingsRepositoryIntern = (store: StorageWrapper) => ({
     const storedSpendings: SpendingVersioned[] = store.getSpendingsByBid(bid)
 
     const spVersionedIdx = storedSpendings.findIndex(s => s.id === spId)
-    if (spVersionedIdx == -1) {
+    if (spVersionedIdx === -1) {
       return []
     }
 
     const spVersions = storedSpendings[spVersionedIdx]!.versions
 
     const versionIdx = spVersions.findIndex(ver => ver.version === version)
-    if (versionIdx == -1) {
+    if (versionIdx === -1) {
       return []
     }
 
@@ -397,7 +397,7 @@ const createBudgetsAndSpendingsRepositoryIntern = (store: StorageWrapper) => ({
 
     spVersions.splice(versionIdx)
 
-    if (spVersions.length == 0) {
+    if (spVersions.length === 0) {
       storedSpendings.splice(spVersionedIdx, 1)
     }
 
@@ -444,7 +444,7 @@ export function makeConflictVersions(
   reason?: string,
 ): ConflictSpendingVersion[] {
   const idx = spVersions.findIndex(fromIdx)
-  if (idx == -1) {
+  if (idx === -1) {
     return []
   }
 

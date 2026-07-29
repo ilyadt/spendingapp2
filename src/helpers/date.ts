@@ -1,5 +1,7 @@
 // https://stackoverflow.com/a/2998822/15347300
 
+const DAY_IN_MS = 24 * 60 * 60 * 1000
+
 function pad(num: number, size: number): string {
   const s = '00' + num
   return s.substring(s.length - size)
@@ -33,9 +35,7 @@ export function dayName(d: Date): string {
 }
 
 export function daysLeft(today: Date, deadline: Date): number {
-  const dayInMs = 24 * 60 * 60 * 1000
-
-  const left = Math.floor(deadline.getTime() / dayInMs) - Math.floor(today.getTime() / dayInMs) + 1
+  const left = Math.floor(deadline.getTime() / DAY_IN_MS) - Math.floor(today.getTime() / DAY_IN_MS) + 1
 
   if (left < 0) {
     return 0
@@ -50,12 +50,10 @@ interface DateRange {
 }
 
 export function percentPassed(today: Date, interval: DateRange): number {
-  const dayInMs = 1000 * 60 * 60 * 24
-
   const result = Math.floor(
-      ((Math.floor(today.getTime() / dayInMs) - Math.floor(interval.dateFrom.getTime() / dayInMs))
+      ((Math.floor(today.getTime() / DAY_IN_MS) - Math.floor(interval.dateFrom.getTime() / DAY_IN_MS))
         /
-      (Math.floor(interval.dateTo.getTime() / dayInMs) - Math.floor(interval.dateFrom.getTime() / dayInMs) + 1)
+      (Math.floor(interval.dateTo.getTime() / DAY_IN_MS) - Math.floor(interval.dateFrom.getTime() / DAY_IN_MS) + 1)
     ) * 100,
   )
 
