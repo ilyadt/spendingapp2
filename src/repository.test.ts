@@ -1,6 +1,6 @@
 import { test, expect, describe, beforeEach, vi } from 'vitest'
 
-import type {ApiBudget, ApiMoney, ApiSpending, Budget, Spending} from '@/models/models'
+import type {ApiBudget, ApiMoney, ApiSpending, Budget, DelSpending, Spending, UpdSpending} from '@/models/models'
 import { createBudgetsAndSpendingsRepository, VersionStatus, formatVersionPayload, type SpendingVersion } from '@/repository'
 
 const localStorageCfg = {
@@ -388,8 +388,14 @@ describe('storage_test', () => {
 
     budgetsAndSpendingsRepository.storeSpendingsFromRemote(1, [makeApiSpending({ id: 'sp1', version: 'ver1' })])
 
-    budgetsAndSpendingsRepository.updateSpending(1, makeSpending({ id: 'sp1', version: 'ver2', prev: {version: 'ver1', amount: 0, currency: "RUB", description: ''}}))
-    budgetsAndSpendingsRepository.updateSpending(1, makeSpending({ id: 'sp1', version: 'ver3', prev: {version: 'ver2', amount: 0, currency: "RUB", description: ''}}))
+    budgetsAndSpendingsRepository.updateSpending(1, {
+      ...makeSpending({ id: 'sp1', version: 'ver2'}),
+      prev: {version: 'ver1', amount: 0, currency: "RUB", description: ''}},
+    )
+    budgetsAndSpendingsRepository.updateSpending(1, {
+      ...makeSpending({id: 'sp1', version: 'ver3'}),
+      prev: {version: 'ver2', amount: 0, currency: "RUB", description: ''}
+    })
 
     const revoked = budgetsAndSpendingsRepository.storeSpendingsFromRemote(1, [makeApiSpending({ id: 'sp1', version: 'ver4' })])
 
@@ -452,11 +458,11 @@ describe('storage_test', () => {
   })
 
   test(budgetsAndSpendingsRepository.updateSpending, () => {
-    expect(() => budgetsAndSpendingsRepository.updateSpending(1, makeSpending({ id: 'xxxx' }))).toThrow('not existing budget')
+    expect(() => budgetsAndSpendingsRepository.updateSpending(1, { id: 'xxxx' } as UpdSpending)).toThrow('not existing budget')
 
     budgetsAndSpendingsRepository.storeBudgetsFromRemote([makeBudget(1)])
 
-    expect(() => budgetsAndSpendingsRepository.updateSpending(1, makeSpending({ id: 'xxxx' }))).toThrow('spending not found')
+    expect(() => budgetsAndSpendingsRepository.updateSpending(1, { id: 'xxxx' } as UpdSpending)).toThrow('spending not found')
 
     const sp: Spending = {
       id: 'wqerdop',
@@ -486,11 +492,14 @@ describe('storage_test', () => {
 
     budgetsAndSpendingsRepository.createSpending(1, sp)
 
-    expect(() => budgetsAndSpendingsRepository.updateSpending(1, sp2)).toThrow('invalid parent version')
+    expect(() => budgetsAndSpendingsRepository.updateSpending(1, sp2 as UpdSpending)).toThrow('invalid parent version')
 
-    sp2.prev = {version: sp.version, amount: 0, currency: 'RUB', description: ''}
+    const sp2Upd: UpdSpending = {
+      ...sp2,
+      prev: {version: sp.version, amount: 0, currency: 'RUB', description: ''},
+    }
 
-    budgetsAndSpendingsRepository.updateSpending(1, sp2)
+    budgetsAndSpendingsRepository.updateSpending(1, sp2Upd)
 
     const sps = budgetsAndSpendingsRepository.spendingsByBudgetId(1)
 
@@ -515,11 +524,11 @@ describe('storage_test', () => {
   })
 
   test(budgetsAndSpendingsRepository.deleteSpending, () => {
-    expect(() => budgetsAndSpendingsRepository.deleteSpending(1, makeSpending({ id: 'xxxx' }))).toThrow('not existing budget')
+    expect(() => budgetsAndSpendingsRepository.deleteSpending(1, { id: 'xxxx' } as DelSpending)).toThrow('not existing budget')
 
     budgetsAndSpendingsRepository.storeBudgetsFromRemote([makeBudget(1)])
 
-    expect(() => budgetsAndSpendingsRepository.deleteSpending(1, makeSpending({ id: 'xxxx' }))).toThrow('spending not found')
+    expect(() => budgetsAndSpendingsRepository.deleteSpending(1, { id: 'xxxx' } as DelSpending)).toThrow('spending not found')
 
     const sp: Spending = {
       id: 'id1',
@@ -536,20 +545,23 @@ describe('storage_test', () => {
 
     budgetsAndSpendingsRepository.createSpending(1, sp)
 
-    const spDel = makeSpending({
+    const spDel = {
       id: 'id1',
       version: 'ver2',
       updatedAt: new Date('2025-09-12T23:22:00Z'),
-    })
+    }
 
-    expect(() => budgetsAndSpendingsRepository.deleteSpending(1, spDel)).toThrow('parent version is invalid')
+    expect(() => budgetsAndSpendingsRepository.deleteSpending(1, spDel as DelSpending)).toThrow('parent version is invalid')
 
-    spDel.prev = {version: 'ver1', amount: 0, currency: 'RUB', description: ''}
+    const spDel2: DelSpending = {
+      ...spDel,
+      prev: {version: 'ver1', amount: 0, currency: 'RUB', description: ''}
+    }
 
-    budgetsAndSpendingsRepository.deleteSpending(1, spDel)
+    budgetsAndSpendingsRepository.deleteSpending(1, spDel2)
 
-    expect(() => budgetsAndSpendingsRepository.deleteSpending(1, makeSpending({ id: 'id1' }))).toThrow('spending cannot be changed')
-    expect(() => budgetsAndSpendingsRepository.updateSpending(1, makeSpending({ id: 'id1' }))).toThrow('spending cannot be changed')
+    expect(() => budgetsAndSpendingsRepository.deleteSpending(1, { id: 'id1' } as DelSpending)).toThrow('spending cannot be changed')
+    expect(() => budgetsAndSpendingsRepository.updateSpending(1, { id: 'id1' } as UpdSpending)).toThrow('spending cannot be changed')
 
     expect(budgetsAndSpendingsRepository.spendingsByBudgetId(1)).toEqual([])
   })
@@ -667,7 +679,7 @@ function makeBudget(id: number): ApiBudget {
 }
 
 function makeSpending(sp: Partial<Spending> = {}): Spending {
-  const result: Spending = {
+  return {
     id: sp.id ?? '',
     version: sp.version ?? '',
     date: sp.date ?? new Date(0),
@@ -679,12 +691,6 @@ function makeSpending(sp: Partial<Spending> = {}): Spending {
     updatedAt: sp.updatedAt ?? new Date(0),
     receiptGroupId: sp.receiptGroupId ?? 0,
   }
-
-  if (sp.prev) {
-    result.prev = sp.prev
-  }
-
-  return result
 }
 
 function fromRUB(rubs: number): ApiMoney {

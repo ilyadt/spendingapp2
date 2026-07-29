@@ -1,6 +1,6 @@
 import {createStore, type StateCreator} from 'zustand'
 import { immer } from 'zustand/middleware/immer';
-import type {Budget, DelSpending, Spending} from "@/models/models.ts";
+import type {Budget, DelSpending, Spending, UpdSpending} from "@/models/models.ts";
 
 export type BudgetWithSpent = Budget & {
   amountSpent: number
@@ -13,7 +13,7 @@ export type BudgetsWithSpentById = {
 export type BudgetsStore = {
   budgets: BudgetsWithSpentById
   createSpending(bid: number, newSp: Spending): void
-  updateSpending(bid: number, upd: Spending): void
+  updateSpending(bid: number, upd: UpdSpending): void
   deleteSpending(bid: number, del: DelSpending): void
 }
 
@@ -25,14 +25,14 @@ export const budgetsWithSpentStateCreator = (initBudgets: BudgetsWithSpentById):
         state.budgets[bid]!.amountSpent += newSp.amount
       })
     },
-    updateSpending(bid: number, upd: Spending) {
+    updateSpending(bid: number, upd: UpdSpending) {
       set(state => {
-        state.budgets[bid]!.amountSpent += (upd.amount - upd.prev!.amount)
+        state.budgets[bid]!.amountSpent += (upd.amount - upd.prev.amount)
       })
     },
     deleteSpending(bid: number, del: DelSpending) {
       set(state => {
-        state.budgets[bid]!.amountSpent -= del.prev!.amount
+        state.budgets[bid]!.amountSpent -= del.prev.amount
       })
     },
   })

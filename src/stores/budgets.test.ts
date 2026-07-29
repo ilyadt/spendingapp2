@@ -1,6 +1,6 @@
 import {beforeEach, describe, expect, test, vi} from 'vitest'
 import {type BudgetsWithSpentById, createBudgetsWithSpentStore} from "@/stores/budgets.ts";
-import type {Spending, SpendingPrev} from "@/models/models.ts";
+import type {Spending, SpendingPrev, UpdSpending} from "@/models/models.ts";
 
 describe('dynamic_budgets', () => {
   beforeEach(() => {
@@ -88,14 +88,14 @@ describe('dynamic_budgets', () => {
 
     // update
     dynamicBudgetsStore.getState().updateSpending(2,
-      makeSpending({id: 'sp3', amount: 300_00, prev: makeSpendingPrev({amount: 200_00})}),
+      makeUpdSpending({id: 'sp3', amount: 300_00, prev: makeSpendingPrev({amount: 200_00})}),
     )
     expect(listener).toHaveBeenCalledTimes(3)
     expect(dynamicBudgetsStore.getState().budgets[2]!.amountSpent).toEqual(300_00)
 
     // delete
     dynamicBudgetsStore.getState().deleteSpending(1,
-      makeSpending({id: 'sp2', prev: makeSpendingPrev({amount: 1000_00})})
+      makeUpdSpending({id: 'sp2', prev: makeSpendingPrev({amount: 1000_00})})
     )
     expect(listener).toHaveBeenCalledTimes(4)
     expect(dynamicBudgetsStore.getState().budgets[1]!.amountSpent).toEqual(600_00)
@@ -103,7 +103,7 @@ describe('dynamic_budgets', () => {
 })
 
 function makeSpending(sp: Partial<Spending>): Spending {
-  const res: Spending = {
+  return {
     id: sp.id ?? '',
     version: sp.version ?? '',
     date: sp.date ?? new Date(0),
@@ -115,12 +115,27 @@ function makeSpending(sp: Partial<Spending>): Spending {
     updatedAt: sp.updatedAt ?? new Date(0),
     receiptGroupId: sp.receiptGroupId ?? 0,
   }
+}
 
-  if (sp.prev) {
-    res.prev = sp.prev
+function makeUpdSpending(sp: Partial<UpdSpending>): UpdSpending {
+  return {
+    id: sp.id ?? '',
+    version: sp.version ?? '',
+    date: sp.date ?? new Date(0),
+    sort: sp.sort ?? 0,
+    amount: sp.amount ?? 0,
+    currency: sp.currency ?? 'RUB',
+    description: sp.description ?? '',
+    createdAt: sp.createdAt ?? new Date(0),
+    updatedAt: sp.updatedAt ?? new Date(0),
+    receiptGroupId: sp.receiptGroupId ?? 0,
+    prev: sp.prev ?? {
+      amount: 0,
+      description: '',
+      currency: 'RUB',
+      version: '',
+    }
   }
-
-  return res
 }
 
 function makeSpendingPrev(prev: Partial<SpendingPrev>): SpendingPrev {

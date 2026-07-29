@@ -1,7 +1,7 @@
 import {it, expect, vi, afterEach, describe} from 'vitest'
 import type {Budget, DelSpending, Spending, SpendingRow} from "@/models/models.ts"
 import * as helper from '@/helpers/helper.ts'
-import {createSpendingSaver} from "./spendingSaver.ts";
+import {createSpendingSaver, type SavedSpending} from "./spendingSaver.ts";
 
 afterEach(() => {
   vi.clearAllMocks()
@@ -88,7 +88,7 @@ describe('spendingSaver', () => {
       updatedAt,
     )
 
-    const expRes: Spending = {
+    const expRes: SavedSpending = {
       id: "sp1",
       version: "v2",
       date: date,

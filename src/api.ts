@@ -4,7 +4,14 @@ import {type StatusStore} from '@/stores/status'
 import {type ConflictVersionStore} from '@/stores/conflictVersions'
 import { v4 as uuidv4 } from 'uuid'
 import { format } from 'date-fns'
-import type { Spending, ApiSpendingEvent, DelSpending, ApiUploadError, ApiSchemaPaths } from '@/models/models'
+import type {
+  Spending,
+  ApiSpendingEvent,
+  DelSpending,
+  ApiUploadError,
+  ApiSchemaPaths,
+  UpdSpending
+} from '@/models/models'
 import {currencyFraction} from "@/helpers/money.ts";
 import type {paths} from "@/models/oaschema.ts";
 
@@ -133,7 +140,7 @@ export const createUploader = (
     return this.processEvents(evts)
   },
 
-  updateSpending(bid: number, upd: Spending) {
+  updateSpending(bid: number, upd: UpdSpending) {
     const ev: ApiSpendingEvent = {
       eventId: uuidv4(),
       dateTime: upd.updatedAt.toISOString(),
@@ -142,7 +149,7 @@ export const createUploader = (
       budgetId: bid,
       spendingId: upd.id,
       updateData: {
-        prevVersion: upd.prev!.version,
+        prevVersion: upd.prev.version,
         date: format(upd.date, 'yyyy-MM-dd'),
         sort: upd.sort,
         money: {

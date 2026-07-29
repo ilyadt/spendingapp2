@@ -4,6 +4,7 @@ import type {
   Budget,
   DelSpending,
   Spending,
+  UpdSpending,
 } from '@/models/models'
 import {type Currency, formatAmount} from '@/helpers/money'
 import {format, isAfter, subSeconds} from 'date-fns'
@@ -186,7 +187,7 @@ const createBudgetsAndSpendingsRepositoryIntern = (store: StorageWrapper) => ({
   /**
    * @throws Error if not exist / cannot be applied
    */
-  updateSpending(bid: number, upd: Spending): void {
+  updateSpending(bid: number, upd: UpdSpending): void {
     assertBudget(store, bid)
 
     const fromStore: SpendingVersioned[] = store.getSpendingsByBid(bid)

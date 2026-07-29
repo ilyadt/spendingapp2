@@ -3,6 +3,7 @@ import {
   type DelSpending,
   type Spending,
   type SpendingRow,
+  type UpdSpending,
 } from "@/models/models.ts";
 import {genSpendingID, genVersion} from "@/helpers/helper.ts";
 
@@ -30,7 +31,7 @@ export function buildCreateSpObj(data: SpendingData, createdAt: Date): Spending 
   }
 }
 
-export function buildUpdateSpObj(old: SpendingRow, data: Partial<SpendingData>, updatedAt: Date): Spending {
+export function buildUpdateSpObj(old: SpendingRow, data: Partial<SpendingData>, updatedAt: Date): UpdSpending{
   const amount = data.amount !== undefined ? data.amount : old.amount
   const description = data.description !== undefined ? data.description : old.description
   const receiptId = (data.receiptId != null) ? data.receiptId : old.receiptGroupId

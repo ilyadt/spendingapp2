@@ -12,7 +12,6 @@ export type ApiSchemaPaths = paths
 export interface Spending {
   id: string
   version: string
-  prev?: SpendingPrev
   date: Date
   sort: number
   amount: number
@@ -56,12 +55,13 @@ export interface Budget {
   }
 }
 
-export type DelSpending = Pick<Spending, 'id' | 'version' | 'prev' | 'updatedAt'>
+export type UpdSpending = Spending & {prev: SpendingPrev}
+export type DelSpending = Pick<Spending, 'id' | 'version' | 'updatedAt'>  & {prev: SpendingPrev}
 
 export interface SpendingActions {
   createSpending(bid: number, newSp: Spending): void
 
-  updateSpending(bid: number, upd: Spending): void
+  updateSpending(bid: number, upd: UpdSpending): void
 
   deleteSpending(bid: number, del: DelSpending): void
 }

@@ -7,7 +7,7 @@ import {
   SpendingActionsContext
 } from "@/models/contexts.ts";
 import type {BudgetsWithSpentById, BudgetWithSpent} from "@/stores/budgets.ts";
-import type {Spending, SpendingActions, SpendingRow} from "@/models/models.ts";
+import type {Spending, SpendingActions, SpendingRow, UpdSpending} from "@/models/models.ts";
 import * as helper from "@/helpers/helper"
 import {createRef} from "react";
 import {buildUpdateSpObj} from "@/helpers/spendingBuilder.ts";
@@ -397,7 +397,7 @@ describe('SpendingTable', async () => {
         currency: "RUB",
         description: "кофе"
       },
-    } satisfies Spending)
+    } satisfies UpdSpending)
 
     expect(spActions.updateSpending).toHaveBeenNthCalledWith(2, 2, {
       id: "id-3",
@@ -416,7 +416,7 @@ describe('SpendingTable', async () => {
         currency: "RUB",
         description: 'помидоры',
       },
-    } satisfies Spending)
+    } satisfies UpdSpending)
   })
 
   test('group/cancel-group', async () => {

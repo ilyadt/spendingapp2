@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import {createSpendingsStore, type SpendingsByBudget} from "./spendings"
-import type {Spending} from "@/models/models.ts";
+import type {DelSpending, Spending} from "@/models/models.ts";
 
 const spsByIds: SpendingsByBudget = {
   1: [
@@ -66,11 +66,11 @@ describe("createSpendingsStore", () => {
   it("deletes a spending", () => {
     const store = createSpendingsStore(spsByIds)
 
-    store.deleteSpending(1, { id: "a" } as Spending)
+    store.deleteSpending(1, { id: "a" } as DelSpending)
 
     // does nothing
-    store.deleteSpending(1, { id: "xxx" } as Spending)
-    store.deleteSpending(99, { id: "xxx" } as Spending)
+    store.deleteSpending(1, { id: "xxx" } as DelSpending)
+    store.deleteSpending(99, { id: "xxx" } as DelSpending)
 
     expect(store.spendingsByBudgetId(1)).toEqual([
       { id: "b", amount: 200_00, currency: "RUB" } as Spending,
