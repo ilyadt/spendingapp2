@@ -22,13 +22,14 @@ type Props = {
   initSpendings: SpendingRow[]
   onEmpty?: () => void
   ref?: Ref<SpendingTableHandle>
+  opacity?: number,
 }
 
 export type SpendingTableHandle = {
   addSpendingRow(sp: SpendingRow): void
 }
 
-export default function SpendingTable({date, budget, initSpendings, onEmpty, ref}: Props) {
+export default function SpendingTable({date, budget, initSpendings, onEmpty, ref, opacity}: Props) {
   const budgets = use(BudgetsContext)
   const spStoreActions = use(SpendingActionsContext)
   const spSaver = createSpendingSaver(spStoreActions)
@@ -160,21 +161,14 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
       </p>
 
       <div style={{position: 'relative', padding: 0}}>
-
         {pendingRow &&
-          <SpendingEditForm sp={pendingRow} save={savePendingSp} cancel={cancelPendingSp} budget={budget}/>
+          <SpendingEditForm sp={pendingRow} save={savePendingSp} cancel={cancelPendingSp} budget={budget} />
         }
 
-        <table
-          className={`table table-bordered table-sm align-middle ${styles.spDayTable}`}
-          style={{marginBottom: 0}}
-        >
-
+        <table className={`table table-bordered table-sm align-middle ${styles.spDayTable}`} style={{opacity}}>
           <SpTableColgroup crossBudget={crossBudget} />
-
           <tbody>
-
-          {spendingsSorted.map((sp, idx) => (
+            {spendingsSorted.map((sp, idx) => (
             <tr
               key={sp.rowId}
               className={sp.receiptGroupId ? styles.bgRow : ''}
@@ -233,7 +227,6 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
               </td>
             </tr>
           ))}
-
           </tbody>
         </table>
       </div>
@@ -245,7 +238,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
           <button onClick={groupMode.disable} className="btn btn-warning btn-small">Отменить</button>
         </div>
         :
-        <div>
+        <div style={{opacity}}>
           <button type="button" onClick={addNewSpending} className="btn btn-success btn-small">+</button>
           <span style={{width: '20px', display: 'inline-block'}}></span>
           <span aria-label="totals">{ totals(spendings).join(', ') }</span>

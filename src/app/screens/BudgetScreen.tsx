@@ -3,7 +3,7 @@ import {toMajorUnits} from '@/helpers/money'
 import SpendingTable, {type SpendingTableHandle} from '../components/SpendingTable/SpendingTable'
 import type {BudgetWithSpent} from "@/stores/budgets.ts";
 import useSpendingRowsByDate from "@/state/spendingRowsByDate.ts";
-import {use, useRef} from "react";
+import {use, useMemo, useRef} from "react";
 import {SpendingsContext} from "@/models/contexts.ts";
 import type {SpendingRow} from "@/models/models.ts";
 import AddSpendingForm from "@/app/components/AddSpendingForm.tsx";
@@ -27,6 +27,7 @@ export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
   }
 
   const dates = dateRangePlusItemSet(budget.dateFrom, budget.dateTo, new Set(Object.keys(initSpendingsByDate)))
+  const today = useMemo(() => dateISO(new Date()), [])
 
   return (
     <div>
@@ -53,6 +54,7 @@ export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
             budget={budget}
             ref={r => {tableRefs.current[date] = r}}
             onEmpty={() => clearSpendings(date)}
+            opacity={today === date ? 1 : 0.5}
           />
         </div>
       ))}

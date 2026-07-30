@@ -37,6 +37,7 @@ export function CrossBudgetScreen() {
             date={new Date(date)}
             initSpendings={initSpendingsByDate[date] ?? []}
             onEmpty={() => clearSpendings(date)}
+            opacity={today === date ? 1 : 0.5}
           />
         </div>
       ))}

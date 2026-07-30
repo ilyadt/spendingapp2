@@ -2,11 +2,11 @@
     background: var(--row-bg-color) !important;
 }
 
-.spDayTable {
+.spDayTable.spDayTable {
     table-layout: fixed;
     min-width: 350px;
     white-space: nowrap;
-    margin-bottom: 20px;
+    margin-bottom: 0;
     line-height: 20px;
 }
 
