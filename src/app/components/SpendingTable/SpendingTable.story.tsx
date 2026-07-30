@@ -6,18 +6,19 @@ import {BudgetsContextProvider} from "@/app/facilities/BudgetsContextProvider.ts
 import {composeSpActions} from "@/helpers/helper.ts";
 
 type Props = {
-  initBudgets: BudgetsWithSpentById
-  initSpendings: SpendingRow[]
+  budgets: BudgetsWithSpentById
+  spendings: SpendingRow[]
+  opacity: number
 }
 
-export function SpendingTableForTest({initBudgets, initSpendings}: Props) {
-  const budgetsStore = createBudgetsWithSpentStore(initBudgets)
+export function SpendingTableForTest({budgets, spendings, opacity}: Props) {
+  const budgetsStore = createBudgetsWithSpentStore(budgets)
   const spActions = composeSpActions([budgetsStore.getState()])
 
   return (
     <SpendingActionsContext value={spActions}>
       <BudgetsContextProvider store={budgetsStore}>
-        <SpendingTable date={new Date('2026-06-24')} initSpendings={initSpendings} />
+        <SpendingTable date={new Date('2026-06-24')} initSpendings={spendings} opacity={opacity} />
       </BudgetsContextProvider>
     </SpendingActionsContext>
   )

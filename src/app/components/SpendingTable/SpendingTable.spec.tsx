@@ -7,20 +7,20 @@ import type {BudgetsWithSpentById, BudgetWithSpent} from "@/stores/budgets.ts";
 test('SpendingTable', async ({ mount, page }) => {
   page.on('dialog', () => null); // prevents auto-dismissing dialog
 
-  const initBudgets: BudgetsWithSpentById = {
+  const budgets: BudgetsWithSpentById = {
     1: {id: 1, description: 'еда', alias: 'food', currency: 'RUB', amount: 25000_00, amountSpent: 3000_00} as BudgetWithSpent,
   }
 
   const date = new Date('2026-06-24')
 
-  const initSpendings = [
+  const spendings = [
     {rowId: 1, budgetId: 1, id: 'id-1', version: '1', date, amount: 100_00, currency: 'RUB', description: 'чай', sort: 1} as SpendingRow,
     {rowId: 2, budgetId: 1, id: 'id-2', version: '1', date, amount: 50_00, currency: 'RUB', description: 'кофе', sort: 2} as SpendingRow,
     {rowId: 3, budgetId: 1, id: 'id-3', version: '1', date, amount: 70_00, currency: 'RUB', description: 'печенье', sort: 3} as SpendingRow,
   ]
 
   await mount(
-    <SpendingTableForTest initBudgets={initBudgets} initSpendings={initSpendings} />
+    <SpendingTableForTest budgets={budgets} spendings={spendings} opacity={1} />
   )
 
   await page.getByText('кофе').click()
