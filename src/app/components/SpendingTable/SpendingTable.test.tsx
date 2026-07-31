@@ -91,7 +91,8 @@ describe('SpendingTable', async () => {
         <BudgetsContext value={budgetsById}>
           <SpendingTable
             date={new Date('2026-06-10')}
-            initSpendings={[]} budget={withinBudget ? budgetsById[1] : undefined
+            initSpendings={[]}
+            budget={withinBudget ? budgetsById[1] : undefined
           }/>
         </BudgetsContext>
       </SpendingActionsContext>

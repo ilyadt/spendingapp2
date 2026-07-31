@@ -84,36 +84,22 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
   }
 
   function savePendingSp(f: SpendingFormData) {
-    const sp = pendingRow!
-
-    // Do nothing
-    const error = f.validate()
-    if (error) {
-      window.alert(error)
-      return
-    }
-
     // Nothing changed
-    if (f.isEqual(sp)) {
+    if (f.isEqual(pendingRow!)) {
       setPendingRow(null)
       return
     }
 
-    const newSp = spSaver.save(sp, f.data, new Date())
-
-    spRowsActions.patchSpendingRow(sp.rowId, {...newSp, budgetId: f.data.budget!.id})
+    const newSp = spSaver.save(pendingRow!, f.data, new Date())
+    spRowsActions.patchSpendingRow(pendingRow!.rowId, {...newSp, budgetId: f.data.budget!.id})
     setPendingRow(null)
   }
 
   function cancelPendingSp(f: SpendingFormData) {
     const sp = pendingRow!
-
+    // Old not changed
     if (!isNew(sp) && f.isEqual(sp)) {
       setPendingRow(null)
-      return
-    }
-
-    if (!f.isEmpty() && !window.confirm(`Отменить изменение "${f.data.description}" ?`)) {
       return
     }
 

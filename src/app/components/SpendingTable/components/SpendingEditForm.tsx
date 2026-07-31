@@ -13,8 +13,10 @@ import SpTableColgroup from "./SpTableColgroup.tsx";
 import {createSpendingFormData, type SpendingFormData} from "@/models/spendingFormData.ts";
 import type {SubmitEvent, MouseEvent} from "react";
 
+export type SpendingRowExt = SpendingRow & { rowIdx: number };
+
 type Props = {
-  sp: SpendingRow & { rowIdx: number };
+  sp: SpendingRowExt;
   budget?: Budget|undefined;
   save(fd: SpendingFormData): void;
   cancel(fd: SpendingFormData): void;
@@ -27,23 +29,23 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
 
   function onSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
-    save(createFormData(e.currentTarget))
+    trySave(createFormData(e.currentTarget))
   }
 
   function onCancelClick(e: MouseEvent<HTMLButtonElement>) {
     e.preventDefault()
-    cancel(createFormData(e.currentTarget.form!))
+    tryCancel(createFormData(e.currentTarget.form!))
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     switch (e.key) {
       case 'Enter':
         e.preventDefault()
-        save(createFormData(e.currentTarget.form!))
+        trySave(createFormData(e.currentTarget.form!))
         break
 
       case 'Escape':
-        cancel(createFormData(e.currentTarget.form!))
+        tryCancel(createFormData(e.currentTarget.form!))
         break
     }
   }
@@ -52,9 +54,9 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
     const spFormData = createFormData(spFormElem.current!);
 
     if (spFormData.isEmpty() && isNew(sp))
-      cancel(spFormData)
+      tryCancel(spFormData)
     else
-      save(spFormData)
+      trySave(spFormData)
   }
 
   function createFormData(formElement: HTMLFormElement): SpendingFormData {
@@ -62,6 +64,26 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
       new FormData(formElement),
       budget ? {[budget.id] : budget} : budgets,
     );
+  }
+
+  function trySave(f: SpendingFormData) {
+    const error = f.validate()
+    if (error) {
+      window.alert(error)
+      return
+    }
+
+    save(f)
+  }
+
+  function tryCancel(fd: SpendingFormData) {
+    if (isNew(sp) && !fd.isEmpty() || !isNew(sp) && !fd.isEqual(sp)) {
+      if (!window.confirm(`Отменить изменение "${fd.data.description}" ?`)) {
+        return
+      }
+    }
+
+    cancel(fd)
   }
 
   return (

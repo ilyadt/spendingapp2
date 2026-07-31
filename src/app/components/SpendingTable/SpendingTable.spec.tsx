@@ -25,8 +25,6 @@ test('SpendingTable', async ({ mount, page }) => {
 
   await page.getByText('кофе').click()
 
-  await page.pause()
-
   await expect(page.getByRole('table')).toHaveScreenshot('table-edit-row.png');
 
   const rowBox = await page.getByRole('table').getByRole('row').nth(1).boundingBox()
