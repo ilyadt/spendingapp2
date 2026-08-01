@@ -29,4 +29,5 @@ button.actionButton {
 .modalTable {
     position: absolute;
     z-index: 2001;
+    border: 1px solid #dee2e6;
 }
