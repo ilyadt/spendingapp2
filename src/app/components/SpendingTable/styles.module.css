@@ -31,3 +31,11 @@ button.actionButton {
   position: absolute;
   z-index: 2001;
 }
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: aqua;
+  opacity: 0.5;
+  z-index: 2000;
+}

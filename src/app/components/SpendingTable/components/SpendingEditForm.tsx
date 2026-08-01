@@ -98,14 +98,10 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
         {budget && (
           <input name="budgetId" defaultValue={budget.id} style={{display: 'none'}}/>
         )}
-        <table
-          role="grid"
-          className={`table table-bordered table-sm align-middle ${styles.spDayTable}`}
-          style={{margin: 0}}
-        >
+        <table role="grid" className={`table table-bordered table-sm align-middle ${styles.spDayTable}`}>
           <SpTableColgroup crossBudget={crossBudget}/>
           <tbody>
-          <tr style={{borderTop: 0, borderBottom: 0}}>
+          <tr>
             <td>
               <input
                 autoFocus={isNew(sp)}
@@ -167,27 +163,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
           </tbody>
         </table>
       </form>
-      <Overlay onClick={onOverlayClick}/>
+      <div id="overlay" onClick={onOverlayClick} className={styles.overlay}/>
     </>
-  )
-}
-
-type OverlayProps = {
-  onClick: () => void
-}
-
-function Overlay({onClick}: OverlayProps) {
-  return (
-    <div
-      id="overlay"
-      onClick={onClick}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'aqua',
-        opacity: 0.5,
-        zIndex: 2000,
-      }}
-    />
   )
 }
