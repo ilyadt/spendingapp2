@@ -41,6 +41,5 @@ test('SpendingEditForm', async ({mount, page}) => {
 
   expect(page.getByText('мороженое')).not.toBeNull()
 
-  // TODO: role form
-  await expect(page.getByRole('grid')).toHaveScreenshot('sp-edit-form.png');
+  await expect(page.getByRole('form')).toHaveScreenshot('sp-edit-form.png');
 })

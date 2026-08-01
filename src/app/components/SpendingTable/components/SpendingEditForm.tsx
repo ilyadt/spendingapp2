@@ -87,18 +87,21 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
 
   return (
     <>
-      <form ref={spFormElem} onSubmit={onSubmit} aria-label='spending edit form' style={{height: 0}}>
-        <input name="date" defaultValue={dateISO(sp.date)} style={{visibility: 'hidden'}}/>
+      <form
+        ref={spFormElem}
+        onSubmit={onSubmit}
+        aria-label='spending edit form'
+        className={`${styles.spEditForm}`}
+        style={{top: sp.rowIdx * 40 + 'px'}}
+      >
+        <input name="date" defaultValue={dateISO(sp.date)} style={{display: 'none'}}/>
         {budget && (
-          <input name="budgetId" defaultValue={budget.id} style={{visibility: 'hidden'}}/>
+          <input name="budgetId" defaultValue={budget.id} style={{display: 'none'}}/>
         )}
         <table
           role="grid"
-          className={`table table-bordered table-sm align-middle ${styles.spDayTable} ${styles.modalTable}`}
-          style={{
-            top: sp.rowIdx * 40 + 'px',
-            margin: 0,
-          }}
+          className={`table table-bordered table-sm align-middle ${styles.spDayTable}`}
+          style={{margin: 0}}
         >
           <SpTableColgroup crossBudget={crossBudget}/>
           <tbody>
