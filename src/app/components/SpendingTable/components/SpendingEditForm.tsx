@@ -3,7 +3,6 @@ import {formatAmount, toMajorUnits} from "@/helpers/money.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheck, faXmark} from "@fortawesome/free-solid-svg-icons";
 import {type Budget, isNew, type SpendingRow} from "@/models/models.ts";
-import {createPortal} from "react-dom";
 import {type KeyboardEvent, use, useRef} from "react";
 import {BudgetsContext} from "@/models/contexts.ts";
 import {budgetsSortFn} from "@/helpers/helper.ts";
@@ -175,7 +174,7 @@ type OverlayProps = {
 }
 
 function Overlay({onClick}: OverlayProps) {
-  return createPortal(
+  return (
     <div
       id="overlay"
       onClick={onClick}
@@ -186,5 +185,6 @@ function Overlay({onClick}: OverlayProps) {
         opacity: 0.5,
         zIndex: 2000,
       }}
-    />, document.body)
+    />
+  )
 }
