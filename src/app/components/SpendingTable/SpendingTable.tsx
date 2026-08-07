@@ -1,4 +1,4 @@
-import {dateFormat, dateISO, dayName} from '@/helpers/date'
+import {dateFormat, dayName} from '@/helpers/date'
 import {type Currency, toMajorUnits, totals} from '@/helpers/money'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faReceipt, faXmark} from '@fortawesome/free-solid-svg-icons'
@@ -59,20 +59,9 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
     return () => setPendingRow({...s, rowIdx})
   }
 
-  function uniteReceipt() {
-    _setReceiptIdForSelectedItems(genReceiptId(date))
-  }
-
-  function separateReceipt() {
-    _setReceiptIdForSelectedItems(0)
-  }
-
-  function _setReceiptIdForSelectedItems(receiptId: number) {
+  function setReceiptIdForSelectedItems(receiptId: number) {
     const updatedAt = new Date()
-
-    const spRows = spendings.filter(
-      s => groupMode.selectedItems.has(s.id) && dateISO(s.date) === dateISO(date)
-    )!
+    const spRows = spendings.filter(s => groupMode.selectedItems.has(s.id))
 
     for (const sp of spRows) {
       const newSp = buildUpdateSpObj(sp, {receiptId}, updatedAt)
@@ -133,6 +122,9 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
   const spendingsSorted = [...spendings].sort((a, b) => a.sort - b.sort)
   const receiptTotal = receiptTotals(spendingsSorted)
   const crossBudget = !budget
+
+  const uniteReceipt = () => setReceiptIdForSelectedItems(genReceiptId(date))
+  const separateReceipt = () => setReceiptIdForSelectedItems(0)
 
   return (
     <div>
