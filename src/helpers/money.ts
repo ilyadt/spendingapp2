@@ -1,6 +1,8 @@
 export type Currency = 'RUB' | 'EUR' | 'USD' | 'BTC'
 
-export const currencies: Currency[] = ['RUB', 'EUR', 'USD', 'BTC']
+export const RUB: Currency = 'RUB'
+
+const currencies: Currency[] = [RUB, 'EUR', 'USD', 'BTC']
 
 const fractions: Record<Currency, number> = {
   RUB: 2,

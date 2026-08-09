@@ -24,11 +24,10 @@ export default function useTableGroupMode() {
       setSelectedItems(prev => {
         const next = new Set(prev)
 
-        if (next.has(item)) {
+        if (next.has(item))
           next.delete(item)
-        } else {
+        else
           next.add(item)
-        }
 
         return next
       })

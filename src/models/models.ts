@@ -26,14 +26,6 @@ export function isNew(sp: Spending): boolean {
   return !sp.id
 }
 
-// Предыдущая версия Spending
-export interface SpendingPrev {
-  version: string
-  amount: number
-  currency: Currency
-  description: string
-}
-
 export type SpendingRow = Spending & {
   rowId: number
   budgetId: number
@@ -53,6 +45,14 @@ export interface Budget {
     perDay?: boolean
     [key: string]: unknown
   }
+}
+
+// Предыдущая версия Spending
+export interface SpendingPrev {
+  version: string
+  amount: number
+  currency: Currency
+  description: string
 }
 
 export type UpdSpending = Spending & {prev: SpendingPrev}

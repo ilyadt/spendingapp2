@@ -1,7 +1,8 @@
 import {it, expect, vi, afterEach, describe} from 'vitest'
 import type {Budget, DelSpending, Spending, SpendingRow} from "@/models/models.ts"
 import * as helper from '@/helpers/helper.ts'
-import {createSpendingSaver, type SavedSpending} from "./spendingSaver.ts";
+import {createSpendingSaver} from "./spendingSaver.ts";
+import {RUB} from "@/helpers/money.ts";
 
 afterEach(() => {
   vi.clearAllMocks()
@@ -88,13 +89,13 @@ describe('spendingSaver', () => {
       updatedAt,
     )
 
-    const expRes: SavedSpending = {
+    const expRes = {
       id: "sp1",
       version: "v2",
       date: date,
       sort: (new Date('2026-05-26T12:32:00')).getTime(),
       amount: 130_00,
-      currency: "RUB",
+      currency: RUB,
       description: "tee",
       createdAt: new Date('2026-05-26T12:32:00'),
       updatedAt: updatedAt,
@@ -105,7 +106,7 @@ describe('spendingSaver', () => {
         currency: "RUB",
         description: "moi",
       }
-    }
+    } satisfies Spending & Record<string, unknown>
 
     expect(result).toEqual(expRes)
 

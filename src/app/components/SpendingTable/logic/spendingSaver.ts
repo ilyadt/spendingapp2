@@ -1,4 +1,4 @@
-import {isNew, type Spending, type SpendingActions, type SpendingPrev, type SpendingRow} from "@/models/models.ts";
+import {isNew, type Spending, type SpendingActions, type SpendingRow} from "@/models/models.ts";
 import {
   buildCreateSpObj,
   buildDeleteSpObj,
@@ -6,10 +6,8 @@ import {
   type SpendingData
 } from "@/helpers/spendingBuilder.ts";
 
-export type SavedSpending = Spending & {prev?: SpendingPrev}
-
 export const createSpendingSaver = (spActions: SpendingActions) => ({
-  save(oldRow: SpendingRow, data: SpendingData, now: Date): SavedSpending {
+  save(oldRow: SpendingRow, data: SpendingData, now: Date): Spending {
     const isNewSp = isNew(oldRow)
     const budgetChanged = (oldRow.budgetId !== data.budget.id)
 
@@ -23,18 +21,16 @@ export const createSpendingSaver = (spActions: SpendingActions) => ({
       ...data,
     }
 
-    let spObj: Spending
-
     if (isNewSp || budgetChanged) {
-      spObj =  buildCreateSpObj(spData, now)
-      spActions.createSpending(spData.budget.id, spObj)
+      const createSp =  buildCreateSpObj(spData, now)
+      spActions.createSpending(spData.budget.id, createSp)
+
+      return createSp
     } else {
       const updSp = buildUpdateSpObj(oldRow, spData, now)
       spActions.updateSpending(oldRow.budgetId, updSp)
 
-      spObj = updSp
+      return updSp
     }
-
-    return spObj
   }
 })
