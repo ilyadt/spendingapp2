@@ -9,7 +9,7 @@ import {colorFromReceiptId, genRandInt, genReceiptId, receiptTotals} from "@/hel
 import styles from './styles.module.css'
 import useSpendingRows from "./logic/spendingRows.ts";
 import {BudgetsContext, SpendingActionsContext} from "@/models/contexts.ts";
-import SpendingEditForm from "./components/SpendingEditForm.tsx";
+import SpendingEditForm, {type SpendingRowExt} from "./components/SpendingEditForm.tsx";
 import SpTableColgroup from "./components/SpTableColgroup.tsx";
 import useTableGroupMode from "./logic/tableGroupMode.ts";
 import type {SpendingFormData} from "@/models/spendingFormData.ts";
@@ -38,7 +38,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
 
   const groupMode = useTableGroupMode()
 
-  const [pendingRow, setPendingRow] = useState<SpendingRow & {rowIdx: number} | null>(null)
+  const [pendingRow, setPendingRow] = useState<SpendingRowExt | null>(null)
 
   useImperativeHandle(ref, () => ({addSpendingRow: spRowsActions.addSpendingRow}))
 

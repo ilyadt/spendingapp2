@@ -47,7 +47,7 @@ describe('SpendingTable', async () => {
 
     expect(genRandIntMock).toHaveBeenCalledOnce()
 
-    expect(screen.getByRole('spinbutton', {name: ''})).toBeInTheDocument()
+    expect(screen.getByRole('textbox', {name: 'amount'})).toBeInTheDocument()
     expect(document.getElementById('overlay')).toBeInTheDocument()
 
     // cancel
@@ -55,7 +55,7 @@ describe('SpendingTable', async () => {
     const cancelBtn = within(editForm).getByRole('button', {name: 'cancel pending spending'})
     await user.click(cancelBtn)
 
-    expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument()
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
 
     expect(document.getElementById('overlay')).not.toBeInTheDocument()
 
