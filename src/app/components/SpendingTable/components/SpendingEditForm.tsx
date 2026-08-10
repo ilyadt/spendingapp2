@@ -106,6 +106,8 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
               <input
                 autoFocus={isNew(sp)}
                 name="amount"
+                role="textbox"
+                aria-label="amount"
                 step="0.01"
                 className={`form-control cell-input ${moduleStyles.inputField} text-end`}
                 type="number"
@@ -116,6 +118,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
             <td>
               <input
                 name="description"
+                aria-label="description"
                 className={`form-control cell-input ${moduleStyles.inputField}`}
                 defaultValue={sp.description}
                 onKeyDown={onKeyDown}

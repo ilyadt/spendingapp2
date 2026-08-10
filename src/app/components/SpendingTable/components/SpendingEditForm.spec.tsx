@@ -39,7 +39,8 @@ test('SpendingEditForm', async ({mount, page}) => {
 
   await mount(<SpendingEditFormTest budgets={budgets} spending={spending}/>)
 
-  expect(page.getByText('мороженое')).not.toBeNull()
+  await expect(page.getByRole('textbox', {name: 'amount'})).toHaveValue('342')
+  await expect(page.getByRole('textbox', {name: 'description'})).toHaveValue('мороженое')
 
   await expect(page.getByRole('form')).toHaveScreenshot('sp-edit-form.png');
 })
