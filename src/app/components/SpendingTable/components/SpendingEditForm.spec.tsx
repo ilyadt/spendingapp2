@@ -2,6 +2,7 @@ import {expect, test} from '@playwright/experimental-ct-react';
 import {SpendingEditFormTest} from "@/app/components/SpendingTable/components/SpendingEditForm.story.tsx";
 import {type BudgetsWithSpentById} from "@/stores/budgets.ts";
 import type {SpendingRowExt} from "@/app/components/SpendingTable/components/SpendingEditForm.tsx";
+import {vi, expect as viExpect} from "vitest";
 
 test('SpendingEditForm', async ({mount, page}) => {
   page.on('dialog', () => null); // prevents auto-dismissing dialog
@@ -37,10 +38,30 @@ test('SpendingEditForm', async ({mount, page}) => {
     },
   }
 
-  await mount(<SpendingEditFormTest budgets={budgets} spending={spending}/>)
+  const onSave = vi.fn()
 
-  await expect(page.getByRole('textbox', {name: 'amount'})).toHaveValue('342')
-  await expect(page.getByRole('textbox', {name: 'description'})).toHaveValue('мороженое')
+  await mount(<SpendingEditFormTest budgets={budgets} spending={spending} onSave={onSave}/>)
+
+  const amount = page.getByRole('textbox', {name: 'amount'})
+  const description = page.getByRole('textbox', {name: 'description'})
+
+  await expect(amount).toHaveValue('342')
+  await expect(description).toHaveValue('мороженое')
 
   await expect(page.getByRole('form')).toHaveScreenshot('sp-edit-form.png');
+
+  await description.clear();
+
+  page.once('dialog', async dialog => {
+    expect(dialog.type()).toBe('alert');
+    expect(dialog.message()).toBe('пустое описание')
+    await dialog.accept();
+  });
+
+  await page.getByRole('button', {name: 'close'}).click();
+  viExpect(onSave).not.toHaveBeenCalled()
+
+  await description.fill('ля-фам')
+  await page.getByRole('button', {name: 'close'}).click();
+  viExpect(onSave).toHaveBeenCalled() // TODO: called with
 })

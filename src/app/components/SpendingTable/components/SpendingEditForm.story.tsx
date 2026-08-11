@@ -6,10 +6,10 @@ import SpendingEditForm, {type SpendingRowExt} from "@/app/components/SpendingTa
 type Props = {
   spending: SpendingRowExt,
   budgets: BudgetsWithSpentById
+  onSave: (fd: SpendingFormData) => void
 }
 
-export function SpendingEditFormTest({spending, budgets}: Props) {
-  const onSave = (_fd: SpendingFormData) => undefined;
+export function SpendingEditFormTest({spending, budgets, onSave}: Props) {
   const onCancel = (_fd: SpendingFormData) => undefined;
   const budgetsStore = createBudgetsWithSpentStore(budgets)
 
