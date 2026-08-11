@@ -3,6 +3,9 @@ import {SpendingEditFormTest} from "@/app/components/SpendingTable/components/Sp
 import {type BudgetsWithSpentById} from "@/stores/budgets.ts";
 import type {SpendingRowExt} from "@/app/components/SpendingTable/components/SpendingEditForm.tsx";
 import {vi, expect as viExpect} from "vitest";
+import type {Budget} from "@/models/models.ts";
+import {RUB} from "@/helpers/money.ts";
+import type {SpendingFormData} from "@/models/spendingFormData.ts";
 
 test('SpendingEditForm', async ({mount, page}) => {
   page.on('dialog', () => null); // prevents auto-dismissing dialog
@@ -61,7 +64,20 @@ test('SpendingEditForm', async ({mount, page}) => {
   await page.getByRole('button', {name: 'close'}).click();
   viExpect(onSave).not.toHaveBeenCalled()
 
+  await amount.fill('350')
   await description.fill('ля-фам')
   await page.getByRole('button', {name: 'close'}).click();
-  viExpect(onSave).toHaveBeenCalled() // TODO: called with
+  viExpect(onSave).toHaveBeenCalledWith(
+    viExpect.objectContaining({
+      data: {
+        amount: 350_00,
+        description: 'ля-фам',
+        date: new Date('2026-06-15'),
+        budget: viExpect.objectContaining({
+          id: 1,
+          currency: RUB,
+        } as Budget),
+      }
+    } as SpendingFormData)
+  )
 })
