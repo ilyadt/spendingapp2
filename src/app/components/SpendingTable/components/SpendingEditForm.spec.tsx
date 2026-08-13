@@ -3,8 +3,6 @@ import {SpendingEditFormTest} from "@/app/components/SpendingTable/components/Sp
 import {type BudgetsWithSpentById} from "@/stores/budgets.ts";
 import type {SpendingRowExt} from "@/app/components/SpendingTable/components/SpendingEditForm.tsx";
 import {vi, expect as viExpect} from "vitest";
-import type {Budget} from "@/models/models.ts";
-import {RUB} from "@/helpers/money.ts";
 import type {SpendingFormData} from "@/models/spendingFormData.ts";
 
 test('SpendingEditForm', async ({mount, page}) => {
@@ -73,10 +71,7 @@ test('SpendingEditForm', async ({mount, page}) => {
         amount: 350_00,
         description: 'ля-фам',
         date: new Date('2026-06-15'),
-        budget: viExpect.objectContaining({
-          id: 1,
-          currency: RUB,
-        } as Budget),
+        budgetId: 1,
       }
     } as SpendingFormData)
   )

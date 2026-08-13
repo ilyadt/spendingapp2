@@ -79,8 +79,9 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
       return
     }
 
-    const newSp = spSaver.save(pendingRow!, f.data, new Date())
-    spRowsActions.patchSpendingRow(pendingRow!.rowId, {...newSp, budgetId: f.data.budget!.id})
+    const budget = budgets[f.data.budgetId!]!
+    const newSp = spSaver.save(pendingRow!, {...f.data, budget}, new Date())
+    spRowsActions.patchSpendingRow(pendingRow!.rowId, {...newSp, budgetId: budget.id})
     setPendingRow(null)
   }
 

@@ -24,7 +24,7 @@ export default function AddSpendingForm({onCreate, budget}: Props) {
       return false
     }
 
-    const spending = buildCreateSpObj(spFormData.data, new Date())
+    const spending = buildCreateSpObj({...spFormData.data, budget}, new Date())
 
     spendingsActions.createSpending(budget.id, spending)
 
