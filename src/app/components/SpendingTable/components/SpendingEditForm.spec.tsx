@@ -67,12 +67,10 @@ test('SpendingEditForm', async ({mount, page}) => {
   await page.getByRole('button', {name: 'close'}).click();
   viExpect(onSave).toHaveBeenCalledWith(
     viExpect.objectContaining({
-      data: {
-        amount: 350_00,
-        description: 'ля-фам',
-        date: new Date('2026-06-15'),
-        budgetId: 1,
-      }
+      amount: 350_00,
+      description: 'ля-фам',
+      date: new Date('2026-06-15'),
+      budgetId: 1,
     } as SpendingFormData)
   )
 })

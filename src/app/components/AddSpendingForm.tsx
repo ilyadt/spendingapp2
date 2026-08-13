@@ -1,6 +1,6 @@
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faFloppyDisk} from "@fortawesome/free-solid-svg-icons";
-import {createSpendingFormData} from "@/models/spendingFormData.ts";
+import {createSpendingFormData, validate} from "@/models/spendingFormData.ts";
 import type {Budget, SpendingRow} from "@/models/models.ts";
 import {genRandInt, submitFormData} from "@/helpers/helper.ts";
 import {use} from "react";
@@ -18,13 +18,13 @@ export default function AddSpendingForm({onCreate, budget}: Props) {
   function onSubmit(formData: FormData) {
     const spFormData = createSpendingFormData(formData, {[budget.id]: budget})
 
-    const err = spFormData.validate()
+    const err = validate(spFormData)
     if (err) {
       alert(err)
       return false
     }
 
-    const spending = buildCreateSpObj({...spFormData.data, budget}, new Date())
+    const spending = buildCreateSpObj({...spFormData, budget}, new Date())
 
     spendingsActions.createSpending(budget.id, spending)
 

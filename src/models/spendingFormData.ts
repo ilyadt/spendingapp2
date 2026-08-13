@@ -13,31 +13,38 @@ export function createSpendingFormData(fd: FormData, budgets: Record<number, Bud
   const date = d.getTime() ? d : null
 
   return {
-    data: {amount, description, budgetId: budget?.id, date: date!},
-    isEmpty: () => !amountFull && !description,
-    validate() {
-      if (!budget) {
-        return 'не выбран бюджет'
-      }
-
-      if (!date) {
-        return  'не выбрана дата'
-      }
-
-      if (!amount) {
-        return 'пустая сумма'
-      }
-
-      if (!description) {
-        return 'пустое описание'
-      }
-
-      return null
-    },
-    isEqual: (s: SpendingRow) =>
-      budget?.id === s.budgetId
-      && date?.getTime() === s.date?.getTime()
-      && amount === s.amount
-      && description === s.description,
+    date: date!,
+    budgetId: budget?.id,
+    amount,
+    amountFull,
+    description
   }
+}
+
+export const isEmpty = (data: SpendingFormData) => !data.amountFull && !data.description
+
+export const isEqual = (data: SpendingFormData, s: SpendingRow) =>
+  data.budgetId === s.budgetId
+  && data.date?.getTime() === s.date?.getTime()
+  && data.amount === s.amount
+  && data.description === s.description
+
+export const validate = (data: SpendingFormData): string|null => {
+  if (!data.budgetId) {
+    return 'не выбран бюджет'
+  }
+
+  if (!data.date) {
+    return  'не выбрана дата'
+  }
+
+  if (!data.amount) {
+    return 'пустая сумма'
+  }
+
+  if (!data.description) {
+    return 'пустое описание'
+  }
+
+  return null
 }

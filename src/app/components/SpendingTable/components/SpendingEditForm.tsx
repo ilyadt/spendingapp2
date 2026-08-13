@@ -9,7 +9,7 @@ import {budgetsSortFn} from "@/helpers/helper.ts";
 import styles from "../styles.module.css"
 import moduleStyles from "./SpendingEditForm.module.css"
 import SpTableColgroup from "./SpTableColgroup.tsx";
-import {createSpendingFormData, type SpendingFormData} from "@/models/spendingFormData.ts";
+import {createSpendingFormData, isEmpty, isEqual, type SpendingFormData, validate} from "@/models/spendingFormData.ts";
 import type {SubmitEvent, MouseEvent} from "react";
 
 export type SpendingRowExt = SpendingRow & { rowIdx: number };
@@ -52,7 +52,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
   function onOverlayClick() {
     const spFormData = createFormData(spFormElem.current!);
 
-    if (spFormData.isEmpty() && isNew(sp))
+    if (isEmpty(spFormData) && isNew(sp))
       tryCancel(spFormData)
     else
       trySave(spFormData)
@@ -66,7 +66,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
   }
 
   function trySave(f: SpendingFormData) {
-    const error = f.validate()
+    const error = validate(f)
     if (error) {
       window.alert(error)
       return
@@ -76,8 +76,8 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
   }
 
   function tryCancel(fd: SpendingFormData) {
-    if (isNew(sp) && !fd.isEmpty() || !isNew(sp) && !fd.isEqual(sp)) {
-      if (!window.confirm(`Отменить изменение "${fd.data.description}" ?`)) {
+    if (isNew(sp) && !isEmpty(fd) || !isNew(sp) && !isEqual(fd,sp)) {
+      if (!window.confirm(`Отменить изменение "${fd.description}" ?`)) {
         return
       }
     }

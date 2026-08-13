@@ -12,7 +12,7 @@ import {BudgetsContext, SpendingActionsContext} from "@/models/contexts.ts";
 import SpendingEditForm, {type SpendingRowExt} from "./components/SpendingEditForm.tsx";
 import SpTableColgroup from "./components/SpTableColgroup.tsx";
 import useTableGroupMode from "./logic/tableGroupMode.ts";
-import type {SpendingFormData} from "@/models/spendingFormData.ts";
+import {isEqual, type SpendingFormData} from "@/models/spendingFormData.ts";
 import {buildDeleteSpObj, buildUpdateSpObj} from "@/helpers/spendingBuilder.ts";
 import {createSpendingSaver} from "@/app/components/SpendingTable/logic/spendingSaver.ts";
 
@@ -72,15 +72,15 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
     groupMode.disable()
   }
 
-  function savePendingSp(f: SpendingFormData) {
+  function savePendingSp(fd: SpendingFormData) {
     // Nothing changed
-    if (f.isEqual(pendingRow!)) {
+    if (isEqual(fd, pendingRow!)) {
       setPendingRow(null)
       return
     }
 
-    const budget = budgets[f.data.budgetId!]!
-    const newSp = spSaver.save(pendingRow!, {...f.data, budget}, new Date())
+    const budget = budgets[fd.budgetId!]!
+    const newSp = spSaver.save(pendingRow!, {...fd, budget}, new Date())
     spRowsActions.patchSpendingRow(pendingRow!.rowId, {...newSp, budgetId: budget.id})
     setPendingRow(null)
   }
@@ -88,7 +88,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
   function cancelPendingSp(f: SpendingFormData) {
     const sp = pendingRow!
     // Old not changed
-    if (!isNew(sp) && f.isEqual(sp)) {
+    if (!isNew(sp) && isEqual(f,sp)) {
       setPendingRow(null)
       return
     }
