@@ -166,7 +166,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
           </tbody>
         </table>
       </form>
-      <div id="overlay" role="button" aria-label="close" onClick={onOverlayClick} className={styles.overlay}/>
+      <div id="overlay" role="button" aria-label="overlay" onClick={onOverlayClick} className={styles.overlay}/>
     </>
   )
 }

@@ -59,12 +59,12 @@ test('SpendingEditForm', async ({mount, page}) => {
     await dialog.accept();
   });
 
-  await page.getByRole('button', {name: 'close'}).click();
+  await page.getByRole('button', {name: 'overlay'}).click();
   viExpect(onSave).not.toHaveBeenCalled()
 
   await amount.fill('350')
   await description.fill('ля-фам')
-  await page.getByRole('button', {name: 'close'}).click();
+  await page.getByRole('button', {name: 'overlay'}).click();
   viExpect(onSave).toHaveBeenCalledWith(
     viExpect.objectContaining({
       amount: 350_00,
