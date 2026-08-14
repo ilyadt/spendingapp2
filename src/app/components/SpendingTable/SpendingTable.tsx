@@ -51,7 +51,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
     spRowsActions.deleteSpendingRow(s.rowId)
   }
 
-  function onEditSpendingClick(s: SpendingRow, rowIdx: number) {
+  function onSpendingClick(s: SpendingRow, rowIdx: number) {
     if (groupMode.enabled) {
       return
     }
@@ -150,7 +150,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
             >
               <td style={{textAlign: 'right', position: "relative"}}>
 
-                <span aria-label="amount" onClick={onEditSpendingClick(sp,idx)}>
+                <span aria-label="amount" onClick={onSpendingClick(sp,idx)}>
                   {toMajorUnits(sp.amount, sp.currency)}
                 </span>
 
@@ -175,12 +175,12 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
               </td>
 
               <td>
-                <span onClick={onEditSpendingClick(sp,idx)}>{sp.description}</span>
+                <span onClick={onSpendingClick(sp,idx)}>{sp.description}</span>
               </td>
 
               {crossBudget && (
                 <td>
-                  <span onClick={onEditSpendingClick(sp,idx)}>
+                  <span onClick={onSpendingClick(sp,idx)}>
                     {!isNew(sp) && budgets[sp.budgetId]!.alias}
                   </span>
                 </td>
