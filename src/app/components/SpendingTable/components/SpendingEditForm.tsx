@@ -18,7 +18,7 @@ type Props = {
   sp: SpendingRowExt;
   budget?: Budget|undefined;
   save(fd: SpendingFormData): void;
-  cancel(fd: SpendingFormData): void;
+  cancel(): void;
 }
 
 export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
@@ -52,8 +52,8 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
   function onOverlayClick() {
     const spFormData = createFormData(spFormElem.current!);
 
-    if (isEmpty(spFormData) && isNew(sp))
-      tryCancel(spFormData)
+    if (isNew(sp) && isEmpty(spFormData) || !isNew(sp) && isEqual(spFormData, sp))
+      cancel()
     else
       trySave(spFormData)
   }
@@ -82,7 +82,7 @@ export default function SpendingEditForm({sp, budget, save, cancel}: Props) {
       }
     }
 
-    cancel(fd)
+    cancel()
   }
 
   return (

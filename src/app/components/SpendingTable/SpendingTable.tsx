@@ -85,13 +85,8 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
     setPendingRow(null)
   }
 
-  function cancelPendingSp(f: SpendingFormData) {
+  function cancelPendingSp() {
     const sp = pendingRow!
-    // Old not changed
-    if (!isNew(sp) && isEqual(f,sp)) {
-      setPendingRow(null)
-      return
-    }
 
     if (isNew(sp)) {
       spRowsActions.deleteSpendingRow(sp.rowId)

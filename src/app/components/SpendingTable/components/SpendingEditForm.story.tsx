@@ -7,10 +7,10 @@ type Props = {
   spending: SpendingRowExt,
   budgets: BudgetsWithSpentById
   onSave: (fd: SpendingFormData) => void
+  onCancel: () => void
 }
 
-export function SpendingEditFormTest({spending, budgets, onSave}: Props) {
-  const onCancel = (_fd: SpendingFormData) => undefined;
+export function SpendingEditFormTest({spending, budgets, onSave, onCancel}: Props) {
   const budgetsStore = createBudgetsWithSpentStore(budgets)
 
   return (
