@@ -4,7 +4,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faReceipt, faXmark} from '@fortawesome/free-solid-svg-icons'
 import {faGripDotsVertical} from '@/helpers/icons'
 import {type Budget, type SpendingRow, isNew} from "@/models/models.ts";
-import {type Ref, use, useImperativeHandle, useState} from "react";
+import {type Ref, use, useImperativeHandle, useRef, useState} from "react";
 import {colorFromReceiptId, genRandInt, genReceiptId, receiptTotals} from "@/helpers/helper.ts";
 import styles from './styles.module.css'
 import useSpendingRows from "./logic/spendingRows.ts";
@@ -39,6 +39,8 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
   const groupMode = useTableGroupMode()
 
   const [pendingRow, setPendingRow] = useState<SpendingRowExt | null>(null)
+
+  const addNewButtonRef = useRef<HTMLButtonElement>(null)
 
   useImperativeHandle(ref, () => ({addSpendingRow: spRowsActions.addSpendingRow}))
 
@@ -83,6 +85,10 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
     const newSp = spSaver.save(pendingRow!, {...fd, budget}, new Date())
     spRowsActions.patchSpendingRow(pendingRow!.rowId, {...newSp, budgetId: budget.id})
     setPendingRow(null)
+
+    if (isNew(pendingRow!)) {
+      addNewButtonRef.current?.focus()
+    }
   }
 
   function cancelPendingSp() {
@@ -213,7 +219,7 @@ export default function SpendingTable({date, budget, initSpendings, onEmpty, ref
         </div>
         :
         <div style={{opacity}}>
-          <button type="button" onClick={addNewSpending} className="btn btn-success btn-small">+</button>
+          <button ref={addNewButtonRef} type="button" onClick={addNewSpending} className="btn btn-success btn-small">+</button>
           <span style={{width: '20px', display: 'inline-block'}}></span>
           <span aria-label="totals">{ totals(spendings).join(', ') }</span>
         </div>
