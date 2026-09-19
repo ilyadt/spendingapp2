@@ -8,9 +8,9 @@ import type {SpendingActions} from "@/models/models.ts";
 
 export const BudgetsContext = createContext<BudgetsWithSpentById>({});
 
-export const SpendingsContext = createContext<SpendingsStoreApi>({} as SpendingsStoreApi);
+export const SpendingsContext = createContext<SpendingsStoreApi>(null as never);
 
-export const SpendingActionsContext = createContext<SpendingActions>({} as SpendingActions)
+export const SpendingActionsContext = createContext<SpendingActions>(null as never)
 
 export const StatusStoreContext = createContext<StoreApi<StatusStore>>(null as never)
 

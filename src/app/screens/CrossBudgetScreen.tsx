@@ -6,8 +6,10 @@ import type {Spending} from "@/models/models.ts";
 import {BudgetsContext, SpendingsContext} from "@/models/contexts.ts";
 
 export function CrossBudgetScreen() {
-  const budgets = Object.values(use(BudgetsContext))
+  const budgetsById = use(BudgetsContext)
   const spendingsStore = use(SpendingsContext)
+
+  const budgets = Object.values(budgetsById)
 
   const spendingsByBudgetId: Record<number, Spending[]> = {}
   for (const b of budgets) {
@@ -16,9 +18,13 @@ export function CrossBudgetScreen() {
 
   const [initSpendingsByDate, , clearSpendings] = useSpendingRowsByDate(spendingsByBudgetId)
 
+  const budgetsDatesSorted = budgets
+    .map(b => b.dateFrom)
+    .sort((a, b) => a.getTime() - b.getTime())
+
   const dates = dateRangePlusItemSet(
-    budgets.map(b => b.dateFrom).sort().at(0)!,
-    budgets.map(b => b.dateTo).sort().at(-1)!,
+    budgetsDatesSorted.at(0)!,
+    budgetsDatesSorted.at(-1)!,
     new Set(Object.keys(initSpendingsByDate)),
   )
 
