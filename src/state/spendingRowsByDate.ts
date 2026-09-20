@@ -1,41 +1,34 @@
 import {useImmer} from "use-immer";
 import {dateISO} from "@/helpers/date.ts";
-import type {Spending, SpendingRow} from "@/models/models.ts";
-import {genRandInt} from "@/helpers/helper.ts";
+import type {SpendingRow} from "@/models/models.ts";
 
 type DateISO = string
 
 type SpendingsByDate = Record<DateISO,SpendingRow[]>
 
-export default function useSpendingRowsByDate(initSps: Record<number, Spending[]>) {
-  const [initSpendings, updateSpendings] = useImmer<SpendingsByDate>(() => {
+export default function useSpendingRowsByDate(initSps: SpendingRow[]) {
+  const [spRowsByDate, updateSpendings] = useImmer<SpendingsByDate>(() => {
     const grouped: SpendingsByDate = {}
 
-    for (const [bid, sps] of Object.entries(initSps)) {
-      for (const s of sps) {
-        const key = dateISO(s.date)
+    for (const sp of initSps) {
+      const key = dateISO(sp.date)
 
-        grouped[key] ??= []
-        grouped[key].push({
-          rowId: genRandInt(),
-          budgetId: Number(bid),
-          ...s,
-        })
-      }
+      grouped[key] ??= []
+      grouped[key].push(sp)
     }
 
     return grouped
   })
 
-  function setInitSpending(date: DateISO, spRow: SpendingRow) {
-    updateSpendings(initSpendings => {
-      initSpendings[date] = [spRow];
+  function setDateSpendingRows(date: DateISO, spRows: SpendingRow[]) {
+    updateSpendings(spendingRows => {
+      if (spRows.length === 0) {
+         delete spendingRows[date]
+         return
+      }
+      spendingRows[date] = spRows;
     })
   }
 
-  function clearSpendings(date: DateISO) {
-    updateSpendings(initSpendings => { delete initSpendings[date] })
-  }
-
-  return [initSpendings, setInitSpending, clearSpendings] as const
+  return [spRowsByDate, setDateSpendingRows] as const
 }

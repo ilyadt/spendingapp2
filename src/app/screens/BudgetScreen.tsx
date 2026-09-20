@@ -7,13 +7,17 @@ import {use, useMemo, useRef} from "react";
 import {SpendingsContext} from "@/models/contexts.ts";
 import type {SpendingRow} from "@/models/models.ts";
 import AddSpendingForm from "@/app/components/AddSpendingForm.tsx";
+import { genRandInt } from '@/helpers/helper';
 
 export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
   const spendingsStore = use(SpendingsContext)
 
-  const [initSpendingsByDate, setInitSpending, clearSpendings] = useSpendingRowsByDate({
-      [budget.id]: spendingsStore.spendingsByBudgetId(budget.id)
-  })
+  const spRows: SpendingRow[] = []
+  for (const sp of spendingsStore.spendingsByBudgetId(budget.id)) {
+    spRows.push({rowId: genRandInt(), budgetId: budget.id, ...sp})
+  }
+
+  const [spendingRowsByDate, setDateSpendingRows] = useSpendingRowsByDate(spRows)
 
   const tableRefs = useRef<Record<string, SpendingTableHandle|null>>({})
 
@@ -23,10 +27,10 @@ export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
     if (table)
       table.addSpendingRow(sp)
     else
-      setInitSpending(dateStr, sp)
+      setDateSpendingRows(dateStr, [sp])
   }
 
-  const dates = dateRangePlusItemSet(budget.dateFrom, budget.dateTo, new Set(Object.keys(initSpendingsByDate)))
+  const dates = dateRangePlusItemSet(budget.dateFrom, budget.dateTo, new Set(Object.keys(spendingRowsByDate)))
   const today = useMemo(() => dateISO(new Date()), [])
 
   return (
@@ -50,10 +54,10 @@ export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
           <SpendingTable
             key={date}
             date={new Date(date)}
-            initSpendings={initSpendingsByDate[date] ?? []}
+            initSpendings={spendingRowsByDate[date] ?? []}
             budget={budget}
             ref={r => {tableRefs.current[date] = r}}
-            onEmpty={() => clearSpendings(date)}
+            onEmpty={() => setDateSpendingRows(date, [])}
             opacity={today === date ? 1 : 0.5}
           />
         </div>

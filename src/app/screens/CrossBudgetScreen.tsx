@@ -2,8 +2,9 @@ import SpendingTable from '../components/SpendingTable/SpendingTable'
 import {dateISO, dateRangePlusItemSet} from '@/helpers/date'
 import {use, useEffect, useMemo, useRef} from "react";
 import useSpendingRowsByDate from "@/state/spendingRowsByDate.ts";
-import type {Spending} from "@/models/models.ts";
+import type {SpendingRow} from "@/models/models.ts";
 import {BudgetsContext, SpendingsContext} from "@/models/contexts.ts";
+import { genRandInt } from '@/helpers/helper';
 
 export function CrossBudgetScreen() {
   const budgetsById = use(BudgetsContext)
@@ -11,12 +12,14 @@ export function CrossBudgetScreen() {
 
   const budgets = Object.values(budgetsById)
 
-  const spendingsByBudgetId: Record<number, Spending[]> = {}
+  const spRows: SpendingRow[] = []
   for (const b of budgets) {
-    spendingsByBudgetId[b.id] = spendingsStore.spendingsByBudgetId(b.id)
+    for (const sp of spendingsStore.spendingsByBudgetId(b.id)) {
+      spRows.push({rowId: genRandInt(), budgetId: b.id, ...sp})
+    }
   }
 
-  const [initSpendingsByDate, , clearSpendings] = useSpendingRowsByDate(spendingsByBudgetId)
+  const [spRowsByDate, setDateSpendingRows] = useSpendingRowsByDate(spRows)
 
   const budgetsDatesSorted = budgets
     .map(b => b.dateFrom)
@@ -25,7 +28,7 @@ export function CrossBudgetScreen() {
   const dates = dateRangePlusItemSet(
     budgetsDatesSorted.at(0)!,
     budgetsDatesSorted.at(-1)!,
-    new Set(Object.keys(initSpendingsByDate)),
+    new Set(Object.keys(spRowsByDate)),
   )
 
   const todayRef = useRef<HTMLDivElement>(null)
@@ -41,8 +44,8 @@ export function CrossBudgetScreen() {
           <SpendingTable
             key={date}
             date={new Date(date)}
-            initSpendings={initSpendingsByDate[date] ?? []}
-            onEmpty={() => clearSpendings(date)}
+            initSpendings={spRowsByDate[date] ?? []}
+            onEmpty={() => setDateSpendingRows(date, [])}
             opacity={today === date ? 1 : 0.5}
           />
         </div>
