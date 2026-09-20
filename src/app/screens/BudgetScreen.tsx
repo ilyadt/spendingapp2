@@ -2,7 +2,7 @@ import {dateFormat, dateISO, dateRangePlusItemSet} from '@/helpers/date'
 import {toMajorUnits} from '@/helpers/money'
 import SpendingTable, {type SpendingTableHandle} from '../components/SpendingTable/SpendingTable'
 import type {BudgetWithSpent} from "@/stores/budgets.ts";
-import useSpendingRowsByDate from "@/state/spendingRowsByDate.ts";
+import useSpendingRowsByDate, { type SpendingsByDate } from "@/state/spendingRowsByDate.ts";
 import {use, useMemo, useRef} from "react";
 import {SpendingsContext} from "@/models/contexts.ts";
 import type {SpendingRow} from "@/models/models.ts";
@@ -12,12 +12,17 @@ import { genRandInt } from '@/helpers/helper';
 export function BudgetScreen({budget}: {budget: BudgetWithSpent}) {
   const spendingsStore = use(SpendingsContext)
 
-  const spRows: SpendingRow[] = []
-  for (const sp of spendingsStore.spendingsByBudgetId(budget.id)) {
-    spRows.push({rowId: genRandInt(), budgetId: budget.id, ...sp})
-  }
+  const [spendingRowsByDate, setDateSpendingRows] = useSpendingRowsByDate(() => {
+    const result: SpendingsByDate = {}
 
-  const [spendingRowsByDate, setDateSpendingRows] = useSpendingRowsByDate(spRows)
+    for (const sp of spendingsStore.spendingsByBudgetId(budget.id)) {
+      const key = dateISO(sp.date)
+      result[key] ??= []
+      result[key].push({rowId: genRandInt(), budgetId: budget.id, ...sp})
+    }
+
+    return result
+  })
 
   const tableRefs = useRef<Record<string, SpendingTableHandle|null>>({})
 

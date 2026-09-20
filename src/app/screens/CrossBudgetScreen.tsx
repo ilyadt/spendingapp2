@@ -1,8 +1,7 @@
 import SpendingTable from '../components/SpendingTable/SpendingTable'
 import {dateISO, dateRangePlusItemSet} from '@/helpers/date'
 import {use, useEffect, useMemo, useRef} from "react";
-import useSpendingRowsByDate from "@/state/spendingRowsByDate.ts";
-import type {SpendingRow} from "@/models/models.ts";
+import useSpendingRowsByDate, { type SpendingsByDate } from "@/state/spendingRowsByDate.ts";
 import {BudgetsContext, SpendingsContext} from "@/models/contexts.ts";
 import { genRandInt } from '@/helpers/helper';
 
@@ -12,14 +11,19 @@ export function CrossBudgetScreen() {
 
   const budgets = Object.values(budgetsById)
 
-  const spRows: SpendingRow[] = []
-  for (const b of budgets) {
-    for (const sp of spendingsStore.spendingsByBudgetId(b.id)) {
-      spRows.push({rowId: genRandInt(), budgetId: b.id, ...sp})
-    }
-  }
+  const [spRowsByDate, setDateSpendingRows] = useSpendingRowsByDate(() => {
+    const result: SpendingsByDate = {}
 
-  const [spRowsByDate, setDateSpendingRows] = useSpendingRowsByDate(spRows)
+    for (const b of budgets) {
+      for (const sp of spendingsStore.spendingsByBudgetId(b.id)) {
+        const key = dateISO(sp.date)
+        result[key] ??= []
+        result[key].push({rowId: genRandInt(), budgetId: b.id, ...sp})
+      }
+    }
+
+    return result
+  })
 
   const budgetsDatesSorted = budgets
     .map(b => b.dateFrom)
