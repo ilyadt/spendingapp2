@@ -37,7 +37,7 @@ describe('dynamic_budgets', () => {
         currency: "RUB",
         dateFrom: new Date("2026-04-01"),
         dateTo: new Date("2026-04-22"),
-        params: {perDate: true},
+        params: {perDay: true},
         amountSpent: 0,
       },
     })
@@ -70,7 +70,7 @@ describe('dynamic_budgets', () => {
         dateFrom: new Date('2026-04-01'),
         dateTo: new Date("2026-04-22"),
         params: {
-          perDate: true,
+          perDay: true,
         },
         amountSpent: 0,
       },

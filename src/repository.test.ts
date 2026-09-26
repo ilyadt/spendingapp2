@@ -62,7 +62,7 @@ describe('storage_test', () => {
         currency: 'RUB',
         dateFrom: new Date('2025-09-01'),
         dateTo: new Date('2025-10-01'), // TODO: dateTo -> Date()
-        params: { key: 'val' },
+        params: {},
       },
       {
         id: 2,
