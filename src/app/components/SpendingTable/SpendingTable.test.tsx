@@ -71,9 +71,9 @@ describe('SpendingTable', async () => {
   )('empty-table/create-new-spending', async ({withinBudget}) => {
     const user = userEvent.setup()
 
-    const spActions = {
-      createSpending: vi.fn() as unknown
-    } as SpendingActions
+    const spActions: Partial<SpendingActions> = {
+      createSpending: vi.fn(),
+    }
 
     vi.spyOn(helper, 'genRandInt').mockReturnValue(777)
     vi.spyOn(helper, 'genVersion').mockReturnValue('v1-with-love')
@@ -91,7 +91,7 @@ describe('SpendingTable', async () => {
     }
 
     render(
-      <SpendingActionsContext value={spActions}>
+      <SpendingActionsContext value={spActions as SpendingActions}>
         <BudgetsContext value={budgetsById}>
           <SpendingTable
             date={new Date('2026-06-10')}
@@ -184,12 +184,12 @@ describe('SpendingTable', async () => {
       sort: 2,
     } as SpendingRow
 
-    const spActions = {
-      updateSpending: vi.fn() as unknown
-    } as SpendingActions
+    const spActions: Partial<SpendingActions> = {
+      updateSpending: vi.fn()
+    }
 
     render(
-      <SpendingActionsContext value={spActions}>
+      <SpendingActionsContext value={spActions as SpendingActions}>
         <BudgetsContext value={budgetsById}>
           <SpendingTable
             date={new Date('2026-06-10')}
@@ -325,10 +325,10 @@ describe('SpendingTable', async () => {
         updatedAt: new Date('2026-06-10T09:30:22Z'),
       }
 
-    const spActions = {updateSpending: vi.fn() as unknown} as SpendingActions
+    const spActions: Partial<SpendingActions> = {updateSpending: vi.fn()}
 
     render(
-      <SpendingActionsContext value={spActions}>
+      <SpendingActionsContext value={spActions as SpendingActions}>
         <BudgetsContext value={budgetsById}>
           <SpendingTable date={new Date('2026-06-10')} initSpendings={[sp1, sp2, sp3]} />
         </BudgetsContext>
