@@ -45,7 +45,7 @@ describe('storage_test', () => {
         money: fromRUB(50_000),
         dateFrom: '2025-09-01',
         dateTo: '2025-10-01',
-        params: { key: 'val' },
+        params: {},
       },
     ])
 

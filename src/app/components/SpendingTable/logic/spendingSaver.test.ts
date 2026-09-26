@@ -1,5 +1,5 @@
 import {it, expect, vi, afterEach, describe} from 'vitest'
-import type {Budget, DelSpending, Spending, SpendingRow} from "@/models/models.ts"
+import type {Budget, DelSpending, Spending, SpendingRow, UpdSpending} from "@/models/models.ts"
 import * as helper from '@/helpers/helper.ts'
 import {createSpendingSaver} from "./spendingSaver.ts";
 import {RUB} from "@/helpers/money.ts";
@@ -89,7 +89,7 @@ describe('spendingSaver', () => {
       updatedAt,
     )
 
-    const expRes = {
+    const expRes: UpdSpending = {
       id: "sp1",
       version: "v2",
       date: date,
@@ -106,7 +106,7 @@ describe('spendingSaver', () => {
         currency: "RUB",
         description: "moi",
       }
-    } satisfies Spending & Record<string, unknown>
+    }
 
     expect(result).toEqual(expRes)
 

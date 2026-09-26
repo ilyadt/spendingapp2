@@ -210,7 +210,7 @@ export const createUploader = (
         conflict: events.filter(e => conflictIds.includes(e.eventId)),
         errors: data?.errors ?? [],
       }
-    } catch (error: unknown) {
+    } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error))
       statusApi.setUpdateSpendingStatus(err.name + ' ' + err.message)
     }
