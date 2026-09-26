@@ -6,7 +6,7 @@ import type {StoreApi} from "zustand/vanilla";
 import type {ConflictVersionStore} from "@/stores/conflictVersions.ts";
 import type {SpendingActions} from "@/models/models.ts";
 
-export const BudgetsContext = createContext<BudgetsWithSpentById>({});
+export const BudgetsContext = createContext<BudgetsWithSpentById>(null as never);
 
 export const SpendingsContext = createContext<SpendingsStoreApi>(null as never);
 

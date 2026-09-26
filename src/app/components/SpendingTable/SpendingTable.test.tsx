@@ -38,7 +38,11 @@ describe('SpendingTable', async () => {
     const genRandIntMock = vi.spyOn(helper, 'genRandInt')
     genRandIntMock.mockReturnValue(888)
 
-    render(<SpendingTable date={new Date('2026-06-10')} initSpendings={[]} budget={withinBudget ? budget : undefined}/>)
+    render(
+      <BudgetsContext value={{}}>
+        <SpendingTable date={new Date('2026-06-10')} initSpendings={[]} budget={withinBudget ? budget : undefined}/>
+      </BudgetsContext>
+    )
 
     const user = userEvent.setup()
 
