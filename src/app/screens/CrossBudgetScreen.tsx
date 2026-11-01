@@ -25,13 +25,12 @@ export function CrossBudgetScreen() {
     return result
   })
 
-  const budgetsDatesSorted = budgets
-    .map(b => b.dateFrom)
-    .sort((a, b) => a.getTime() - b.getTime())
+  const minDateFrom = new Date(Math.min(...budgets.map(b => new Date(b.dateFrom).getTime())))
+  const maxDateTo = new Date(Math.max(...budgets.map(b => new Date(b.dateTo).getTime())))
 
   const dates = dateRangePlusItemSet(
-    budgetsDatesSorted.at(0)!,
-    budgetsDatesSorted.at(-1)!,
+    minDateFrom,
+    maxDateTo,
     new Set(Object.keys(spRowsByDate)),
   )
 
